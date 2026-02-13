@@ -1,0 +1,203 @@
+.container {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 0.75rem 0;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  line-height: 1.5;
+  margin: 0 0 1.5rem 0;
+}
+
+.uatBanner {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.form {
+  margin-bottom: 1.5rem;
+}
+
+.fieldGroup {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #03624C;
+}
+
+.input::placeholder {
+  color: #4F4F4F;
+}
+
+.postcodeRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.postcodeRow .input {
+  flex: 1;
+}
+
+.lookupButton {
+  padding: 0.875rem 1.25rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.lookupButton:hover:not(:disabled) {
+  background-color: #024a3a;
+}
+
+.lookupButton:disabled {
+  background-color: rgba(237, 237, 237, 1);
+  color: #4F4F4F;
+  cursor: not-allowed;
+}
+
+.select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  outline: none;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.select:focus {
+  border-color: #03624C;
+}
+
+.error {
+  padding: 0.75rem 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.noResults {
+  padding: 0.75rem 1rem;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  color: #4F4F4F;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.useAddressButton {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.useAddressButton:hover:not(:disabled) {
+  background-color: #024a3a;
+}
+
+.useAddressButton:disabled {
+  background-color: rgba(237, 237, 237, 1);
+  color: #4F4F4F;
+  cursor: not-allowed;
+}
+
+.selectedAddress {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #DAE7E6;
+  border-radius: 8px;
+}
+
+.selectedLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  margin-bottom: 0.25rem;
+}
+
+.selectedValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000000;
+}
+
+.continueButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.continueButton:hover:not(:disabled) {
+  background-color: #024a3a;
+}
+
+.continueButton:disabled {
+  background-color: rgba(237, 237, 237, 1);
+  color: #4F4F4F;
+  cursor: not-allowed;
+}

@@ -1,0 +1,137 @@
+.container {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 0.75rem 0;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  line-height: 1.5;
+  margin: 0 0 1.5rem 0;
+}
+
+.progressBar {
+  height: 4px;
+  background-color: rgba(237, 237, 237, 1);
+  border-radius: 2px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #9ECBA7;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.questionCard {
+  background-color: rgba(253, 253, 253, 1);
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.questionNumber {
+  display: block;
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  margin-bottom: 0.5rem;
+}
+
+.question {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.4;
+}
+
+.answerButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.answerButton {
+  flex: 1;
+  padding: 1rem;
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.answerButton:hover {
+  border-color: #03624C;
+}
+
+.answerButton.selected {
+  border-color: #03624C;
+  background-color: #DAE7E6;
+  color: #03624C;
+}
+
+.answeredQuestions {
+  margin-bottom: 1.5rem;
+}
+
+.answeredQuestion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(237, 237, 237, 1);
+}
+
+.answeredQuestion:last-child {
+  border-bottom: none;
+}
+
+.answeredText {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.answeredValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #03624C;
+}
+
+.continueButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.continueButton:hover:not(:disabled) {
+  background-color: #024a3a;
+}
+
+.continueButton:disabled {
+  background-color: rgba(237, 237, 237, 1);
+  color: #4F4F4F;
+  cursor: not-allowed;
+}

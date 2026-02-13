@@ -1,0 +1,231 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  color: #4F4F4F;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(237, 237, 237, 0.5);
+}
+
+.instructions {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.currentAddress {
+  background-color: rgba(237, 237, 237, 0.5);
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.addressLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  margin-bottom: 0.25rem;
+}
+
+.addressValue {
+  font-size: 0.875rem;
+  color: #000000;
+  font-weight: 500;
+}
+
+.mapContainer {
+  height: 350px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background-color: rgba(237, 237, 237, 0.5);
+}
+
+.noApiKey {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  color: #4F4F4F;
+}
+
+.noApiKey p {
+  margin: 0.5rem 0;
+}
+
+.coordinates {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #000000;
+}
+
+.customMarker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(0, -50%);
+}
+
+.markerPin {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #03624C, #024a3a);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.markerLabel {
+  background-color: #ffffff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #4F4F4F;
+  margin-top: 4px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.coordinatesDisplay {
+  background-color: rgba(237, 237, 237, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coordLabel {
+  font-size: 0.75rem;
+  color: #4F4F4F;
+}
+
+.coordValue {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #000000;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background-color: transparent;
+  color: #4F4F4F;
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: rgba(237, 237, 237, 0.5);
+  border-color: rgba(200, 200, 200, 1);
+}
+
+.confirmButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background-color: #024a3a;
+}
+
+.confirmButton:disabled {
+  background-color: rgba(237, 237, 237, 1);
+  color: #4F4F4F;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 1rem;
+    max-height: 95vh;
+  }
+
+  .mapContainer {
+    height: 280px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,119 @@
+.modalContent {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  text-align: center;
+}
+
+.calendarIcon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem;
+}
+
+.calendarIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 1.5rem 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.primaryButton {
+  padding: 1rem 2rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: 160px;
+}
+
+.primaryButton:hover {
+  background-color: #024a3a;
+}
+
+.secondaryButton {
+  padding: 1rem 2rem;
+  background-color: transparent;
+  color: #4F4F4F;
+  border: 1px solid #DAE7E6;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.secondaryButton:hover {
+  border-color: #03624C;
+  color: #03624C;
+}
+
+.helperText {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  margin: 0 0 1.5rem 0;
+}
+
+/* Callback Confirmation */
+.callbackConfirmation {
+  text-align: center;
+}
+
+.callbackIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+}
+
+.callbackIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.callbackMessage {
+  font-size: 1rem;
+  color: #4F4F4F;
+  margin: 0 0 0.5rem 0;
+}
+
+.phoneNumber {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #03624C;
+  margin: 0 0 1rem 0;
+}
+
+.callbackNote {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

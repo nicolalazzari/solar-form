@@ -1,0 +1,180 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: linear-gradient(180deg, #DAE7E6 0%, #FFFFFF 100%);
+  padding: 2rem;
+}
+
+.loaderArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 400px;
+}
+
+.logoContainer {
+  position: relative;
+  height: 60px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  max-height: 50px;
+  max-width: 200px;
+  object-fit: contain;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.projectSolarLogo {
+  position: absolute;
+}
+
+.fadeIn {
+  opacity: 1;
+}
+
+.fadeOut {
+  opacity: 0;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.partnershipText {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  margin: 0 0 1.5rem 0;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.progressContainer {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1.5rem;
+}
+
+.progressCircle {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progressBackground {
+  fill: none;
+  stroke: #DAE7E6;
+  stroke-width: 8;
+}
+
+.progressBar {
+  fill: none;
+  stroke: #03624C;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.1s ease-out;
+}
+
+.progressText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #03624C;
+}
+
+.headline {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 0.5rem 0;
+  min-height: 2.5rem;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.supportingText {
+  font-size: 1rem;
+  color: #4F4F4F;
+  margin: 0;
+  min-height: 1.5rem;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.trustSignals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #4F4F4F;
+}
+
+.trustIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #03624C;
+  flex-shrink: 0;
+}
+
+.trustIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .headline {
+    font-size: 1.25rem;
+  }
+
+  .supportingText {
+    font-size: 0.875rem;
+  }
+
+  .progressContainer {
+    width: 80px;
+    height: 80px;
+  }
+
+  .progressText {
+    font-size: 1rem;
+  }
+}

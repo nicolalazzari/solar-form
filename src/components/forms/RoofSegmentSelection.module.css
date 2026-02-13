@@ -1,0 +1,147 @@
+.container {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.segmentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.segmentCard {
+  background-color: #ffffff;
+  border: 2px solid rgba(237, 237, 237, 1);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.segmentCard:hover {
+  border-color: #03624C;
+  box-shadow: 0 4px 12px rgba(85, 191, 229, 0.15);
+}
+
+.segmentCard.selected {
+  border-color: #03624C;
+  background-color: #DAE7E6;
+}
+
+.segmentCard.northFacing {
+  border-style: dashed;
+}
+
+.segmentCard.northFacing:not(.selected) {
+  opacity: 0.7;
+}
+
+.segmentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.segmentNumber {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.checkmark {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #03624C;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.75rem;
+}
+
+.orientationRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.orientationBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 20px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: capitalize;
+}
+
+.directionDetail {
+  font-size: 0.75rem;
+  color: #4F4F4F;
+}
+
+.segmentDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  color: #4F4F4F;
+}
+
+.detailValue {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #000000;
+}
+
+.energyValue {
+  color: #03624C;
+  font-weight: 600;
+}
+
+.summary {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(237, 237, 237, 1);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.summaryRow:last-child {
+  margin-bottom: 0;
+}
+
+.summaryLabel {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+}
+
+.summaryValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.summaryValue.energyValue {
+  color: #03624C;
+}

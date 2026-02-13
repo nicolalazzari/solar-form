@@ -1,0 +1,87 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  margin: 1rem 0;
+}
+
+.icon {
+  flex-shrink: 0;
+  color: #856404;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: #856404;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.message strong {
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.yesButton {
+  padding: 0.5rem 1rem;
+  background-color: #ffc107;
+  color: #856404;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.yesButton:hover {
+  background-color: #e0a800;
+}
+
+.noButton {
+  padding: 0.5rem 1rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.noButton:hover {
+  background-color: #024a3a;
+}
+
+@media (max-width: 540px) {
+  .container {
+    flex-wrap: wrap;
+  }
+
+  .message {
+    flex-basis: calc(100% - 36px);
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+}

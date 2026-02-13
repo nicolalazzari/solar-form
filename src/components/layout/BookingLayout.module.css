@@ -1,0 +1,30 @@
+.iframeContent {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: #4F4F4F;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+  transition: color 0.2s ease;
+}
+
+.backButton:hover {
+  color: #000000;
+}
+
+.backIcon {
+  font-size: 1rem;
+}
+
+.content {
+  /* Content area for page components */
+}

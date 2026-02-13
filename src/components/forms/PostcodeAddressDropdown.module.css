@@ -1,0 +1,129 @@
+.container {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+
+.inputGroup {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.input {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  text-transform: uppercase;
+}
+
+.input:focus {
+  border-color: #55bfe5;
+}
+
+.input::placeholder {
+  text-transform: none;
+  color: #4F4F4F;
+}
+
+.findButton {
+  padding: 0.875rem 1.5rem;
+  background-color: #03624C;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.findButton:hover:not(:disabled) {
+  background-color: #024a3a;
+}
+
+.findButton:disabled {
+  background-color: rgba(237, 237, 237, 1);
+  color: #4F4F4F;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #e53935;
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.dropdown {
+  margin-top: 1rem;
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dropdownHeader {
+  padding: 0.75rem 1rem;
+  margin: 0;
+  background-color: rgba(237, 237, 237, 0.5);
+  font-size: 0.875rem;
+  color: #4F4F4F;
+}
+
+.addressList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.addressOption {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: none;
+  border: none;
+  border-top: 1px solid rgba(237, 237, 237, 1);
+  text-align: left;
+  font-size: 0.875rem;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.addressOption:hover {
+  background-color: rgba(85, 191, 229, 0.1);
+}
+
+.selectedAddress {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #DAE7E6;
+  border-radius: 8px;
+}
+
+.selectedLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  margin-bottom: 0.25rem;
+}
+
+.selectedValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000000;
+}
