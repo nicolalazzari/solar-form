@@ -76,15 +76,15 @@ export default function ConfirmationPage() {
         timeOnPage: timeOnPageSec,
         totalJourneyTime: journeyTimeSec,
         journeyTime: journeyTimeSec,
-        // Solar data (scalars only)
+        // Solar data (scalars only — use String() so 0 survives || checks in deployed function)
         totalPanelCount: bookingData.totalPanelCount || 0,
         totalEstimatedEnergy: bookingData.totalEstimatedEnergy || 0,
         estimatedAnnualSavings: bookingData.estimatedAnnualSavings || 0,
         imageryQuality: bookingData.imageryQuality || '',
         imageryDate: bookingData.imageryDate || '',
-        carbonOffset: bookingData.carbonOffset || 0,
-        solarRoofArea: bookingData.solarRoofArea || 0,
-        sunExposureHours: bookingData.sunExposureHours || 0,
+        carbonOffset: bookingData.carbonOffset ?? 0,
+        solarRoofArea: bookingData.solarRoofArea ?? 0,
+        sunExposureHours: bookingData.sunExposureHours ?? 0,
         roofSpaceOver10m2: bookingData.roofSpaceOver10m2 ? 'Yes' : 'No',
         selectedSegmentsCount: Array.isArray(bookingData.selectedSegments) ? bookingData.selectedSegments.length : 0,
         // Eligibility (both boolean and string for compatibility)
@@ -92,8 +92,9 @@ export default function ConfirmationPage() {
         roofWorksPlanned: bookingData.roofWorksPlanned,
         incomeOver15k: bookingData.incomeOver15k,
         likelyToPassCreditCheck: bookingData.likelyToPassCreditCheck,
-        // Slot (flat scalars only - objects break Sheets write)
+        // Slot (flat scalars only — objects break Sheets write)
         bookingId: bookingData.selectedSlot?.startTime || '',
+        bookingReference: bookingData.selectedSlot?.startTime || '',
         selectedSlotStart: bookingData.selectedSlot?.startTime || '',
         selectedSlotEnd: bookingData.selectedSlot?.endTime || '',
       };

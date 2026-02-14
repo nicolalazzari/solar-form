@@ -36,9 +36,14 @@ function calcSelectedSegmentsCount(segments: unknown): string {
   return '';
 }
 
-function calcAppointmentWithin5Days(selectedSlot: unknown): string {
-  if (!selectedSlot || typeof selectedSlot !== 'object') return '';
-  const startTime = (selectedSlot as Data).startTime;
+function calcAppointmentWithin5Days(data: Data): string {
+  // Support both object (selectedSlot.startTime) and flat field (selectedSlotStart)
+  let startTime: string | undefined;
+  if (data.selectedSlot && typeof data.selectedSlot === 'object') {
+    startTime = (data.selectedSlot as Data).startTime;
+  } else {
+    startTime = data.selectedSlotStart;
+  }
   if (!startTime) return '';
   const slotDate = new Date(startTime).getTime();
   if (isNaN(slotDate)) return '';
@@ -55,21 +60,21 @@ export function mapToSheet1Row(data: Data): unknown[] {
     /* A  Submission Timestamp       */ new Date().toISOString(),
     /* B  First Name                 */ data.firstName || '',
     /* C  Last Name                  */ data.lastName || '',
-    /* D  Email                      */ data.emailAddress || '',
-    /* E  Phone                      */ data.phoneNumber || '',
+    /* D  Email                      */ data.emailAddress || data.email || '',
+    /* E  Phone                      */ data.phoneNumber || data.phone || '',
     /* F  Postcode                   */ data.postcode || '',
-    /* G  Full Address               */ data.fullAddress || '',
-    /* H  Project Solar Booking ID   */ data.bookingReference || '',
+    /* G  Full Address               */ data.fullAddress || data.address || '',
+    /* H  Project Solar Booking ID   */ data.bookingReference || data.bookingId || '',
     /* I  Homeowner                  */ '',
-    /* J  Roof Space ≥10m²           */ '',
-    /* K  Solar Roof Area            */ data.solarRoofArea || '',
-    /* L  Sun Exposure Hours/Year    */ data.sunExposureHours || '',
+    /* J  Roof Space ≥10m²           */ data.roofSpaceOver10m2 || '',
+    /* K  Solar Roof Area            */ data.solarRoofArea ?? '',
+    /* L  Sun Exposure Hours/Year    */ data.sunExposureHours ?? '',
     /* M  Already Have Solar         */ '',
     /* N  Aged over 75               */ boolToYesNo(data.isOver75),
     /* O  Conservation/Listed        */ '',
     /* P  Roof Works Planned         */ boolToYesNo(data.roofWorksPlanned),
     /* Q  Income >£15K               */ boolToYesNo(data.incomeOver15k),
-    /* R  Appointment Within 5 Days  */ calcAppointmentWithin5Days(data.selectedSlot),
+    /* R  Appointment Within 5 Days  */ calcAppointmentWithin5Days(data),
     /* S  Likely to pass credit check*/ boolToYesNo(data.likelyToPassCreditCheck),
     /* T  Lead Status                */ data.leadStatus || data.journeyStatus || '',
     /* U  Property Type              */ '',
@@ -79,8 +84,8 @@ export function mapToSheet1Row(data: Data): unknown[] {
     /* Y  Current Page               */ data.currentPage || '',
     /* Z  Action                     */ data.action || '',
     /* AA Journey Status             */ data.journeyStatus || '',
-    /* AB Time on Page (s)           */ calcTimeOnPage(data.pageEnteredAt),
-    /* AC Total Journey Time (s)     */ calcTotalJourneyTime(data.journeyStartTime),
+    /* AB Time on Page (s)           */ data.timeOnPage ?? calcTimeOnPage(data.pageEnteredAt),
+    /* AC Total Journey Time (s)     */ data.totalJourneyTime ?? calcTotalJourneyTime(data.journeyStartTime),
     /* AD Last Action                */ data.lastAction || '',
     /* AE Last Action Page           */ data.lastActionPage || '',
     /* AF Total Panel Count          */ data.totalPanelCount ?? '',
@@ -88,7 +93,7 @@ export function mapToSheet1Row(data: Data): unknown[] {
     /* AH Estimated Annual Savings   */ data.estimatedAnnualSavings ?? '',
     /* AI Imagery Quality            */ data.imageryQuality || '',
     /* AJ Imagery Date               */ data.imageryDate || '',
-    /* AK Selected Segments Count    */ calcSelectedSegmentsCount(data.selectedSegments),
+    /* AK Selected Segments Count    */ calcSelectedSegmentsCount(data.selectedSegments ?? data.selectedSegmentsCount),
     /* AL Carbon Offset (kg/year)    */ data.carbonOffset ?? '',
     /* AM Submission ID              */ data.submissionId || '',
   ];
