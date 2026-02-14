@@ -58,6 +58,57 @@ export function InactivityProvider({ children }) {
     });
   }, []);
 
+  // Build a clean payload with all fields for edge functions
+  const buildPayload = useCallback((data, overrides = {}) => {
+    const journeyTimeSec = data.journeyStartTime
+      ? Math.round((Date.now() - new Date(data.journeyStartTime).getTime()) / 1000)
+      : 0;
+    const timeOnPageSec = data.pageEnteredAt
+      ? Math.round((Date.now() - new Date(data.pageEnteredAt).getTime()) / 1000)
+      : 0;
+
+    return {
+      firstName: data.firstName || '',
+      lastName: data.lastName || '',
+      emailAddress: data.emailAddress || '',
+      email: data.emailAddress || '',
+      phoneNumber: data.phoneNumber || '',
+      phone: data.phoneNumber || '',
+      postcode: data.postcode || '',
+      fullAddress: data.fullAddress || '',
+      address: data.fullAddress || '',
+      sessionId: data.sessionId || '',
+      currentPage: data.currentPage || '',
+      journeyStatus: data.journeyStatus || '',
+      journeyStartTime: data.journeyStartTime || '',
+      pageEnteredAt: data.pageEnteredAt || '',
+      lastAction: data.lastAction || '',
+      lastActionPage: data.lastActionPage || '',
+      submissionId: data.submissionId || '',
+      timeOnPage: timeOnPageSec,
+      totalJourneyTime: journeyTimeSec,
+      journeyTime: journeyTimeSec,
+      totalPanelCount: data.totalPanelCount || 0,
+      totalEstimatedEnergy: data.totalEstimatedEnergy || 0,
+      estimatedAnnualSavings: data.estimatedAnnualSavings || 0,
+      imageryQuality: data.imageryQuality || '',
+      imageryDate: data.imageryDate || '',
+      carbonOffset: data.carbonOffset || 0,
+      solarRoofArea: data.solarRoofArea || 0,
+      sunExposureHours: data.sunExposureHours || 0,
+      roofSpaceOver10m2: data.roofSpaceOver10m2 ? 'Yes' : 'No',
+      selectedSegmentsCount: Array.isArray(data.selectedSegments) ? data.selectedSegments.length : 0,
+      isOver75: data.isOver75,
+      roofWorksPlanned: data.roofWorksPlanned,
+      incomeOver15k: data.incomeOver15k,
+      likelyToPassCreditCheck: data.likelyToPassCreditCheck,
+      bookingId: data.selectedSlot?.startTime || '',
+      selectedSlotStart: data.selectedSlot?.startTime || '',
+      selectedSlotEnd: data.selectedSlot?.endTime || '',
+      ...overrides,
+    };
+  }, []);
+
   const logExit = useCallback((reason) => {
     const data = bookingDataRef.current;
 
@@ -68,40 +119,31 @@ export function InactivityProvider({ children }) {
 
     hasLoggedExitRef.current = true;
 
-    const payload = {
-      ...data,
+    fireAndForget('log-exit', buildPayload(data, {
       exitReason: reason,
       exitTimestamp: new Date().toISOString(),
-    };
-
-    fireAndForget('log-exit', payload);
-  }, [fireAndForget]);
+    }));
+  }, [fireAndForget, buildPayload]);
 
   const logInteraction = useCallback((action) => {
     const data = bookingDataRef.current;
     if (!data.sessionId) return;
 
-    const payload = {
-      ...data,
+    fireAndForget('log-interaction', buildPayload(data, {
       action,
       actionTimestamp: new Date().toISOString(),
-    };
-
-    fireAndForget('log-interaction', payload);
-  }, [fireAndForget]);
+    }));
+  }, [fireAndForget, buildPayload]);
 
   const submitBookingAsCallback = useCallback(() => {
     const data = bookingDataRef.current;
     if (!data.sessionId) return;
 
-    const payload = {
-      ...data,
+    fireAndForget('submit-booking', buildPayload(data, {
       action: 'session_expired',
       leadStatus: 'callback_required',
-    };
-
-    fireAndForget('submit-booking', payload);
-  }, [fireAndForget]);
+    }));
+  }, [fireAndForget, buildPayload]);
 
   // --- Timer management ---
 

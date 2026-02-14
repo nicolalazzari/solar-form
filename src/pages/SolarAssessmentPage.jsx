@@ -453,6 +453,12 @@ export default function SolarAssessmentPage() {
     const totalPanelCount = selected.reduce((sum, s) => sum + getPanelCount(s), 0);
     const totalEstimatedEnergy = selected.reduce((sum, s) => sum + (s.estimatedEnergy ?? 0), 0);
 
+    // Calculate usable roof area from selected segments
+    const usableRoofArea = selected.reduce((sum, s) => sum + (s.area ?? 0), 0);
+    // Carbon offset: energy (kWh) * factor (kg/MWh) / 1000
+    const carbonOffsetFactor = solarData.carbonOffset || 400;
+    const carbonOffsetKg = Math.round(totalEstimatedEnergy * carbonOffsetFactor / 1000);
+
     // Use the calculated savings from state
     setSolarAssessmentData({
       roofSegments: solarData.segments,
@@ -463,7 +469,10 @@ export default function SolarAssessmentPage() {
       imageryQuality: solarData.imageryQuality,
       imageryDate: solarData.imageryDate,
       imageryProcessedDate: solarData.imageryProcessedDate,
-      carbonOffset: totalEstimatedEnergy * 0.4,
+      carbonOffset: carbonOffsetKg,
+      solarRoofArea: Math.round(usableRoofArea * 10) / 10,
+      sunExposureHours: solarPotential.avgSunHours,
+      roofSpaceOver10m2: solarData.totalRoofArea >= 10,
     });
 
     updateBookingData({

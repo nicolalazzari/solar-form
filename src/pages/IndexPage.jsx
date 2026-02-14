@@ -13,16 +13,32 @@ export default function IndexPage() {
     // Initialize session and capture data from MVF data layer
     initializeSession();
 
-    // Get user data from MVF data layer (window.dataLayer)
-    if (typeof window !== 'undefined' && window.dataLayer) {
+    // Get user data from MVF/Chameleon data layer (window.dataLayer)
+    // Field names use dataLayer.answers[field_name] format
+    // TODO: Update field names once confirmed by Team Gold
+    if (typeof window !== 'undefined' && window.dataLayer?.answers) {
+      const answers = window.dataLayer.answers;
       const userData = {
-        firstName: window.dataLayer.firstName || '',
-        lastName: window.dataLayer.lastName || '',
-        postcode: window.dataLayer.postcode || '',
-        phoneNumber: window.dataLayer.phoneNumber || '',
-        emailAddress: window.dataLayer.emailAddress || '',
+        firstName: answers['first_name'] || '',
+        lastName: answers['last_name'] || '',
+        postcode: answers['primary_address_postalcode'] || '',
+        phoneNumber: answers['phone_number'] || '',
+        emailAddress: answers['email_address'] || '',
       };
       setUserData(userData);
+
+      updateBookingData({
+        submissionId: window.dataLayer.submissionId || window.dataLayer.submission_id || '',
+      });
+    } else if (import.meta.env.DEV) {
+      // Dev fallback: populate test data when no Chameleon data layer exists
+      setUserData({
+        firstName: 'Test',
+        lastName: 'User',
+        postcode: '',
+        phoneNumber: '07700900000',
+        emailAddress: 'test@example.com',
+      });
     }
 
     updateBookingData({

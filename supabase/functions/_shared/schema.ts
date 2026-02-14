@@ -22,6 +22,14 @@ function calcTotalJourneyTime(journeyStartTime: string | null): string {
   return String(seconds);
 }
 
+function calcTimeOnPage(pageEnteredAt: string | null): string {
+  if (!pageEnteredAt) return '';
+  const entered = new Date(pageEnteredAt).getTime();
+  if (isNaN(entered)) return '';
+  const seconds = Math.round((Date.now() - entered) / 1000);
+  return String(seconds);
+}
+
 function calcSelectedSegmentsCount(segments: unknown): string {
   if (Array.isArray(segments)) return String(segments.length);
   if (typeof segments === 'number') return String(segments);
@@ -71,7 +79,7 @@ export function mapToSheet1Row(data: Data): unknown[] {
     /* Y  Current Page               */ data.currentPage || '',
     /* Z  Action                     */ data.action || '',
     /* AA Journey Status             */ data.journeyStatus || '',
-    /* AB Time on Page (s)           */ '',
+    /* AB Time on Page (s)           */ calcTimeOnPage(data.pageEnteredAt),
     /* AC Total Journey Time (s)     */ calcTotalJourneyTime(data.journeyStartTime),
     /* AD Last Action                */ data.lastAction || '',
     /* AE Last Action Page           */ data.lastActionPage || '',

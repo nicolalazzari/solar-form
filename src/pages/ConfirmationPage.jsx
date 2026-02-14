@@ -44,16 +44,67 @@ export default function ConfirmationPage() {
         return;
       }
 
+      // Build a clean flat payload with only scalar values for the edge function
+      const journeyTimeSec = bookingData.journeyStartTime
+        ? Math.round((Date.now() - new Date(bookingData.journeyStartTime).getTime()) / 1000)
+        : 0;
+      const timeOnPageSec = bookingData.pageEnteredAt
+        ? Math.round((Date.now() - new Date(bookingData.pageEnteredAt).getTime()) / 1000)
+        : 0;
+
+      const payload = {
+        firstName: bookingData.firstName || '',
+        lastName: bookingData.lastName || '',
+        emailAddress: bookingData.emailAddress || '',
+        email: bookingData.emailAddress || '',
+        phoneNumber: bookingData.phoneNumber || '',
+        phone: bookingData.phoneNumber || '',
+        postcode: bookingData.postcode || '',
+        fullAddress: bookingData.fullAddress || '',
+        address: bookingData.fullAddress || '',
+        sessionId: bookingData.sessionId || '',
+        currentPage: bookingData.currentPage || '',
+        journeyStatus: bookingData.journeyStatus || '',
+        journeyStartTime: bookingData.journeyStartTime || '',
+        pageEnteredAt: bookingData.pageEnteredAt || '',
+        lastAction: bookingData.lastAction || '',
+        lastActionPage: bookingData.lastActionPage || '',
+        submissionId: bookingData.submissionId || '',
+        action: 'booking_confirmed',
+        leadStatus: 'Booked',
+        // Pre-calculated time values
+        timeOnPage: timeOnPageSec,
+        totalJourneyTime: journeyTimeSec,
+        journeyTime: journeyTimeSec,
+        // Solar data (scalars only)
+        totalPanelCount: bookingData.totalPanelCount || 0,
+        totalEstimatedEnergy: bookingData.totalEstimatedEnergy || 0,
+        estimatedAnnualSavings: bookingData.estimatedAnnualSavings || 0,
+        imageryQuality: bookingData.imageryQuality || '',
+        imageryDate: bookingData.imageryDate || '',
+        carbonOffset: bookingData.carbonOffset || 0,
+        solarRoofArea: bookingData.solarRoofArea || 0,
+        sunExposureHours: bookingData.sunExposureHours || 0,
+        roofSpaceOver10m2: bookingData.roofSpaceOver10m2 ? 'Yes' : 'No',
+        selectedSegmentsCount: Array.isArray(bookingData.selectedSegments) ? bookingData.selectedSegments.length : 0,
+        // Eligibility (both boolean and string for compatibility)
+        isOver75: bookingData.isOver75,
+        roofWorksPlanned: bookingData.roofWorksPlanned,
+        incomeOver15k: bookingData.incomeOver15k,
+        likelyToPassCreditCheck: bookingData.likelyToPassCreditCheck,
+        // Slot (flat scalars only - objects break Sheets write)
+        bookingId: bookingData.selectedSlot?.startTime || '',
+        selectedSlotStart: bookingData.selectedSlot?.startTime || '',
+        selectedSlotEnd: bookingData.selectedSlot?.endTime || '',
+      };
+
       const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${config.supabaseAnonKey}`,
         },
-        body: JSON.stringify({
-          ...bookingData,
-          action: 'booking_confirmed',
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -61,11 +112,13 @@ export default function ConfirmationPage() {
       }
 
       const data = await response.json();
-      setBookingReference(data.bookingReference);
+      const ref = data.bookingReference || '';
+      setBookingReference(ref);
       setBookingConfirmed(true);
 
-      confirmBooking(data.bookingReference);
+      confirmBooking(ref);
     } catch (err) {
+      console.error('Booking submission failed:', err);
       // If booking fails, show callback required
       updateBookingData({ journeyStatus: 'callback_required' });
     } finally {

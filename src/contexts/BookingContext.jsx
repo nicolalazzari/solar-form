@@ -31,6 +31,9 @@ export function BookingProvider({ children }) {
     imageryProcessedDate: '',
     roofChangedSinceImagery: null,
     carbonOffset: 0,
+    solarRoofArea: 0,
+    sunExposureHours: 0,
+    roofSpaceOver10m2: false,
 
     // Eligibility data
     isOver75: null,
@@ -42,9 +45,13 @@ export function BookingProvider({ children }) {
     selectedSlot: null,
     bookingReference: '',
 
+    // Chameleon form submission
+    submissionId: '',
+
     // Session data
     sessionId: '',
     journeyStartTime: null,
+    pageEnteredAt: null,
     lastAction: '',
     lastActionPage: '',
     currentPage: '/',
@@ -65,6 +72,10 @@ export function BookingProvider({ children }) {
       ...updates,
       lastAction: updates.lastAction || prev.lastAction,
       lastActionPage: updates.lastActionPage || prev.lastActionPage,
+      // Track when user enters a new page
+      ...(updates.currentPage && updates.currentPage !== prev.currentPage
+        ? { pageEnteredAt: new Date().toISOString() }
+        : {}),
     }));
   }, []);
 
@@ -113,6 +124,9 @@ export function BookingProvider({ children }) {
       imageryDate: solarData.imageryDate,
       imageryProcessedDate: solarData.imageryProcessedDate || '',
       carbonOffset: solarData.carbonOffset,
+      solarRoofArea: solarData.solarRoofArea || 0,
+      sunExposureHours: solarData.sunExposureHours || 0,
+      roofSpaceOver10m2: solarData.roofSpaceOver10m2 || false,
       lastAction: 'solar_assessment_completed',
       lastActionPage: '/solar-assessment',
     });
