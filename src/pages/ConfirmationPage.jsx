@@ -87,11 +87,15 @@ export default function ConfirmationPage() {
         sunExposureHours: bookingData.sunExposureHours ?? 0,
         roofSpaceOver10m2: bookingData.roofSpaceOver10m2 ? 'Yes' : 'No',
         selectedSegmentsCount: Array.isArray(bookingData.selectedSegments) ? bookingData.selectedSegments.length : 0,
-        // Eligibility (both boolean and string for compatibility)
+        // Eligibility (send both boolean and string versions for deployed function compatibility)
         isOver75: bookingData.isOver75,
+        ageOver75: bookingData.isOver75 === true ? 'Yes' : bookingData.isOver75 === false ? 'No' : '',
         roofWorksPlanned: bookingData.roofWorksPlanned,
+        roofWorks: bookingData.roofWorksPlanned === true ? 'Yes' : bookingData.roofWorksPlanned === false ? 'No' : '',
         incomeOver15k: bookingData.incomeOver15k,
+        income: bookingData.incomeOver15k === true ? 'Yes' : bookingData.incomeOver15k === false ? 'No' : '',
         likelyToPassCreditCheck: bookingData.likelyToPassCreditCheck,
+        creditCheck: bookingData.likelyToPassCreditCheck === true ? 'Yes' : bookingData.likelyToPassCreditCheck === false ? 'No' : '',
         // Slot (flat scalars only — objects break Sheets write)
         bookingId: bookingData.selectedSlot?.startTime || '',
         bookingReference: bookingData.selectedSlot?.startTime || '',
