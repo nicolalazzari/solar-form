@@ -103,6 +103,17 @@ export default function ConfirmationPage() {
         selectedSlotEnd: bookingData.selectedSlot?.endTime || '',
       };
 
+      console.log('[DEBUG] Eligibility fields being sent:', {
+        isOver75: payload.isOver75,
+        ageOver75: payload.ageOver75,
+        roofWorksPlanned: payload.roofWorksPlanned,
+        roofWorks: payload.roofWorks,
+        incomeOver15k: payload.incomeOver15k,
+        income: payload.income,
+        likelyToPassCreditCheck: payload.likelyToPassCreditCheck,
+        creditCheck: payload.creditCheck,
+      });
+
       const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
         method: 'POST',
         headers: {
@@ -117,6 +128,7 @@ export default function ConfirmationPage() {
       }
 
       const data = await response.json();
+      console.log('[DEBUG] API response:', data);
       const ref = data.bookingReference || '';
       setBookingReference(ref);
       setBookingConfirmed(true);
