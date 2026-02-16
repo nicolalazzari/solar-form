@@ -28,10 +28,18 @@ Deno.serve(async (req) => {
       receivedBookingReference: data.bookingReference,
     });
 
-    const row = mapToSheet1Row({
+    const enrichedData = {
       ...data,
       bookingReference: bookingReference || data.bookingReference || '',
       leadStatus: data.leadStatus || data.journeyStatus || '',
+    };
+
+    const row = mapToSheet1Row(enrichedData);
+
+    console.log('[DEBUG] Sheet row (columns H, K, AL):', {
+      H_bookingRef: row[7],
+      K_solarRoofArea: row[10],
+      AL_carbonOffset: row[36],
     });
 
     await appendRow('Sheet1', row);
