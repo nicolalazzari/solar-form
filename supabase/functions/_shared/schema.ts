@@ -80,7 +80,7 @@ export function mapToSheet1Row(data: Data): unknown[] {
     /* U  Property Type              */ '',
     /* V  Bedrooms                   */ '',
     /* W  Property Usage             */ '',
-    /* X  Session ID                 */ data.sessionId || '',
+    /* X  Submission ID              */ data.submissionId || '',
     /* Y  Current Page               */ data.currentPage || '',
     /* Z  Action                     */ data.action || '',
     /* AA Journey Status             */ data.journeyStatus || '',
@@ -95,7 +95,7 @@ export function mapToSheet1Row(data: Data): unknown[] {
     /* AJ Imagery Date               */ data.imageryDate || '',
     /* AK Selected Segments Count    */ calcSelectedSegmentsCount(data.selectedSegments ?? data.selectedSegmentsCount),
     /* AL Carbon Offset (kg/year)    */ (data.carbonOffset !== null && data.carbonOffset !== undefined ? String(data.carbonOffset) : ''),
-    /* AM Submission ID              */ data.submissionId || '',
+    /* AM Session ID                 */ data.sessionId || '',
   ];
 }
 
