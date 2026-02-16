@@ -21,6 +21,13 @@ Deno.serve(async (req) => {
       bookingReference = generateBookingReference();
     }
 
+    console.log('[DEBUG] submit-booking:', {
+      action: data.action,
+      generatedRef: bookingReference,
+      receivedBookingId: data.bookingId,
+      receivedBookingReference: data.bookingReference,
+    });
+
     const row = mapToSheet1Row({
       ...data,
       bookingReference: bookingReference || data.bookingReference || '',
