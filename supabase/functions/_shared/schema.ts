@@ -2,7 +2,7 @@
  * Column mapping functions for Google Sheets.
  *
  * Sheet1 (Main Leads): 39 columns
- * Interactions tab: 14 columns
+ * Interactions tab: 15 columns
  */
 
 // deno-lint-ignore no-explicit-any
@@ -100,7 +100,7 @@ export function mapToSheet1Row(data: Data): unknown[] {
 }
 
 /**
- * Maps frontend payload to a 14-element array
+ * Maps frontend payload to a 15-element array
  * matching the Interactions tab column order.
  */
 export function mapToInteractionsRow(data: Data): unknown[] {
@@ -108,16 +108,17 @@ export function mapToInteractionsRow(data: Data): unknown[] {
     /* A  Timestamp          */ new Date().toISOString(),
     /* B  Session ID         */ data.sessionId || '',
     /* C  First Name         */ data.firstName || '',
-    /* D  Last Name          */ data.lastName || '',
+    /* D  Last name          */ data.lastName || '',
     /* E  Email              */ data.emailAddress || '',
     /* F  Phone              */ data.phoneNumber || '',
     /* G  Postcode           */ data.postcode || '',
-    /* H  Action             */ data.action || data.exitReason || '',
-    /* I  Current Page       */ data.currentPage || '',
+    /* H  Current Page       */ data.currentPage || '',
+    /* I  Action             */ data.action || data.exitReason || '',
     /* J  Journey Status     */ data.journeyStatus || '',
-    /* K  Last Action        */ data.lastAction || '',
-    /* L  Last Action Page   */ data.lastActionPage || '',
-    /* M  Total Journey Time */ calcTotalJourneyTime(data.journeyStartTime),
-    /* N  Submission ID      */ data.submissionId || '',
+    /* K  Time on Page       */ data.timeOnPage ?? calcTimeOnPage(data.pageEnteredAt),
+    /* L  Journey time       */ calcTotalJourneyTime(data.journeyStartTime),
+    /* M  Last Action        */ data.lastAction || '',
+    /* N  Last Action Page   */ data.lastActionPage || '',
+    /* O  Submission ID      */ data.submissionId || '',
   ];
 }
