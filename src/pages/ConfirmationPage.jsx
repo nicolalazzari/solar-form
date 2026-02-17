@@ -114,26 +114,83 @@ export default function ConfirmationPage() {
         creditCheck: payload.creditCheck,
       });
 
-      const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
+      // Step 1: Book appointment with Project Solar API
+      const formatBookingDate = (isoString) => {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}-${month}-${year} ${hours}:${minutes}`;
+      };
+
+      const projectSolarPayload = {
+        firstname: bookingData.firstName || '',
+        lastname: bookingData.lastName || '',
+        email: bookingData.emailAddress || '',
+        mobile: bookingData.phoneNumber || '',
+        postcode: bookingData.postcode || '',
+        addressLine: bookingData.fullAddress || '',
+        bookingDate: formatBookingDate(bookingData.selectedSlot?.startTime),
+        providerLeadId: bookingData.submissionId || '',
+      };
+
+      console.log('[DEBUG] Booking with Project Solar:', projectSolarPayload);
+
+      const bookingResponse = await fetch(`${config.projectSolarApiUrl}/book-appointment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.supabaseAnonKey}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(projectSolarPayload),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to confirm booking');
+      if (!bookingResponse.ok) {
+        const errorData = await bookingResponse.json().catch(() => ({}));
+        console.error('[ERROR] Project Solar booking failed:', errorData);
+        throw new Error(errorData.error || 'Failed to book appointment with Project Solar');
       }
 
-      const data = await response.json();
-      console.log('[DEBUG] API response:', data);
-      const ref = data.bookingReference || '';
-      setBookingReference(ref);
-      setBookingConfirmed(true);
+      const bookingResult = await bookingResponse.json();
+      console.log('[DEBUG] Project Solar booking success:', bookingResult);
 
-      confirmBooking(ref);
+      // Step 2: Log booking to Google Sheets
+      let generatedRef = '';
+      try {
+        const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.supabaseAnonKey}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('[DEBUG] Google Sheets log response:', data);
+          generatedRef = data.bookingReference || '';
+        } else {
+          console.error('[WARN] Google Sheets logging failed, but booking succeeded');
+          // Generate a reference anyway since booking succeeded
+          const year = new Date().getFullYear();
+          const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+          generatedRef = `PS-${year}-${random}`;
+        }
+      } catch (sheetsError) {
+        console.error('[WARN] Google Sheets logging error:', sheetsError);
+        // Generate a reference anyway since booking succeeded
+        const year = new Date().getFullYear();
+        const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+        generatedRef = `PS-${year}-${random}`;
+      }
+
+      // Show booking confirmation (Project Solar booking succeeded)
+      setBookingReference(generatedRef);
+      setBookingConfirmed(true);
+      confirmBooking(generatedRef);
     } catch (err) {
       console.error('Booking submission failed:', err);
       // If booking fails, show callback required
