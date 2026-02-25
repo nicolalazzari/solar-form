@@ -2,6 +2,29 @@
   font-family: 'Be Vietnam Pro', sans-serif;
 }
 
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: #4F4F4F;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+  transition: color 0.2s ease;
+}
+
+.backButton:hover {
+  color: #000000;
+}
+
+.backIcon {
+  font-size: 1rem;
+}
+
 .title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -46,12 +69,71 @@
   margin-bottom: 0.5rem;
 }
 
+.questionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
 .question {
   font-size: 1.125rem;
   font-weight: 600;
   color: #000000;
-  margin: 0 0 1.25rem 0;
+  margin: 0;
   line-height: 1.4;
+  flex: 1;
+}
+
+.questionTooltipWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.questionInfoButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #4F4F4F;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.questionInfoButton:hover {
+  color: #03624C;
+}
+
+.questionTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  border: 1px solid #DAE7E6;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  line-height: 1.5;
+  z-index: 100;
+}
+
+.questionTooltip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 16px;
+  width: 10px;
+  height: 10px;
+  background-color: #ffffff;
+  border-left: 1px solid #DAE7E6;
+  border-top: 1px solid #DAE7E6;
+  transform: rotate(45deg);
 }
 
 .answerButtons {

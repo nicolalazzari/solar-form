@@ -79,7 +79,7 @@ export default function IndexPage() {
           <h2 className={styles.modalTitle}>Would you like to book an appointment online?</h2>
 
           <p className={styles.helperText}>
-            We'll ask a few quick questions to check your property is suitable.
+            We'll ask you a few more quick questions & you can book directly with <strong>Project Solar</strong>.
           </p>
 
           <div className={styles.actions}>
@@ -91,13 +91,18 @@ export default function IndexPage() {
               Yes, book online
             </button>
 
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={handleNoThanks}
-            >
-              No thank you
-            </button>
+            <div className={styles.noThanksBlock}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={handleNoThanks}
+              >
+                No, thank you
+              </button>
+              <p className={styles.noThanksSubtext}>
+                A member of our team will be in touch shortly to book an appointment
+              </p>
+            </div>
           </div>
         </>
       ) : (
@@ -116,7 +121,7 @@ export default function IndexPage() {
             </svg>
           </div>
           <p className={styles.callbackMessage}>
-            You'll receive a call in the next 10 minutes from
+            A member of our team will be in touch shortly to book an appointment
           </p>
           <p className={styles.phoneNumber}>0800 112 3110</p>
           <p className={styles.callbackNote}>

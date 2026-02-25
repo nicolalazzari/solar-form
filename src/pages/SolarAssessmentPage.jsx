@@ -520,17 +520,64 @@ export default function SolarAssessmentPage() {
   }
 
   if (error) {
+    const isNoCoverage = error.includes('Solar data is not available') || error.includes('coverage');
     return (
       <div className={styles.container}>
         <div className={styles.error}>
           <h2 className={styles.errorTitle}>Unable to assess roof</h2>
           <p className={styles.errorText}>{error}</p>
+          {isNoCoverage && (
+            <div className={styles.callToConfirm}>
+              <p className={styles.callToConfirmText}>
+                A member of our team can confirm your location and eligibility. Call us:
+              </p>
+              <a href="tel:08001123110" className={styles.callToConfirmPhone}>
+                0800 112 3110
+              </a>
+            </div>
+          )}
           <button
             type="button"
             className={styles.retryButton}
             onClick={() => fetchSolarAssessment()}
           >
             Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const hasNoSolarData = solarData && (!solarData.segments || solarData.segments.length === 0) && !loading;
+
+  if (hasNoSolarData) {
+    return (
+      <div className={styles.container}>
+        <h1 className={styles.title}>Your roof assessment</h1>
+        <div className={styles.noSolarDataCard}>
+          <p className={styles.noSolarDataText}>
+            Solar data isn't available for this property type. We'll need to confirm your location to assess your roof.
+          </p>
+          <p className={styles.noSolarDataSubtext}>
+            A member of our team will be in touch shortly to book an appointment
+          </p>
+          <a href="tel:08001123110" className={styles.callToConfirmPhone}>
+            0800 112 3110
+          </a>
+          <button
+            type="button"
+            className={styles.continueButton}
+            onClick={() => {
+              setJourneyStatus('callback_required');
+              updateBookingData({
+                currentPage: '/confirmation',
+                lastAction: 'solar_unavailable_callback',
+                lastActionPage: '/solar-assessment',
+              });
+              navigate('/confirmation');
+            }}
+          >
+            Request callback
           </button>
         </div>
       </div>

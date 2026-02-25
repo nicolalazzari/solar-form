@@ -231,13 +231,62 @@
   background-color: #024a3a;
 }
 
+.callToConfirm {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #DAE7E6;
+  border-radius: 8px;
+}
+
+.callToConfirmText {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  margin: 0 0 0.5rem 0;
+}
+
+.callToConfirmPhone {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #03624C;
+  text-decoration: none;
+  display: inline-block;
+  margin: 0.5rem 0;
+}
+
+.callToConfirmPhone:hover {
+  color: #024a3a;
+  text-decoration: underline;
+}
+
+.noSolarDataCard {
+  background-color: #DAE7E6;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.noSolarDataText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 0.5rem 0;
+}
+
+.noSolarDataSubtext {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
 .selectionSection {
   margin-top: 1.5rem;
 }
 
 /* Estimated Solar Potential Card */
 .solarPotentialCard {
-  background-color: #0a2540;
+  background-color: #DCE5E4;
   border-radius: 12px;
   padding: 1.25rem;
   margin: 1rem 0;
@@ -246,7 +295,7 @@
 .solarPotentialTitle {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #000000;
   margin: 0 0 1rem 0;
 }
 
@@ -262,14 +311,15 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  background-color: #1a3a5c;
+  background-color: #ffffff;
   border-radius: 10px;
   padding: 1rem 0.5rem;
   min-height: 90px;
+  border: 1px solid #DAE7E6;
 }
 
 .potentialIcon {
-  color: #4dabf7;
+  color: #03624C;
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -279,13 +329,13 @@
 .potentialValue {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #000000;
   line-height: 1.2;
 }
 
 .potentialLabel {
   font-size: 0.6875rem;
-  color: #a0aec0;
+  color: #4F4F4F;
   margin-top: 0.25rem;
   line-height: 1.2;
 }

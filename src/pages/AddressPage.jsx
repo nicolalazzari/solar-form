@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import { config } from '../config/env';
@@ -10,6 +10,7 @@ const USE_MANUAL_ENTRY = false;
 export default function AddressPage() {
   const navigate = useNavigate();
   const { bookingData, setAddressData, updateBookingData } = useBooking();
+  const lastAutoLookupPostcodeRef = useRef('');
 
   const [postcode, setPostcode] = useState(bookingData.postcode || '');
   const [addresses, setAddresses] = useState([]);
@@ -98,6 +99,20 @@ export default function AddressPage() {
       setHasSearched(true);
     }
   }, [postcode]);
+
+  useEffect(() => {
+    if (USE_MANUAL_ENTRY) return;
+    if (isLoading) return;
+    if (addresses.length > 0) return;
+    if (postcode.length < 5) return;
+
+    const prefilledPostcode = formatPostcode(bookingData.postcode || '');
+    if (!prefilledPostcode || prefilledPostcode !== postcode) return;
+    if (lastAutoLookupPostcodeRef.current === postcode) return;
+
+    lastAutoLookupPostcodeRef.current = postcode;
+    lookupAddresses();
+  }, [bookingData.postcode, postcode, isLoading, addresses.length, lookupAddresses]);
 
   const handleAddressSelect = (e) => {
     const addressId = parseInt(e.target.value, 10);
@@ -279,9 +294,10 @@ export default function AddressPage() {
             </label>
             <select
               id="address-select"
-              className={styles.select}
+              className={`${styles.select} ${styles.selectScrollable}`}
               value={selectedAddress?.id ?? ''}
               onChange={handleAddressSelect}
+              size={Math.min(6, Math.max(addresses.length, 2))}
             >
               <option value="">-- Select an address --</option>
               {addresses.map((addr) => (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import styles from './EligibilityQuestionsPage.module.css';
@@ -7,6 +7,7 @@ const QUESTIONS = [
   {
     id: 'isOver75',
     question: 'Are you over 75 years old?',
+    tooltip: 'This helps us arrange the most suitable appointment for your circumstances',
     disqualifyingAnswer: true,
   },
   {
@@ -38,6 +39,11 @@ export default function EligibilityQuestionsPage() {
   });
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [showQuestionTooltip, setShowQuestionTooltip] = useState(false);
+
+  useEffect(() => {
+    setShowQuestionTooltip(false);
+  }, [currentQuestionIndex]);
 
   const handleAnswer = (questionId, answer) => {
     setAnswers(prev => ({
@@ -93,8 +99,25 @@ export default function EligibilityQuestionsPage() {
   const currentQuestion = QUESTIONS[currentQuestionIndex];
   const progress = ((currentQuestionIndex + (answers[currentQuestion.id] !== null ? 1 : 0)) / QUESTIONS.length) * 100;
 
+  const handleBack = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    } else {
+      navigate('/solar-assessment');
+    }
+  };
+
   return (
     <div className={styles.container}>
+      <button
+        type="button"
+        className={styles.backButton}
+        onClick={handleBack}
+      >
+        <span className={styles.backIcon}>&#8592;</span>
+        Back
+      </button>
+
       <h1 className={styles.title}>A few quick questions</h1>
 
       <p className={styles.description}>
@@ -110,7 +133,42 @@ export default function EligibilityQuestionsPage() {
           Question {currentQuestionIndex + 1} of {QUESTIONS.length}
         </span>
 
-        <h2 className={styles.question}>{currentQuestion.question}</h2>
+        <div className={styles.questionRow}>
+          <h2 className={styles.question}>{currentQuestion.question}</h2>
+          {currentQuestion.tooltip && (
+            <div className={styles.questionTooltipWrapper}>
+              <button
+                type="button"
+                className={styles.questionInfoButton}
+                onClick={() => setShowQuestionTooltip(!showQuestionTooltip)}
+                onMouseEnter={() => setShowQuestionTooltip(true)}
+                onMouseLeave={() => setShowQuestionTooltip(false)}
+                aria-label={currentQuestion.tooltip}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                  <path
+                    d="M8 7V11M8 5V5.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+              {showQuestionTooltip && (
+                <div className={styles.questionTooltip}>
+                  {currentQuestion.tooltip}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className={styles.answerButtons}>
           <button

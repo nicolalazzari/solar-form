@@ -30,7 +30,8 @@ export default function BookingLayout({ children }) {
   const currentStep = currentStepIndex !== -1 ? currentStepIndex + 1 : 0;
   const totalSteps = STEPS.length;
 
-  const canGoBack = currentStep > 1 && currentStep < totalSteps;
+  const isEligibilityPage = location.pathname === '/eligibility-questions';
+  const canGoBack = currentStep > 1 && currentStep < totalSteps && !isEligibilityPage;
 
   const handleBack = () => {
     if (canGoBack) {

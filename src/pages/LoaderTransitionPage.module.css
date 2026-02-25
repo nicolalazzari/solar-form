@@ -49,11 +49,26 @@
   opacity: 0;
 }
 
-.partnershipText {
-  font-size: 0.875rem;
-  color: #4F4F4F;
+.partnershipStrip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   margin: 0 0 1.5rem 0;
   animation: fadeIn 0.5s ease-in-out;
+}
+
+.partnershipLogo {
+  height: 18px;
+  max-width: 110px;
+  object-fit: contain;
+}
+
+.partnershipText {
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  margin: 0;
+  white-space: nowrap;
 }
 
 @keyframes fadeIn {

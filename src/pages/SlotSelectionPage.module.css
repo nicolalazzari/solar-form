@@ -13,7 +13,70 @@
   font-size: 0.875rem;
   color: #4F4F4F;
   line-height: 1.5;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
+}
+
+.accordion {
+  border: 1px solid #DAE7E6;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background-color: #DAE7E6;
+  border: none;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.accordionHeader:hover {
+  background-color: #c9ddd9;
+}
+
+.accordionTitle {
+  flex: 1;
+}
+
+.accordionIcon {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  transition: transform 0.2s ease;
+}
+
+.accordionIconOpen {
+  transform: rotate(180deg);
+}
+
+.accordionContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+}
+
+.accordionContentOpen {
+  max-height: 300px;
+}
+
+.accordionBody {
+  padding: 1rem 1.25rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  line-height: 1.5;
+  background-color: #ffffff;
+  border-top: 1px solid #DAE7E6;
 }
 
 .uatBanner {
@@ -179,7 +242,7 @@
 }
 
 .selectedSummary {
-  padding: 1rem;
+  padding: 1.25rem;
   background-color: #DAE7E6;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -187,15 +250,40 @@
 
 .summaryLabel {
   display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.75rem;
+}
+
+.summaryRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.summaryRow:last-child {
+  margin-bottom: 0;
+}
+
+.summaryField {
   font-size: 0.75rem;
   color: #4F4F4F;
-  margin-bottom: 0.25rem;
 }
 
 .summaryValue {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #000000;
+  line-height: 1.4;
+}
+
+.consentStatement {
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
 }
 
 .confirmButton {

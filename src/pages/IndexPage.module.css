@@ -64,6 +64,22 @@
   color: #03624C;
 }
 
+.noThanksBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.noThanksSubtext {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  margin: 0;
+  line-height: 1.4;
+  max-width: 220px;
+  text-align: center;
+}
+
 .helperText {
   font-size: 0.875rem;
   color: #4F4F4F;
@@ -115,5 +131,13 @@
   .primaryButton,
   .secondaryButton {
     width: 100%;
+  }
+
+  .noThanksBlock {
+    width: 100%;
+  }
+
+  .noThanksSubtext {
+    max-width: none;
   }
 }

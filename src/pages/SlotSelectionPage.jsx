@@ -54,6 +54,7 @@ export default function SlotSelectionPage() {
   const [error, setError] = useState('');
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [accordionOpen, setAccordionOpen] = useState(false);
 
   useEffect(() => {
     fetchAvailableSlots();
@@ -208,6 +209,29 @@ export default function SlotSelectionPage() {
         Select a convenient time for your solar assessment appointment.
       </p>
 
+      <div className={styles.accordion}>
+        <button
+          type="button"
+          className={styles.accordionHeader}
+          onClick={() => setAccordionOpen(prev => !prev)}
+          aria-expanded={accordionOpen}
+          aria-controls="appointment-accordion-content"
+        >
+          <span className={styles.accordionTitle}>What happens at an appointment?</span>
+          <span className={`${styles.accordionIcon} ${accordionOpen ? styles.accordionIconOpen : ''}`}>
+            &#9660;
+          </span>
+        </button>
+        <div
+          id="appointment-accordion-content"
+          className={`${styles.accordionContent} ${accordionOpen ? styles.accordionContentOpen : ''}`}
+        >
+          <p className={styles.accordionBody}>
+            Project Solar Panels experts will visit your home for a free home assessment - usually taking up to 1 hour 30 minutes. They'll leave you with a full breakdown of your next steps to going solar with Project Solar.
+          </p>
+        </div>
+      </div>
+
       {USE_MOCK_DATA && (
         <div className={styles.uatBanner}>
           UAT Mode: Using mock appointment slots
@@ -248,12 +272,31 @@ export default function SlotSelectionPage() {
 
       {selectedSlot && (
         <div className={styles.selectedSummary}>
-          <span className={styles.summaryLabel}>Selected appointment:</span>
-          <span className={styles.summaryValue}>
-            {formatDate(selectedSlot.startTime)} at {formatTime(selectedSlot.startTime)}
-          </span>
+          <span className={styles.summaryLabel}>Booking summary</span>
+          <div className={styles.summaryRow}>
+            <span className={styles.summaryField}>Name</span>
+            <span className={styles.summaryValue}>
+              {[bookingData.firstName, bookingData.lastName].filter(Boolean).join(' ') || '—'}
+            </span>
+          </div>
+          <div className={styles.summaryRow}>
+            <span className={styles.summaryField}>Appointment</span>
+            <span className={styles.summaryValue}>
+              {formatDate(selectedSlot.startTime)} at {formatTime(selectedSlot.startTime)}
+            </span>
+          </div>
+          <div className={styles.summaryRow}>
+            <span className={styles.summaryField}>Address</span>
+            <span className={styles.summaryValue}>
+              {bookingData.fullAddress || '—'}
+            </span>
+          </div>
         </div>
       )}
+
+      <p className={styles.consentStatement}>
+        By submitting this booking, you consent to MVF, trading as The Eco Experts, sharing your details with Project Solar to arrange and discuss your solar appointment. Project Solar may contact you by telephone (including automated calls), SMS, email, post or OTT messaging services such as WhatsApp for this purpose. You can withdraw your consent at any time.
+      </p>
 
       <button
         type="button"

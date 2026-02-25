@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './LoaderTransitionPage.module.css';
 
 const LOADER_STATES = [
@@ -20,11 +20,12 @@ const LOADER_STATES = [
   },
 ];
 
-const ECO_EXPERTS_LOGO = 'https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/mp/wp-content/uploads/sites/3/2023/09/The-Eco-Experts_Brand-Logo-Blue.svg';
+const ECO_EXPERTS_LOGO = 'https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/mp/wp-content/uploads/sites/3/2022/09/ee-logo.svg';
 const PROJECT_SOLAR_LOGO = 'https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2025/10/Project-Solar-long-full-colour-without-tag.svg';
 
 export default function LoaderTransitionPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentState, setCurrentState] = useState(0);
   const [progress, setProgress] = useState(0);
   const [showProjectSolar, setShowProjectSolar] = useState(false);
@@ -54,14 +55,17 @@ export default function LoaderTransitionPage() {
 
     // Navigate to index after all states complete
     const navigationTimeout = setTimeout(() => {
-      navigate('/');
+      navigate({
+        pathname: '/',
+        search: location.search,
+      });
     }, totalDuration + 500);
 
     return () => {
       clearInterval(progressInterval);
       clearTimeout(navigationTimeout);
     };
-  }, [navigate]);
+  }, [navigate, location.search]);
 
   const { headline, supportingText } = LOADER_STATES[currentState];
 
@@ -83,7 +87,19 @@ export default function LoaderTransitionPage() {
         </div>
 
         {showProjectSolar && (
-          <p className={styles.partnershipText}>In partnership with Project Solar UK</p>
+          <div className={styles.partnershipStrip}>
+            <img
+              src={ECO_EXPERTS_LOGO}
+              alt="The Eco Experts"
+              className={styles.partnershipLogo}
+            />
+            <span className={styles.partnershipText}>In partnership with</span>
+            <img
+              src={PROJECT_SOLAR_LOGO}
+              alt="Project Solar"
+              className={styles.partnershipLogo}
+            />
+          </div>
         )}
 
         {/* Progress Circle */}

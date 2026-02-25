@@ -114,6 +114,23 @@
   border-color: #03624C;
 }
 
+.selectScrollable {
+  max-height: 18rem; /* ~6 visible options before scroll */
+  overflow-y: auto;
+}
+
+.selectScrollable option {
+  padding: 0.625rem 0.75rem;
+}
+
+.selectScrollable option:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.selectScrollable option:nth-child(even) {
+  background-color: #f4f9f8;
+}
+
 .error {
   padding: 0.75rem 1rem;
   background-color: #fef2f2;
