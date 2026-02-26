@@ -369,11 +369,12 @@ END:VCALENDAR`;
         <svg viewBox="0 0 64 64" className={styles.phoneIcon}>
           <circle cx="32" cy="32" r="30" fill="#55bfe5" />
           <path
-            d="M24 22 L24 28 C24 38 26 40 40 40 L40 34"
+            d="M24 22 L24 28 C24 38 28 42 40 42 L40 34 L40 28 C40 24 36 22 24 22"
             fill="none"
             stroke="#ffffff"
-            strokeWidth="3"
+            strokeWidth="2.5"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       </div>
