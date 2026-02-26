@@ -20,7 +20,7 @@ export const config = {
   googleSheetId: import.meta.env.VITE_GOOGLE_SHEET_ID || '',
 
   // Project Solar API (Supabase Edge Functions)
-  projectSolarApiUrl: import.meta.env.VITE_PROJECT_SOLAR_API_URL || 'https://wakypxxobpdvqwblheio.supabase.co/functions/v1',
+  projectSolarApiUrl: import.meta.env.VITE_PROJECT_SOLAR_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
 
   // Supabase anon key for edge function authentication
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
