@@ -635,17 +635,16 @@
     window.__solarOptlyIframeReadyForReveal = false;
     persistEligibilityMarker();
     log('Eligibility matched via', context);
-    if (eventObj && eventObj.iFrameId) {
-      showSwapOverlay(eventObj.iFrameId);
-      hideIframeDuringSwap(eventObj.iFrameId);
-      log(
-        'Qualified before TYP; marker persisted for iframe',
-        eventObj.iFrameId
-      );
-      // If we are still on the main page, prepare replacing the upcoming TYP in-place.
-      swapIframeWhenReady(eventObj.iFrameId);
-      lockIframeToApp(eventObj.iFrameId);
+    var preferredIFrameId = (eventObj && eventObj.iFrameId) || null;
+    if (preferredIFrameId) {
+      showSwapOverlay(preferredIFrameId);
+      hideIframeDuringSwap(preferredIFrameId);
+      log('Qualified before TYP; marker persisted for iframe', preferredIFrameId);
     }
+    // Swap even without iFrameId (e.g. webform_submission_completed often lacks it).
+    // getTargetIframe(null) falls back to first iframe with prefix.
+    swapIframeWhenReady(preferredIFrameId);
+    lockIframeToApp(preferredIFrameId);
   }
 
   function processDataLayerEvent(eventObj) {

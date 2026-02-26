@@ -54,7 +54,7 @@ VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 VITE_IDEAL_POSTCODES_API_KEY=your_ideal_postcodes_api_key_here
 
 # Supabase (Frontend)
-VITE_PROJECT_SOLAR_API_URL=https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1
+VITE_PROJECT_SOLAR_API_URL=https://wakypxxobpdvqwblheio.supabase.co/functions/v1
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # Google Sheets (Reference)
@@ -420,7 +420,7 @@ Test each endpoint directly with curl:
 
 ```bash
 # Test submit-booking
-curl -X POST https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1/submit-booking \
+curl -X POST https://wakypxxobpdvqwblheio.supabase.co/functions/v1/submit-booking \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_SUPABASE_ANON_KEY" \
   -d '{
