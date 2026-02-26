@@ -21,14 +21,36 @@ function QueryPrefillBridge() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const updates = {};
+
     const rawPostcode = params.get('prefill_postcode');
-    if (!rawPostcode) return;
+    if (rawPostcode) {
+      const postcode = rawPostcode.replace(/\s/g, '').toUpperCase();
+      if (postcode && bookingData.postcode !== postcode) {
+        updates.postcode = postcode;
+      }
+    }
 
-    const postcode = rawPostcode.replace(/\s/g, '').toUpperCase();
-    if (!postcode || bookingData.postcode === postcode) return;
+    const rawFirstName = params.get('prefill_first_name');
+    if (rawFirstName) {
+      const firstName = rawFirstName.trim();
+      if (firstName && bookingData.firstName !== firstName) {
+        updates.firstName = firstName;
+      }
+    }
 
-    updateBookingData({ postcode });
-  }, [location.search, bookingData.postcode, updateBookingData]);
+    const rawLastName = params.get('prefill_last_name');
+    if (rawLastName) {
+      const lastName = rawLastName.trim();
+      if (lastName && bookingData.lastName !== lastName) {
+        updates.lastName = lastName;
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      updateBookingData(updates);
+    }
+  }, [location.search, bookingData.postcode, bookingData.firstName, bookingData.lastName, updateBookingData]);
 
   return null;
 }

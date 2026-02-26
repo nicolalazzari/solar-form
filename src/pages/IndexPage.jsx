@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking, useInactivity } from '../contexts';
 import styles from './IndexPage.module.css';
 
 export default function IndexPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { bookingData, initializeSession, setUserData, updateBookingData } = useBooking();
   const { startTracking } = useInactivity();
   const [showCallbackConfirmation, setShowCallbackConfirmation] = useState(false);
@@ -49,7 +50,7 @@ export default function IndexPage() {
     // Start inactivity tracking now that the user has begun the journey
     startTracking();
 
-    navigate('/address');
+    navigate({ pathname: '/address', search: location.search });
   };
 
   const handleNoThanks = () => {
