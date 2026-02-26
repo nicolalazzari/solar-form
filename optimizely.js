@@ -75,6 +75,7 @@
     var payload = {
       matchedAt: now(),
       prefillPostcode: window.__solarOptlyPrefillPostcode || '',
+      prefillAnswers: window.__solarOptlyPrefillAnswers || {},
     };
     try {
       log('Persisting eligibility marker', {
@@ -333,6 +334,13 @@
       activeIframe.style.height = normalizedHeight + 'px';
       clearWrapperHeightConstraints();
 
+      // Keep iframe visible/centered when height changes (e.g. step transitions)
+      try {
+        activeIframe.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {
+        activeIframe.scrollIntoView({ block: 'center' });
+      }
+
       heightLog('applied dynamic iframe height', {
         iframeId: activeIframe.id,
         height: normalizedHeight,
@@ -387,6 +395,18 @@
           heightLog('received loader-complete event; showing main rows', {
             iframeId: activeIframe.id,
           });
+          return;
+        }
+
+        if (payload.type === 'solar-optly-prefill-request') {
+          var prefillAnswers = window.__solarOptlyPrefillAnswers || {};
+          if (Object.keys(prefillAnswers).length > 0 && activeIframe.contentWindow) {
+            activeIframe.contentWindow.postMessage(
+              { type: 'solar-optly-prefill', answers: prefillAnswers },
+              '*'
+            );
+            log('Sent prefill answers to iframe', prefillAnswers);
+          }
           return;
         }
 
@@ -571,13 +591,29 @@
     }, CONFIG.pollMs);
   }
 
+  function buildPrefillAnswers(answers, eventObj) {
+    if (!answers || typeof answers !== 'object') return {};
+    var postcode = extractPostcodeFromAnswers(answers);
+    return {
+      first_name: extractAnswerValue(answers, 'first_name') || '',
+      last_name: extractAnswerValue(answers, 'last_name') || '',
+      primary_address_postalcode: postcode || extractAnswerValue(answers, 'primary_address_postalcode') || '',
+      phone_number: extractAnswerValue(answers, 'phone_number') || '',
+      email_address: extractAnswerValue(answers, 'email_address') || '',
+      submissionId: (eventObj && (eventObj.submissionId || eventObj.submission_id)) || '',
+    };
+  }
+
   function onQualifiedMatch(context, eventObj) {
     if (window.__solarOptlyQualified) return;
-    var postcode = extractPostcodeFromAnswers((eventObj && eventObj.answers) || {});
+    var answers = (eventObj && eventObj.answers) || {};
+    var postcode = extractPostcodeFromAnswers(answers);
     if (postcode) {
       window.__solarOptlyPrefillPostcode = postcode;
       log('Captured postcode prefill from answers', postcode);
     }
+    window.__solarOptlyPrefillAnswers = buildPrefillAnswers(answers, eventObj);
+    log('Stored prefill answers for postMessage', window.__solarOptlyPrefillAnswers);
     window.__solarOptlyQualified = true;
     window.__solarOptlyIframeReadyForReveal = false;
     persistEligibilityMarker();
@@ -681,6 +717,10 @@
     if (freshMarker.prefillPostcode) {
       window.__solarOptlyPrefillPostcode = freshMarker.prefillPostcode;
       log('Loaded postcode prefill from marker', freshMarker.prefillPostcode);
+    }
+    if (freshMarker.prefillAnswers && Object.keys(freshMarker.prefillAnswers).length > 0) {
+      window.__solarOptlyPrefillAnswers = freshMarker.prefillAnswers;
+      log('Loaded prefill answers from marker', freshMarker.prefillAnswers);
     }
     window.__solarOptlyQualified = true;
     window.__solarOptlyIframeReadyForReveal = false;

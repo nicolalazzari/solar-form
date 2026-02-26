@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { BookingProvider, InactivityProvider } from './contexts';
 import { useBooking } from './contexts';
 import { BookingLayout, DemoPageLayout } from './components/layout';
+import { PrefillBridge } from './components/PrefillBridge';
 import {
   LoaderTransitionPage,
   IndexPage,
@@ -200,6 +201,7 @@ function App() {
     <BrowserRouter>
       <IframeAutoHeightBridge />
       <BookingProvider>
+        <PrefillBridge />
         <InactivityProvider>
           <QueryPrefillBridge />
           <Routes>
