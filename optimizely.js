@@ -183,12 +183,24 @@
     return prefixed || null;
   }
 
-  function extractTextFromAnswers(answers, keys) {
+  function extractTextFromAnswers(answers, keys, fallbackPattern) {
     if (!answers || typeof answers !== 'object') return '';
     for (var i = 0; i < keys.length; i += 1) {
       var val = answers[keys[i]] || answers['answers[' + keys[i] + ']'];
       if (val && String(val).trim()) {
         return String(val).trim();
+      }
+    }
+    if (fallbackPattern) {
+      for (var k in answers) {
+        if (
+          Object.prototype.hasOwnProperty.call(answers, k) &&
+          fallbackPattern.test(k) &&
+          answers[k] &&
+          String(answers[k]).trim()
+        ) {
+          return String(answers[k]).trim();
+        }
       }
     }
     return '';
@@ -616,8 +628,8 @@
     if (!answers || typeof answers !== 'object') return {};
     var postcode = extractPostcodeFromAnswers(answers);
     return {
-      first_name: extractTextFromAnswers(answers, ['first_name']) || extractAnswerValue(answers, 'first_name') || '',
-      last_name: extractTextFromAnswers(answers, ['last_name']) || extractAnswerValue(answers, 'last_name') || '',
+      first_name: extractTextFromAnswers(answers, ['first_name', 'firstName', 'first-name'], /first_name|firstname|first/i) || extractAnswerValue(answers, 'first_name') || '',
+      last_name: extractTextFromAnswers(answers, ['last_name', 'lastName', 'last-name'], /last_name|lastname/i) || extractAnswerValue(answers, 'last_name') || '',
       primary_address_postalcode: postcode || extractAnswerValue(answers, 'primary_address_postalcode') || '',
       phone_number: extractAnswerValue(answers, 'phone_number') || '',
       email_address: extractAnswerValue(answers, 'email_address') || '',
@@ -628,9 +640,20 @@
   function onQualifiedMatch(context, eventObj) {
     if (window.__solarOptlyQualified) return;
     var answers = (eventObj && eventObj.answers) || {};
+    var merged = {};
+    for (var mk in answers) {
+      if (Object.prototype.hasOwnProperty.call(answers, mk)) merged[mk] = answers[mk];
+    }
+    if (eventObj) {
+      for (var ek in eventObj) {
+        if (ek !== 'answers' && Object.prototype.hasOwnProperty.call(eventObj, ek)) {
+          merged[ek] = eventObj[ek];
+        }
+      }
+    }
     var postcode = extractPostcodeFromAnswers(answers);
-    var firstName = extractTextFromAnswers(answers, ['first_name']);
-    var lastName = extractTextFromAnswers(answers, ['last_name']);
+    var firstName = extractTextFromAnswers(merged, ['first_name', 'firstName', 'first-name'], /first_name|firstname|first/i);
+    var lastName = extractTextFromAnswers(merged, ['last_name', 'lastName', 'last-name'], /last_name|lastname/i);
     if (postcode) {
       window.__solarOptlyPrefillPostcode = postcode;
       log('Captured postcode prefill from answers', postcode);
@@ -683,9 +706,12 @@
     }
 
     if (eventObj.event === 'webform_submission_completed') {
+      var answers = eventObj.answers || {};
       log('Processing webform_submission_completed', {
-        answerKeys: eventObj.answers ? Object.keys(eventObj.answers) : [],
-        postcode: extractPostcodeFromAnswers(eventObj.answers || {}),
+        answerKeys: Object.keys(answers),
+        postcode: extractPostcodeFromAnswers(answers),
+        firstName: extractTextFromAnswers(answers, ['first_name', 'firstName'], /first_name|firstname|first/i),
+        lastName: extractTextFromAnswers(answers, ['last_name', 'lastName'], /last_name|lastname/i),
       });
       if (isEligible(eventObj.answers || {})) {
         onQualifiedMatch('webform_submission_completed', eventObj);
@@ -697,17 +723,29 @@
 
     // Some stacks may expose answers on thankYouPageReached payloads.
     if (eventObj.event === 'thankYouPageReached') {
+      var typrAnswers = eventObj.answers || {};
       log('Processing thankYouPageReached', {
-        answerKeys: eventObj.answers ? Object.keys(eventObj.answers) : [],
-        postcode: extractPostcodeFromAnswers(eventObj.answers || {}),
+        answerKeys: Object.keys(typrAnswers),
+        postcode: extractPostcodeFromAnswers(typrAnswers),
+        firstName: extractTextFromAnswers(typrAnswers, ['first_name', 'firstName'], /first_name|firstname|first/i),
+        lastName: extractTextFromAnswers(typrAnswers, ['last_name', 'lastName'], /last_name|lastname/i),
       });
       if (isEligible(eventObj.answers || {})) {
         onQualifiedMatch('thankYouPageReached', eventObj);
       } else if (window.__solarOptlyQualified) {
         var answers = eventObj.answers || {};
+        var merged = {};
+        for (var mk in answers) {
+          if (Object.prototype.hasOwnProperty.call(answers, mk)) merged[mk] = answers[mk];
+        }
+        for (var ek in eventObj) {
+          if (ek !== 'answers' && Object.prototype.hasOwnProperty.call(eventObj, ek)) {
+            merged[ek] = eventObj[ek];
+          }
+        }
         var pc = extractPostcodeFromAnswers(answers);
-        var fn = extractTextFromAnswers(answers, ['first_name']);
-        var ln = extractTextFromAnswers(answers, ['last_name']);
+        var fn = extractTextFromAnswers(merged, ['first_name', 'firstName', 'first-name'], /first_name|firstname|first/i);
+        var ln = extractTextFromAnswers(merged, ['last_name', 'lastName', 'last-name'], /last_name|lastname/i);
         if (pc && !window.__solarOptlyPrefillPostcode) {
           window.__solarOptlyPrefillPostcode = pc;
           log('Captured postcode prefill from thankYouPageReached (already qualified)', pc);
