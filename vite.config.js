@@ -10,6 +10,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    target: ['es2020', 'chrome87', 'firefox78', 'safari13', 'edge88'],
   },
   test: {
     globals: true,

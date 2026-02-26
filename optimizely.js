@@ -281,7 +281,10 @@
     overlay = document.createElement('div');
     overlay.setAttribute('data-solar-optly-overlay', '1');
     overlay.style.position = 'absolute';
-    overlay.style.inset = '0';
+    overlay.style.top = '0';
+    overlay.style.right = '0';
+    overlay.style.bottom = '0';
+    overlay.style.left = '0';
     overlay.style.background = '#ffffff';
     overlay.style.zIndex = '9999';
     overlay.style.opacity = '0';
@@ -714,25 +717,71 @@
     }
   }
 
-  function attachDataLayerHook() {
-    window.dataLayer = window.dataLayer || [];
+  var __processedEventIndexes = {};
 
-    // Replay existing events first.
+  function replayDataLayerEvents() {
+    window.dataLayer = window.dataLayer || [];
     for (var i = 0; i < window.dataLayer.length; i += 1) {
+      if (__processedEventIndexes[i]) continue;
+      __processedEventIndexes[i] = true;
       processDataLayerEvent(window.dataLayer[i]);
     }
+  }
 
-    if (window.__solarOptlyDataLayerHooked) return;
-    window.__solarOptlyDataLayerHooked = true;
+  function wrapPush() {
+    window.dataLayer = window.dataLayer || [];
 
     var originalPush = window.dataLayer.push;
-    window.dataLayer.push = function () {
+
+    // Skip wrapping if our wrapper is already the current push
+    if (originalPush && originalPush.__solarOptlyWrapped) return;
+
+    var wrappedPush = function () {
       var args = Array.prototype.slice.call(arguments);
       for (var j = 0; j < args.length; j += 1) {
         processDataLayerEvent(args[j]);
       }
       return originalPush.apply(window.dataLayer, args);
     };
+    wrappedPush.__solarOptlyWrapped = true;
+    window.dataLayer.push = wrappedPush;
+
+    log('dataLayer.push wrapped (original was', typeof originalPush, ')');
+  }
+
+  function attachDataLayerHook() {
+    window.dataLayer = window.dataLayer || [];
+
+    replayDataLayerEvents();
+    wrapPush();
+
+    // Safari/GTM resilience: periodically re-scan and re-hook in case
+    // GTM replaces our push override or events were pushed before our hook.
+    if (!window.__solarOptlyDataLayerPolling) {
+      window.__solarOptlyDataLayerPolling = true;
+      var pollCount = 0;
+      var pollInterval = window.setInterval(function () {
+        pollCount += 1;
+        // Re-wrap push if something overwrote it
+        if (
+          !window.dataLayer.push ||
+          !window.dataLayer.push.__solarOptlyWrapped
+        ) {
+          log('dataLayer.push was overwritten; re-wrapping (poll #' + pollCount + ')');
+          wrapPush();
+        }
+        // Re-scan for events we haven't seen yet
+        replayDataLayerEvents();
+        // Stop polling after qualification or after 2 minutes
+        if (window.__solarOptlyQualified || pollCount >= 240) {
+          window.clearInterval(pollInterval);
+          log('dataLayer polling stopped', {
+            qualified: !!window.__solarOptlyQualified,
+            pollCount: pollCount,
+          });
+        }
+      }, 500);
+    }
 
     log('dataLayer hook attached');
   }

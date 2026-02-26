@@ -55,6 +55,9 @@ export default function LoaderTransitionPage() {
 
     // Navigate to index after all states complete
     const navigationTimeout = setTimeout(() => {
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'solar-optly-loader-complete' }, '*');
+      }
       navigate({
         pathname: '/',
         search: location.search,
