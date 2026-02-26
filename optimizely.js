@@ -12,7 +12,7 @@
 
   var CONFIG = {
     appUrl:
-      'https://solar-form-optly-nicola.vercel.app/loader',
+      'https://solar-form-optly-def.vercel.app/loader',
     typPathContains: '/typ/project-solar/appointment/sp-uk/',
     debug: true,
     maxWaitMs: 30000,
@@ -180,13 +180,43 @@
     return prefixed || null;
   }
 
+  function extractPostcodeFromAnswers(answers) {
+    if (!answers || typeof answers !== 'object') return '';
+    var keys = [
+      'primary_address_postalcode',
+      'primary_address_postcode',
+      'postcode',
+      'answers[primary_address_postalcode]',
+    ];
+    for (var i = 0; i < keys.length; i += 1) {
+      var val = answers[keys[i]] || answers['answers[' + keys[i] + ']'];
+      if (val && String(val).trim()) {
+        return String(val).trim().replace(/\s/g, '').toUpperCase();
+      }
+    }
+    // Fallback: scan for any key containing postcode/postal
+    for (var k in answers) {
+      if (
+        Object.prototype.hasOwnProperty.call(answers, k) &&
+        /postcode|postal/i.test(k) &&
+        answers[k] &&
+        String(answers[k]).trim()
+      ) {
+        return String(answers[k]).trim().replace(/\s/g, '').toUpperCase();
+      }
+    }
+    return '';
+  }
+
   function buildAppUrl() {
     var separator = CONFIG.appUrl.indexOf('?') === -1 ? '?' : '&';
     var url = CONFIG.appUrl + separator + 'optly_iframe=1&ts=' + now();
-    if (window.__solarOptlyPrefillPostcode) {
-      url +=
-        '&prefill_postcode=' +
-        encodeURIComponent(window.__solarOptlyPrefillPostcode);
+    var pc = window.__solarOptlyPrefillPostcode;
+    if (pc) {
+      url += '&prefill_postcode=' + encodeURIComponent(pc);
+      log('buildAppUrl: including prefill_postcode', pc);
+    } else {
+      log('buildAppUrl: no prefill_postcode (window.__solarOptlyPrefillPostcode empty)');
     }
     return url;
   }
@@ -366,12 +396,12 @@
           payloadHeight: payload.height,
           path: payload.path,
         });
+        applyIframeHeight(payload.height);
         if (payload.path && payload.path !== '/loader') {
           window.__solarOptlyIframeReadyForReveal = true;
           syncMainPageRowVisibility();
-          revealIframeAfterSwap(preferredIFrameId);
         }
-        applyIframeHeight(payload.height);
+        revealIframeAfterSwap(preferredIFrameId);
       });
       window.__solarOptlyHeightMessageHandlerAttached = true;
     }
@@ -543,11 +573,7 @@
 
   function onQualifiedMatch(context, eventObj) {
     if (window.__solarOptlyQualified) return;
-    var postcode = normalize(
-      extractAnswerValue((eventObj && eventObj.answers) || {}, 'primary_address_postalcode')
-    )
-      .replace(/\s/g, '')
-      .toUpperCase();
+    var postcode = extractPostcodeFromAnswers((eventObj && eventObj.answers) || {});
     if (postcode) {
       window.__solarOptlyPrefillPostcode = postcode;
       log('Captured postcode prefill from answers', postcode);
@@ -590,7 +616,10 @@
     }
 
     if (eventObj.event === 'webform_submission_completed') {
-      log('Processing webform_submission_completed');
+      log('Processing webform_submission_completed', {
+        answerKeys: eventObj.answers ? Object.keys(eventObj.answers) : [],
+        postcode: extractPostcodeFromAnswers(eventObj.answers || {}),
+      });
       if (isEligible(eventObj.answers || {})) {
         onQualifiedMatch('webform_submission_completed', eventObj);
       } else {
@@ -601,10 +630,18 @@
 
     // Some stacks may expose answers on thankYouPageReached payloads.
     if (eventObj.event === 'thankYouPageReached') {
-      log('Processing thankYouPageReached');
+      log('Processing thankYouPageReached', {
+        answerKeys: eventObj.answers ? Object.keys(eventObj.answers) : [],
+        postcode: extractPostcodeFromAnswers(eventObj.answers || {}),
+      });
       if (isEligible(eventObj.answers || {})) {
         onQualifiedMatch('thankYouPageReached', eventObj);
       } else if (window.__solarOptlyQualified) {
+        var pc = extractPostcodeFromAnswers(eventObj.answers || {});
+        if (pc && !window.__solarOptlyPrefillPostcode) {
+          window.__solarOptlyPrefillPostcode = pc;
+          log('Captured postcode prefill from thankYouPageReached (already qualified)', pc);
+        }
         log('Already qualified; injecting solar form on thankYouPageReached');
         swapIframeWhenReady(eventObj.iFrameId);
         lockIframeToApp(eventObj.iFrameId);
