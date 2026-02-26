@@ -157,6 +157,13 @@ export default function AddressPage() {
     } else {
       if (!selectedAddress) return;
 
+      console.log('[AddressPage] handleContinue: setting address data', {
+        postcode: selectedAddress.postcode,
+        latitude: selectedAddress.latitude,
+        longitude: selectedAddress.longitude,
+        fullAddress: selectedAddress.fullAddress,
+      });
+
       setAddressData({
         postcode: selectedAddress.postcode,
         fullAddress: selectedAddress.fullAddress,
@@ -171,6 +178,7 @@ export default function AddressPage() {
       lastActionPage: '/address',
     });
 
+    console.log('[AddressPage] navigating to /solar-assessment');
     navigate({ pathname: '/solar-assessment', search: location.search });
   };
 

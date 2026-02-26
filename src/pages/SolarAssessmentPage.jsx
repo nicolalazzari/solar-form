@@ -148,22 +148,33 @@ export default function SolarAssessmentPage() {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (hasFetched.current) return;
-
     const lat = bookingData.latitude;
     const lng = bookingData.longitude;
 
+    console.log('[SolarAssessment] useEffect fired', {
+      hasFetched: hasFetched.current,
+      lat,
+      lng,
+      postcode: bookingData.postcode,
+      fullAddress: bookingData.fullAddress,
+    });
+
+    if (hasFetched.current) return;
+
     if (lat != null && lng != null) {
+      console.log('[SolarAssessment] Coordinates available, fetching solar data');
       hasFetched.current = true;
       fetchSolarAssessment(lat, lng);
       return;
     }
 
-    // Coordinates not available yet -- give state time to propagate
-    // (Safari cross-origin iframes can delay React context updates).
-    // Show an error after 5 s so the user isn't stuck on the spinner.
+    console.log('[SolarAssessment] Coordinates null, waiting (5s timeout)');
     const timeout = setTimeout(() => {
       if (!hasFetched.current) {
+        console.warn('[SolarAssessment] Timeout: coordinates never arrived', {
+          lat: bookingData.latitude,
+          lng: bookingData.longitude,
+        });
         setLoading(false);
         setError('Location coordinates not available. Please go back and select your address.');
       }

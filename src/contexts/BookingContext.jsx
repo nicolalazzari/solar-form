@@ -62,9 +62,21 @@ const DEFAULT_STATE = {
 function loadPersistedState() {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (_) {
-    // sessionStorage unavailable (Safari private mode, cross-origin restrictions)
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      console.log('[BookingContext] Loaded persisted state from sessionStorage', {
+        latitude: parsed.latitude,
+        longitude: parsed.longitude,
+        postcode: parsed.postcode,
+        fullAddress: parsed.fullAddress,
+        sessionId: parsed.sessionId,
+        currentPage: parsed.currentPage,
+      });
+      return parsed;
+    }
+    console.log('[BookingContext] No persisted state found in sessionStorage');
+  } catch (e) {
+    console.warn('[BookingContext] sessionStorage read failed', e);
   }
   return null;
 }
@@ -72,8 +84,8 @@ function loadPersistedState() {
 function persistState(data) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (_) {
-    // Best effort
+  } catch (e) {
+    console.warn('[BookingContext] sessionStorage write failed', e);
   }
 }
 
@@ -98,16 +110,26 @@ export function BookingProvider({ children }) {
   }, []);
 
   const updateBookingData = useCallback((updates) => {
-    setBookingData(prev => ({
-      ...prev,
-      ...updates,
-      lastAction: updates.lastAction || prev.lastAction,
-      lastActionPage: updates.lastActionPage || prev.lastActionPage,
-      // Track when user enters a new page
-      ...(updates.currentPage && updates.currentPage !== prev.currentPage
-        ? { pageEnteredAt: new Date().toISOString() }
-        : {}),
-    }));
+    setBookingData(prev => {
+      const next = {
+        ...prev,
+        ...updates,
+        lastAction: updates.lastAction || prev.lastAction,
+        lastActionPage: updates.lastActionPage || prev.lastActionPage,
+        ...(updates.currentPage && updates.currentPage !== prev.currentPage
+          ? { pageEnteredAt: new Date().toISOString() }
+          : {}),
+      };
+      if (updates.latitude !== undefined || updates.currentPage !== undefined) {
+        console.log('[BookingContext] updateBookingData', {
+          updatedKeys: Object.keys(updates),
+          lat: next.latitude,
+          lng: next.longitude,
+          currentPage: next.currentPage,
+        });
+      }
+      return next;
+    });
   }, []);
 
   const setUserData = useCallback((userData) => {
@@ -121,6 +143,12 @@ export function BookingProvider({ children }) {
   }, [updateBookingData]);
 
   const setAddressData = useCallback((addressData) => {
+    console.log('[BookingContext] setAddressData called', {
+      postcode: addressData.postcode,
+      fullAddress: addressData.fullAddress,
+      latitude: addressData.latitude,
+      longitude: addressData.longitude,
+    });
     updateBookingData({
       postcode: addressData.postcode,
       fullAddress: addressData.fullAddress,
