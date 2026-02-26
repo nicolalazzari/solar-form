@@ -71,8 +71,8 @@
   gap: 0.75rem;
 }
 
-.noThanksSubtext {
-  font-size: 0.875rem;
+.noThanksFootnote {
+  font-size: 0.75rem;
   color: #4F4F4F;
   margin: 0;
   line-height: 1.4;
@@ -137,7 +137,7 @@
     width: 100%;
   }
 
-  .noThanksSubtext {
+  .noThanksFootnote {
     max-width: none;
   }
 }

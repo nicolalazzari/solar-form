@@ -97,10 +97,10 @@ export default function IndexPage() {
                 className={styles.secondaryButton}
                 onClick={handleNoThanks}
               >
-                No, thank you
+                No, thank you *
               </button>
-              <p className={styles.noThanksSubtext}>
-                A member of our team will be in touch shortly to book an appointment
+              <p className={styles.noThanksFootnote}>
+                *A member of our team will be in touch shortly to book an appointment
               </p>
             </div>
           </div>
