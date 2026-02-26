@@ -368,7 +368,7 @@ END:VCALENDAR`;
       <div className={styles.icon}>
         <svg viewBox="0 0 64 64" className={styles.phoneIcon}>
           <circle cx="32" cy="32" r="30" fill="#55bfe5" />
-          <g transform="translate(32, 32) scale(2.1) translate(-12, -12)">
+          <g transform="translate(32, 32) scale(1.4) translate(-12, -12)">
             <path
               fillRule="evenodd"
               clipRule="evenodd"
