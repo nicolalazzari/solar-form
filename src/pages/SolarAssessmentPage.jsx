@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import { config } from '../config/env';
@@ -145,9 +145,14 @@ export default function SolarAssessmentPage() {
     };
   }, [solarData, selectedSegments]);
 
+  const initialFetchDone = useRef(false);
+
   useEffect(() => {
+    if (initialFetchDone.current) return;
+    if (bookingData.latitude == null || bookingData.longitude == null) return;
+    initialFetchDone.current = true;
     fetchSolarAssessment();
-  }, []);
+  }, [bookingData.latitude, bookingData.longitude]);
 
   const fetchSolarAssessment = async (lat, lng) => {
     try {
@@ -156,6 +161,10 @@ export default function SolarAssessmentPage() {
 
       const latitude = lat ?? bookingData.latitude;
       const longitude = lng ?? bookingData.longitude;
+
+      if (latitude == null || longitude == null) {
+        throw new Error('Location coordinates not available. Please go back and select your address.');
+      }
 
       if (USE_MOCK_DATA) {
         // Simulate API delay
