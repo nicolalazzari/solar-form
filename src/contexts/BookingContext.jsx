@@ -1,62 +1,93 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const BookingContext = createContext(null);
 
+const STORAGE_KEY = 'solar_booking_data';
+
+const DEFAULT_STATE = {
+  // User data from Chameleon form
+  firstName: '',
+  lastName: '',
+  postcode: '',
+  phoneNumber: '',
+  emailAddress: '',
+
+  // Address data
+  fullAddress: '',
+  latitude: null,
+  longitude: null,
+  originalLatitude: null,
+  originalLongitude: null,
+  locationManuallySelected: false,
+
+  // Solar assessment data
+  roofSegments: [],
+  selectedSegments: [],
+  totalPanelCount: 0,
+  totalEstimatedEnergy: 0,
+  estimatedAnnualSavings: 0,
+  imageryQuality: '',
+  imageryDate: '',
+  imageryProcessedDate: '',
+  roofChangedSinceImagery: null,
+  carbonOffset: 0,
+  solarRoofArea: 0,
+  sunExposureHours: 0,
+  roofSpaceOver10m2: false,
+
+  // Eligibility data
+  isOver75: null,
+  roofWorksPlanned: null,
+  incomeOver15k: null,
+  likelyToPassCreditCheck: null,
+
+  // Booking data
+  selectedSlot: null,
+  bookingReference: '',
+
+  // Chameleon form submission
+  submissionId: '',
+
+  // Session data
+  sessionId: '',
+  journeyStartTime: null,
+  pageEnteredAt: null,
+  lastAction: '',
+  lastActionPage: '',
+  currentPage: '/',
+  journeyStatus: 'started',
+};
+
+function loadPersistedState() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (_) {
+    // sessionStorage unavailable (Safari private mode, cross-origin restrictions)
+  }
+  return null;
+}
+
+function persistState(data) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (_) {
+    // Best effort
+  }
+}
+
 export function BookingProvider({ children }) {
-  const [bookingData, setBookingData] = useState({
-    // User data from Chameleon form
-    firstName: '',
-    lastName: '',
-    postcode: '',
-    phoneNumber: '',
-    emailAddress: '',
-
-    // Address data
-    fullAddress: '',
-    latitude: null,
-    longitude: null,
-    originalLatitude: null,
-    originalLongitude: null,
-    locationManuallySelected: false,
-
-    // Solar assessment data
-    roofSegments: [],
-    selectedSegments: [],
-    totalPanelCount: 0,
-    totalEstimatedEnergy: 0,
-    estimatedAnnualSavings: 0,
-    imageryQuality: '',
-    imageryDate: '',
-    imageryProcessedDate: '',
-    roofChangedSinceImagery: null,
-    carbonOffset: 0,
-    solarRoofArea: 0,
-    sunExposureHours: 0,
-    roofSpaceOver10m2: false,
-
-    // Eligibility data
-    isOver75: null,
-    roofWorksPlanned: null,
-    incomeOver15k: null,
-    likelyToPassCreditCheck: null,
-
-    // Booking data
-    selectedSlot: null,
-    bookingReference: '',
-
-    // Chameleon form submission
-    submissionId: '',
-
-    // Session data
-    sessionId: '',
-    journeyStartTime: null,
-    pageEnteredAt: null,
-    lastAction: '',
-    lastActionPage: '',
-    currentPage: '/',
-    journeyStatus: 'started',
+  const [bookingData, setBookingData] = useState(() => {
+    const persisted = loadPersistedState();
+    return persisted ? { ...DEFAULT_STATE, ...persisted } : { ...DEFAULT_STATE };
   });
+
+  // Persist to sessionStorage on every state change so data survives
+  // unexpected reloads (Safari cross-origin iframes can lose in-memory state).
+  useEffect(() => {
+    persistState(bookingData);
+  }, [bookingData]);
 
   const initializeSession = useCallback(() => {
     setBookingData(prev => ({
