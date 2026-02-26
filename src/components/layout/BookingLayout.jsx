@@ -36,7 +36,7 @@ export default function BookingLayout({ children }) {
   const handleBack = () => {
     if (canGoBack) {
       const previousStep = STEPS[currentStepIndex - 1];
-      navigate(previousStep.path);
+      navigate({ pathname: previousStep.path, search: location.search });
     }
   };
 

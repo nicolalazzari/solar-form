@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import { config } from '../config/env';
 import styles from './AddressPage.module.css';
@@ -9,6 +9,7 @@ const USE_MANUAL_ENTRY = false;
 
 export default function AddressPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { bookingData, setAddressData, updateBookingData } = useBooking();
   const lastAutoLookupPostcodeRef = useRef('');
 
@@ -170,7 +171,7 @@ export default function AddressPage() {
       lastActionPage: '/address',
     });
 
-    navigate('/solar-assessment');
+    navigate({ pathname: '/solar-assessment', search: location.search });
   };
 
   const isFormValid = USE_MANUAL_ENTRY

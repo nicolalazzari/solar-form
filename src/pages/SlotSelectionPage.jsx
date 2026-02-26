@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import { config } from '../config/env';
 import styles from './SlotSelectionPage.module.css';
@@ -48,6 +48,7 @@ const generateMockSlots = () => {
 
 export default function SlotSelectionPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { bookingData, setBookingSlot, updateBookingData } = useBooking();
 
   const [loading, setLoading] = useState(true);
@@ -164,7 +165,7 @@ export default function SlotSelectionPage() {
       lastActionPage: '/slot-selection',
     });
 
-    navigate('/confirmation');
+    navigate({ pathname: '/confirmation', search: location.search });
   };
 
   if (loading) {
@@ -276,7 +277,7 @@ export default function SlotSelectionPage() {
           <div className={styles.summaryRow}>
             <span className={styles.summaryField}>Name</span>
             <span className={styles.summaryValue}>
-              {[bookingData.firstName, bookingData.lastName].filter(Boolean).join(' ') || '—'}
+              {(bookingData.firstName || bookingData.lastName || '').trim() || '—'}
             </span>
           </div>
           <div className={styles.summaryRow}>

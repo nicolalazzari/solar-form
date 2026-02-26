@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import styles from './EligibilityQuestionsPage.module.css';
 
@@ -29,6 +29,7 @@ const QUESTIONS = [
 
 export default function EligibilityQuestionsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setEligibilityData, updateBookingData, setJourneyStatus } = useBooking();
 
   const [answers, setAnswers] = useState({
@@ -83,7 +84,7 @@ export default function EligibilityQuestionsPage() {
         lastAction: 'eligibility_disqualified',
         lastActionPage: '/eligibility-questions',
       });
-      navigate('/confirmation');
+      navigate({ pathname: '/confirmation', search: location.search });
       return;
     }
 
@@ -93,7 +94,7 @@ export default function EligibilityQuestionsPage() {
       lastActionPage: '/eligibility-questions',
     });
 
-    navigate('/slot-selection');
+    navigate({ pathname: '/slot-selection', search: location.search });
   };
 
   const currentQuestion = QUESTIONS[currentQuestionIndex];
@@ -103,7 +104,7 @@ export default function EligibilityQuestionsPage() {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
     } else {
-      navigate('/solar-assessment');
+      navigate({ pathname: '/solar-assessment', search: location.search });
     }
   };
 
