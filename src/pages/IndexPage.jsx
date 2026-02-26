@@ -5,33 +5,32 @@ import styles from './IndexPage.module.css';
 
 export default function IndexPage() {
   const navigate = useNavigate();
-  const { initializeSession, setUserData, updateBookingData } = useBooking();
+  const { bookingData, initializeSession, setUserData, updateBookingData } = useBooking();
   const { startTracking } = useInactivity();
   const [showCallbackConfirmation, setShowCallbackConfirmation] = useState(false);
 
   const handleBookOnline = () => {
-    // Initialize session and capture data from MVF data layer
+    // Initialize session and capture data
     initializeSession();
 
-    // Get user data from MVF/Chameleon data layer (window.dataLayer)
-    // Field names use dataLayer.answers[field_name] format
-    // TODO: Update field names once confirmed by Team Gold
-    if (typeof window !== 'undefined' && window.dataLayer?.answers) {
+    // Data comes from PrefillBridge (postMessage from parent) when in optimizely iframe.
+    // Fallback: dataLayer (direct embed, same-origin) or dev test data.
+    const hasPrefill =
+      bookingData.postcode || bookingData.firstName || bookingData.emailAddress;
+
+    if (!hasPrefill && typeof window !== 'undefined' && window.dataLayer?.answers) {
       const answers = window.dataLayer.answers;
-      const userData = {
+      setUserData({
         firstName: answers['first_name'] || '',
         lastName: answers['last_name'] || '',
         postcode: answers['primary_address_postalcode'] || '',
         phoneNumber: answers['phone_number'] || '',
         emailAddress: answers['email_address'] || '',
-      };
-      setUserData(userData);
-
+      });
       updateBookingData({
         submissionId: window.dataLayer.submissionId || window.dataLayer.submission_id || '',
       });
-    } else if (import.meta.env.DEV) {
-      // Dev fallback: populate test data when no Chameleon data layer exists
+    } else if (!hasPrefill && import.meta.env.DEV) {
       setUserData({
         firstName: 'Test',
         lastName: 'User',

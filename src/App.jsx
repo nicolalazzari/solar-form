@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { BookingProvider, InactivityProvider } from './contexts';
 import { BookingLayout, DemoPageLayout } from './components/layout';
+import { PrefillBridge } from './components/PrefillBridge';
 import {
   LoaderTransitionPage,
   IndexPage,
@@ -43,6 +44,7 @@ function App() {
   return (
     <BrowserRouter>
       <BookingProvider>
+        <PrefillBridge />
         <InactivityProvider>
           <Routes>
             <Route path="/loader" element={<LoaderTransitionPage />} />
