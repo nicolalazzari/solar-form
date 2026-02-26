@@ -178,8 +178,19 @@ export default function AddressPage() {
       lastActionPage: '/address',
     });
 
+    const addr = USE_MANUAL_ENTRY ? null : selectedAddress;
     console.log('[AddressPage] navigating to /solar-assessment');
-    navigate({ pathname: '/solar-assessment', search: location.search });
+    navigate(
+      { pathname: '/solar-assessment', search: location.search },
+      {
+        state: addr ? {
+          latitude: addr.latitude,
+          longitude: addr.longitude,
+          postcode: addr.postcode,
+          fullAddress: addr.fullAddress,
+        } : undefined,
+      }
+    );
   };
 
   const isFormValid = USE_MANUAL_ENTRY

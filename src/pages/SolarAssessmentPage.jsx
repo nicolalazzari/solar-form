@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import { config } from '../config/env';
 import {
@@ -75,6 +75,7 @@ const MOCK_SOLAR_DATA = {
 
 export default function SolarAssessmentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     bookingData,
     setSolarAssessmentData,
@@ -82,6 +83,11 @@ export default function SolarAssessmentPage() {
     setJourneyStatus,
     setManualLocation,
   } = useBooking();
+
+  // React Router state is synchronous and always available on the
+  // destination render -- use it as a fallback when context hasn't
+  // committed yet (Safari cross-origin iframe timing).
+  const routeState = location.state || {};
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -148,15 +154,17 @@ export default function SolarAssessmentPage() {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    const lat = bookingData.latitude;
-    const lng = bookingData.longitude;
+    const lat = bookingData.latitude ?? routeState.latitude;
+    const lng = bookingData.longitude ?? routeState.longitude;
 
     console.log('[SolarAssessment] useEffect fired', {
       hasFetched: hasFetched.current,
-      lat,
-      lng,
-      postcode: bookingData.postcode,
-      fullAddress: bookingData.fullAddress,
+      contextLat: bookingData.latitude,
+      contextLng: bookingData.longitude,
+      routeStateLat: routeState.latitude,
+      routeStateLng: routeState.longitude,
+      resolvedLat: lat,
+      resolvedLng: lng,
     });
 
     if (hasFetched.current) return;
@@ -171,17 +179,14 @@ export default function SolarAssessmentPage() {
     console.log('[SolarAssessment] Coordinates null, waiting (5s timeout)');
     const timeout = setTimeout(() => {
       if (!hasFetched.current) {
-        console.warn('[SolarAssessment] Timeout: coordinates never arrived', {
-          lat: bookingData.latitude,
-          lng: bookingData.longitude,
-        });
+        console.warn('[SolarAssessment] Timeout: coordinates never arrived');
         setLoading(false);
         setError('Location coordinates not available. Please go back and select your address.');
       }
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [bookingData.latitude, bookingData.longitude]);
+  }, [bookingData.latitude, bookingData.longitude, routeState.latitude, routeState.longitude]);
 
   const fetchSolarAssessment = async (lat, lng) => {
     try {

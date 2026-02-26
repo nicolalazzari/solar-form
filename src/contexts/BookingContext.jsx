@@ -60,32 +60,57 @@ const DEFAULT_STATE = {
 };
 
 function loadPersistedState() {
+  // Try sessionStorage first, fall back to window.name
+  // (Safari blocks sessionStorage in third-party iframes)
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      console.log('[BookingContext] Loaded persisted state from sessionStorage', {
+      console.log('[BookingContext] Loaded state from sessionStorage', {
         latitude: parsed.latitude,
         longitude: parsed.longitude,
         postcode: parsed.postcode,
-        fullAddress: parsed.fullAddress,
-        sessionId: parsed.sessionId,
-        currentPage: parsed.currentPage,
       });
       return parsed;
     }
-    console.log('[BookingContext] No persisted state found in sessionStorage');
-  } catch (e) {
-    console.warn('[BookingContext] sessionStorage read failed', e);
+  } catch (_) {
+    // sessionStorage blocked
   }
+
+  try {
+    const wn = window.name;
+    if (wn && wn.charAt(0) === '{') {
+      const parsed = JSON.parse(wn);
+      if (parsed._solarBooking) {
+        console.log('[BookingContext] Loaded state from window.name', {
+          latitude: parsed.latitude,
+          longitude: parsed.longitude,
+          postcode: parsed.postcode,
+        });
+        return parsed;
+      }
+    }
+  } catch (_) {
+    // malformed window.name
+  }
+
+  console.log('[BookingContext] No persisted state found');
   return null;
 }
 
 function persistState(data) {
+  const payload = { ...data, _solarBooking: true };
+
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.warn('[BookingContext] sessionStorage write failed', e);
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (_) {
+    // sessionStorage blocked -- use window.name as fallback
+  }
+
+  try {
+    window.name = JSON.stringify(payload);
+  } catch (_) {
+    // best effort
   }
 }
 
