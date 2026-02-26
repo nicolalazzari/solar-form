@@ -616,11 +616,11 @@
     if (!answers || typeof answers !== 'object') return {};
     var postcode = extractPostcodeFromAnswers(answers);
     return {
-      first_name: extractTextFromAnswers(answers, ['first_name']) || extractAnswerValue(answers, 'first_name') || '',
-      last_name: extractTextFromAnswers(answers, ['last_name']) || extractAnswerValue(answers, 'last_name') || '',
-      primary_address_postalcode: postcode || extractAnswerValue(answers, 'primary_address_postalcode') || '',
-      phone_number: extractAnswerValue(answers, 'phone_number') || '',
-      email_address: extractAnswerValue(answers, 'email_address') || '',
+      first_name: extractTextFromAnswers(answers, ['first_name']) || '',
+      last_name: extractTextFromAnswers(answers, ['last_name']) || '',
+      primary_address_postalcode: postcode || '',
+      phone_number: extractTextFromAnswers(answers, ['phone_number']) || '',
+      email_address: extractTextFromAnswers(answers, ['email_address']) || '',
       submissionId: (eventObj && (eventObj.submissionId || eventObj.submission_id)) || '',
     };
   }
