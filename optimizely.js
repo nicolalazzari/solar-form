@@ -76,7 +76,6 @@
       matchedAt: now(),
       prefillPostcode: window.__solarOptlyPrefillPostcode || '',
       prefillFirstName: window.__solarOptlyPrefillFirstName || '',
-      prefillLastName: window.__solarOptlyPrefillLastName || '',
       prefillAnswers: window.__solarOptlyPrefillAnswers || {},
     };
     try {
@@ -227,7 +226,6 @@
     var url = CONFIG.appUrl + separator + 'optly_iframe=1&ts=' + now();
     var pc = window.__solarOptlyPrefillPostcode;
     var fn = window.__solarOptlyPrefillFirstName;
-    var ln = window.__solarOptlyPrefillLastName;
     if (pc) {
       url += '&prefill_postcode=' + encodeURIComponent(pc);
       log('buildAppUrl: including prefill_postcode', pc);
@@ -235,10 +233,6 @@
     if (fn) {
       url += '&prefill_first_name=' + encodeURIComponent(fn);
       log('buildAppUrl: including prefill_first_name', fn);
-    }
-    if (ln) {
-      url += '&prefill_last_name=' + encodeURIComponent(ln);
-      log('buildAppUrl: including prefill_last_name', ln);
     }
     return url;
   }
@@ -617,10 +611,7 @@
     var postcode = extractPostcodeFromAnswers(answers);
     return {
       first_name: extractTextFromAnswers(answers, ['first_name']) || '',
-      last_name: extractTextFromAnswers(answers, ['last_name']) || '',
       primary_address_postalcode: postcode || '',
-      phone_number: extractTextFromAnswers(answers, ['phone_number']) || '',
-      email_address: extractTextFromAnswers(answers, ['email_address']) || '',
       submissionId: (eventObj && (eventObj.submissionId || eventObj.submission_id)) || '',
     };
   }
@@ -630,7 +621,6 @@
     var answers = (eventObj && eventObj.answers) || {};
     var postcode = extractPostcodeFromAnswers(answers);
     var firstName = extractTextFromAnswers(answers, ['first_name']);
-    var lastName = extractTextFromAnswers(answers, ['last_name']);
     if (postcode) {
       window.__solarOptlyPrefillPostcode = postcode;
       log('Captured postcode prefill from answers', postcode);
@@ -638,10 +628,6 @@
     if (firstName) {
       window.__solarOptlyPrefillFirstName = firstName;
       log('Captured first_name prefill from answers', firstName);
-    }
-    if (lastName) {
-      window.__solarOptlyPrefillLastName = lastName;
-      log('Captured last_name prefill from answers', lastName);
     }
     window.__solarOptlyPrefillAnswers = buildPrefillAnswers(answers, eventObj);
     log('Stored prefill answers for postMessage', window.__solarOptlyPrefillAnswers);
@@ -688,7 +674,6 @@
         answerKeys: Object.keys(answers),
         postcode: extractPostcodeFromAnswers(answers),
         firstName: extractTextFromAnswers(answers, ['first_name']),
-        lastName: extractTextFromAnswers(answers, ['last_name']),
       });
       if (isEligible(eventObj.answers || {})) {
         onQualifiedMatch('webform_submission_completed', eventObj);
@@ -705,7 +690,6 @@
         answerKeys: Object.keys(typrAnswers),
         postcode: extractPostcodeFromAnswers(typrAnswers),
         firstName: extractTextFromAnswers(typrAnswers, ['first_name']),
-        lastName: extractTextFromAnswers(typrAnswers, ['last_name']),
       });
       if (isEligible(eventObj.answers || {})) {
         onQualifiedMatch('thankYouPageReached', eventObj);
@@ -713,7 +697,6 @@
         var answers = eventObj.answers || {};
         var pc = extractPostcodeFromAnswers(answers);
         var fn = extractTextFromAnswers(answers, ['first_name']);
-        var ln = extractTextFromAnswers(answers, ['last_name']);
         if (pc && !window.__solarOptlyPrefillPostcode) {
           window.__solarOptlyPrefillPostcode = pc;
           log('Captured postcode prefill from thankYouPageReached (already qualified)', pc);
@@ -721,10 +704,6 @@
         if (fn && !window.__solarOptlyPrefillFirstName) {
           window.__solarOptlyPrefillFirstName = fn;
           log('Captured first_name prefill from thankYouPageReached (already qualified)', fn);
-        }
-        if (ln && !window.__solarOptlyPrefillLastName) {
-          window.__solarOptlyPrefillLastName = ln;
-          log('Captured last_name prefill from thankYouPageReached (already qualified)', ln);
         }
         log('Already qualified; injecting solar form on thankYouPageReached');
         swapIframeWhenReady(eventObj.iFrameId);
@@ -769,10 +748,6 @@
     if (freshMarker.prefillFirstName) {
       window.__solarOptlyPrefillFirstName = freshMarker.prefillFirstName;
       log('Loaded first_name prefill from marker', freshMarker.prefillFirstName);
-    }
-    if (freshMarker.prefillLastName) {
-      window.__solarOptlyPrefillLastName = freshMarker.prefillLastName;
-      log('Loaded last_name prefill from marker', freshMarker.prefillLastName);
     }
     if (freshMarker.prefillAnswers && Object.keys(freshMarker.prefillAnswers).length > 0) {
       window.__solarOptlyPrefillAnswers = freshMarker.prefillAnswers;

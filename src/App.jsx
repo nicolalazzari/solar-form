@@ -39,18 +39,10 @@ function QueryPrefillBridge() {
       }
     }
 
-    const rawLastName = params.get('prefill_last_name');
-    if (rawLastName) {
-      const lastName = rawLastName.trim();
-      if (lastName && bookingData.lastName !== lastName) {
-        updates.lastName = lastName;
-      }
-    }
-
     if (Object.keys(updates).length > 0) {
       updateBookingData(updates);
     }
-  }, [location.search, bookingData.postcode, bookingData.firstName, bookingData.lastName, updateBookingData]);
+  }, [location.search, bookingData.postcode, bookingData.firstName, updateBookingData]);
 
   return null;
 }
