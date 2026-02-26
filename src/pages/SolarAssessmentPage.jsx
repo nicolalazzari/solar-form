@@ -145,13 +145,31 @@ export default function SolarAssessmentPage() {
     };
   }, [solarData, selectedSegments]);
 
-  const initialFetchDone = useRef(false);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (initialFetchDone.current) return;
-    if (bookingData.latitude == null || bookingData.longitude == null) return;
-    initialFetchDone.current = true;
-    fetchSolarAssessment();
+    if (hasFetched.current) return;
+
+    const lat = bookingData.latitude;
+    const lng = bookingData.longitude;
+
+    if (lat != null && lng != null) {
+      hasFetched.current = true;
+      fetchSolarAssessment(lat, lng);
+      return;
+    }
+
+    // Coordinates not available yet -- give state time to propagate
+    // (Safari cross-origin iframes can delay React context updates).
+    // Show an error after 5 s so the user isn't stuck on the spinner.
+    const timeout = setTimeout(() => {
+      if (!hasFetched.current) {
+        setLoading(false);
+        setError('Location coordinates not available. Please go back and select your address.');
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
   }, [bookingData.latitude, bookingData.longitude]);
 
   const fetchSolarAssessment = async (lat, lng) => {
