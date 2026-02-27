@@ -3,37 +3,50 @@ import { render, screen } from '@testing-library/react';
 import ProgressIndicator from '../../components/layout/ProgressIndicator';
 
 describe('ProgressIndicator', () => {
-  it('displays correct step count', () => {
+  it('displays the current stage label', () => {
     render(<ProgressIndicator currentStep={2} totalSteps={5} />);
 
-    expect(screen.getByText('Step 2 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Assessment')).toBeInTheDocument();
   });
 
-  it('calculates percentage correctly', () => {
-    render(<ProgressIndicator currentStep={2} totalSteps={5} />);
+  it('renders all five step icons', () => {
+    const { container } = render(<ProgressIndicator currentStep={1} totalSteps={5} />);
 
-    expect(screen.getByText('40%')).toBeInTheDocument();
+    const icons = container.querySelectorAll('[class*="stepIcon"]');
+    expect(icons.length).toBe(5);
   });
 
-  it('displays 100% on last step', () => {
+  it('marks completed steps correctly', () => {
+    const { container } = render(<ProgressIndicator currentStep={3} totalSteps={5} />);
+
+    const icons = container.querySelectorAll('[class*="stepIcon"]');
+    expect(icons[0].className).toContain('completed');
+    expect(icons[1].className).toContain('completed');
+    expect(icons[2].className).toContain('current');
+    expect(icons[3].className).toContain('incomplete');
+    expect(icons[4].className).toContain('incomplete');
+  });
+
+  it('renders connectors between steps', () => {
+    const { container } = render(<ProgressIndicator currentStep={1} totalSteps={5} />);
+
+    const connectors = container.querySelectorAll('[class*="connector"]');
+    expect(connectors.length).toBe(4);
+  });
+
+  it('marks completed connectors as active', () => {
+    const { container } = render(<ProgressIndicator currentStep={3} totalSteps={5} />);
+
+    const connectors = container.querySelectorAll('[class*="connector"]');
+    expect(connectors[0].className).toContain('connectorActive');
+    expect(connectors[1].className).toContain('connectorActive');
+    expect(connectors[2].className).not.toContain('connectorActive');
+    expect(connectors[3].className).not.toContain('connectorActive');
+  });
+
+  it('shows the last stage label on the final step', () => {
     render(<ProgressIndicator currentStep={5} totalSteps={5} />);
 
-    expect(screen.getByText('100%')).toBeInTheDocument();
-  });
-
-  it('has accessible progressbar role', () => {
-    render(<ProgressIndicator currentStep={3} totalSteps={5} />);
-
-    const progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveAttribute('aria-valuenow', '60');
-    expect(progressBar).toHaveAttribute('aria-valuemin', '0');
-    expect(progressBar).toHaveAttribute('aria-valuemax', '100');
-  });
-
-  it('updates progress bar width based on percentage', () => {
-    render(<ProgressIndicator currentStep={1} totalSteps={4} />);
-
-    const progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveStyle({ width: '25%' });
+    expect(screen.getByText('Done')).toBeInTheDocument();
   });
 });

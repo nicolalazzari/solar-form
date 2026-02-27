@@ -1,38 +1,93 @@
-.container {
-  padding: 1rem 1.5rem;
-  background-color: #ffffff;
-}
-
-.info {
+.wrapper {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 0.5rem;
+  width: 100%;
 }
 
-.stepText {
-  font-size: 0.875rem;
-  color: #4F4F4F;
-  font-family: 'Be Vietnam Pro', sans-serif;
-}
-
-.percentage {
-  font-size: 0.875rem;
+.currentLabel {
   font-weight: 600;
-  color: #03624C;
+  text-align: center;
+  color: #000000;
+  line-height: 16px;
+  letter-spacing: 0.48px;
+  font-size: 12px;
+  padding: 3px 16px;
+  background-color: #F7F7F7;
+  border-radius: 16px;
+  display: inline-block;
+  margin: 12px 0 5px;
   font-family: 'Be Vietnam Pro', sans-serif;
 }
 
-.progressBar {
-  height: 8px;
-  background-color: rgba(237, 237, 237, 1);
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   border-radius: 4px;
-  overflow: hidden;
+  position: relative;
+  overflow: visible;
+  padding: 10px 16px;
 }
 
-.progressFill {
-  height: 100%;
-  background-color: #9ECBA7;
-  border-radius: 4px;
-  transition: width 0.3s ease;
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  height: 24px;
+}
+
+.stepIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 2;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.stepIcon.completed {
+  width: 36px;
+  height: 36px;
+  background-color: #03624C;
+  border: none;
+}
+
+.stepIcon.current {
+  width: 40px;
+  height: 40px;
+  background-color: #FFFFFF;
+  border: 2px solid #03624C;
+}
+
+.stepIcon.incomplete {
+  width: 36px;
+  height: 36px;
+  background-color: #CCCCCC;
+  border: none;
+}
+
+.connector {
+  flex: 1;
+  height: 3px;
+  background-color: #CCCCCC;
+  border-radius: 1px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.connectorActive {
+  background-color: #03624C;
 }
