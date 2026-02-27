@@ -298,6 +298,7 @@
   function showSwapOverlay(preferredIFrameId) {
     var overlay = ensureSwapOverlay(preferredIFrameId);
     if (!overlay) return false;
+    overlay.style.transition = 'none';
     overlay.style.opacity = '1';
     overlay.style.pointerEvents = 'auto';
     return true;
@@ -311,6 +312,7 @@
     var parent = wrapper.parentElement || wrapper;
     var overlay = parent.querySelector('[data-solar-optly-overlay="1"]');
     if (!overlay) return false;
+    overlay.style.transition = 'opacity 400ms ease';
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
     return true;
