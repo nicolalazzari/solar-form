@@ -58,3 +58,9 @@ a:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: #000000;
 }
+
+/* Page slide transitions (Chameleon-style) */
+.pageTransitionContainer {
+  animation-duration: 400ms;
+  animation-fill-mode: both;
+}

@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { SwitchTransition, CSSTransition } from 'react-transition-group';
 import { BookingProvider, InactivityProvider } from './contexts';
 import { useBooking } from './contexts';
 import { BookingLayout, DemoPageLayout } from './components/layout';
@@ -14,6 +15,52 @@ import {
   ConfirmationPage,
 } from './pages';
 import './App.css';
+
+const ROUTE_ORDER = [
+  '/',
+  '/address',
+  '/solar-assessment',
+  '/eligibility-questions',
+  '/slot-selection',
+  '/confirmation',
+];
+
+function injectTransitionCSS(direction) {
+  const distance = window.innerWidth <= 480 ? 400 : 668;
+
+  const css = `
+    @keyframes fadeOutLeftBig {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translate3d(-${distance}px, 0, 0); }
+    }
+    @keyframes fadeOutRightBig {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translate3d(${distance}px, 0, 0); }
+    }
+    @keyframes fadeInRightBig {
+      from { opacity: 0; transform: translate3d(${distance}px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes fadeInLeftBig {
+      from { opacity: 0; transform: translate3d(-${distance}px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    .page-slide-enter-active {
+      animation-name: ${direction === 'left' ? 'fadeInRightBig' : 'fadeInLeftBig'};
+    }
+    .page-slide-exit-active {
+      animation-name: ${direction === 'left' ? 'fadeOutLeftBig' : 'fadeOutRightBig'};
+    }
+  `;
+
+  let el = document.getElementById('page-slide-transitions');
+  if (!el) {
+    el = document.createElement('style');
+    el.id = 'page-slide-transitions';
+    document.head.appendChild(el);
+  }
+  el.textContent = css;
+}
 
 function QueryPrefillBridge() {
   const location = useLocation();
@@ -185,26 +232,47 @@ function IframeAutoHeightBridge() {
 
 function AppContent() {
   const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
+  const directionRef = useRef('left');
   const isLoaderPage = location.pathname === '/loader';
 
-  // Loader page renders without any wrapper
+  if (location.pathname !== prevPathRef.current) {
+    const prevIdx = ROUTE_ORDER.indexOf(prevPathRef.current);
+    const currIdx = ROUTE_ORDER.indexOf(location.pathname);
+    directionRef.current = currIdx > prevIdx ? 'left' : 'right';
+  }
+
+  useLayoutEffect(() => {
+    injectTransitionCSS(directionRef.current);
+    prevPathRef.current = location.pathname;
+  }, [location.pathname]);
+
   if (isLoaderPage) {
     return <LoaderTransitionPage />;
   }
 
-  // All other pages render inside the DemoPageLayout (persistent page background)
-  // with BookingLayout handling the iframe content styling
   return (
     <DemoPageLayout>
       <BookingLayout>
-        <Routes>
-          <Route path="/" element={<IndexPage />} />
-          <Route path="/address" element={<AddressPage />} />
-          <Route path="/solar-assessment" element={<SolarAssessmentPage />} />
-          <Route path="/eligibility-questions" element={<EligibilityQuestionsPage />} />
-          <Route path="/slot-selection" element={<SlotSelectionPage />} />
-          <Route path="/confirmation" element={<ConfirmationPage />} />
-        </Routes>
+        <SwitchTransition>
+          <CSSTransition
+            key={location.pathname}
+            classNames="page-slide"
+            timeout={400}
+            unmountOnExit
+          >
+            <div className="pageTransitionContainer">
+              <Routes location={location}>
+                <Route path="/" element={<IndexPage />} />
+                <Route path="/address" element={<AddressPage />} />
+                <Route path="/solar-assessment" element={<SolarAssessmentPage />} />
+                <Route path="/eligibility-questions" element={<EligibilityQuestionsPage />} />
+                <Route path="/slot-selection" element={<SlotSelectionPage />} />
+                <Route path="/confirmation" element={<ConfirmationPage />} />
+              </Routes>
+            </div>
+          </CSSTransition>
+        </SwitchTransition>
       </BookingLayout>
     </DemoPageLayout>
   );
