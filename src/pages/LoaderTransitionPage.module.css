@@ -7,6 +7,17 @@
   font-family: 'Be Vietnam Pro', sans-serif;
   background: linear-gradient(180deg, #DAE7E6 0%, #FFFFFF 100%);
   padding: 2rem;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+.container.visible {
+  opacity: 1;
+}
+
+.container.fadeOutContainer {
+  opacity: 0;
+  transition: opacity 400ms ease;
 }
 
 .loaderArea {
@@ -125,7 +136,7 @@
   color: #000000;
   margin: 0 0 0.5rem 0;
   min-height: 2.5rem;
-  transition: opacity 0.3s ease-in-out;
+  animation: crossfadeText 0.5s ease-in-out;
 }
 
 .supportingText {
@@ -133,7 +144,12 @@
   color: #4F4F4F;
   margin: 0;
   min-height: 1.5rem;
-  transition: opacity 0.3s ease-in-out;
+  animation: crossfadeText 0.5s ease-in-out;
+}
+
+@keyframes crossfadeText {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .trustSignals {

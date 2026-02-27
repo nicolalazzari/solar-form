@@ -256,6 +256,7 @@
     var targetIframe = getTargetIframe(preferredIFrameId);
     if (!targetIframe) return false;
 
+    targetIframe.style.transition = 'opacity 400ms ease';
     targetIframe.style.visibility = 'visible';
     targetIframe.style.opacity = '1';
     targetIframe.removeAttribute('data-solar-optly-swapping');
@@ -289,7 +290,7 @@
     overlay.style.zIndex = '9999';
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
-    overlay.style.transition = 'opacity 120ms ease';
+    overlay.style.transition = 'opacity 400ms ease';
     parent.appendChild(overlay);
     return overlay;
   }

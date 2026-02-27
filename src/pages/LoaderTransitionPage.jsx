@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './LoaderTransitionPage.module.css';
 
@@ -20,6 +20,9 @@ const LOADER_STATES = [
   },
 ];
 
+const FADE_IN_MS = 500;
+const FADE_OUT_MS = 400;
+
 const ECO_EXPERTS_LOGO = 'https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/mp/wp-content/uploads/sites/3/2022/09/ee-logo.svg';
 const PROJECT_SOLAR_LOGO = 'https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2025/10/Project-Solar-long-full-colour-without-tag.svg';
 
@@ -29,6 +32,23 @@ export default function LoaderTransitionPage() {
   const [currentState, setCurrentState] = useState(0);
   const [progress, setProgress] = useState(0);
   const [showProjectSolar, setShowProjectSolar] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
+  const containerRef = useRef(null);
+
+  const navigateAway = useCallback(() => {
+    setFadingOut(true);
+    setTimeout(() => {
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'solar-optly-loader-complete' }, '*');
+      }
+      navigate({ pathname: '/', search: location.search });
+    }, FADE_OUT_MS);
+  }, [navigate, location.search]);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+  }, []);
 
   useEffect(() => {
     const totalDuration = LOADER_STATES.reduce((sum, state) => sum + state.duration, 0);
@@ -39,41 +59,41 @@ export default function LoaderTransitionPage() {
       setProgress(Math.min((elapsed / totalDuration) * 100, 100));
     }, 50);
 
-    // State transitions
     let cumulativeTime = 0;
+    const timeouts = [];
     LOADER_STATES.forEach((state, index) => {
       if (index > 0) {
-        setTimeout(() => {
-          setCurrentState(index);
-          if (index === 2) {
-            setShowProjectSolar(true);
-          }
-        }, cumulativeTime);
+        timeouts.push(
+          setTimeout(() => {
+            setCurrentState(index);
+            if (index === 2) {
+              setShowProjectSolar(true);
+            }
+          }, cumulativeTime)
+        );
       }
       cumulativeTime += state.duration;
     });
 
-    // Navigate to index after all states complete
-    const navigationTimeout = setTimeout(() => {
-      if (window.parent !== window) {
-        window.parent.postMessage({ type: 'solar-optly-loader-complete' }, '*');
-      }
-      navigate({
-        pathname: '/',
-        search: location.search,
-      });
-    }, totalDuration + 500);
+    const navigationTimeout = setTimeout(navigateAway, totalDuration + 500);
+    timeouts.push(navigationTimeout);
 
     return () => {
       clearInterval(progressInterval);
-      clearTimeout(navigationTimeout);
+      timeouts.forEach(clearTimeout);
     };
-  }, [navigate, location.search]);
+  }, [navigateAway]);
 
   const { headline, supportingText } = LOADER_STATES[currentState];
 
+  const containerClass = [
+    styles.container,
+    mounted && !fadingOut ? styles.visible : '',
+    fadingOut ? styles.fadeOutContainer : '',
+  ].filter(Boolean).join(' ');
+
   return (
-    <div className={styles.container}>
+    <div ref={containerRef} className={containerClass}>
       <div className={styles.loaderArea}>
         {/* Brand Logo Animation */}
         <div className={styles.logoContainer}>
@@ -126,8 +146,8 @@ export default function LoaderTransitionPage() {
         </div>
 
         {/* Loader Copy */}
-        <h1 className={styles.headline}>{headline}</h1>
-        <p className={styles.supportingText}>{supportingText}</p>
+        <h1 key={`h-${currentState}`} className={styles.headline}>{headline}</h1>
+        <p key={`s-${currentState}`} className={styles.supportingText}>{supportingText}</p>
       </div>
 
       {/* Trust Signals */}
