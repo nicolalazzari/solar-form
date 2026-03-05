@@ -279,7 +279,7 @@ END:VCALENDAR`;
 
         <div className={styles.icon}>
           <img
-            src="https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2026/03/calendar_check_100dp_053C5E_FILL0_wght400_GRAD0_opsz48.svg"
+            src="https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2026/03/calendar_check_100dp_0F5132_FILL0_wght400_GRAD0_opsz48.svg"
             alt=""
             className={styles.checkIcon}
           />
