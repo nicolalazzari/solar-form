@@ -4,7 +4,7 @@ import { useBooking } from '../contexts';
 import { config } from '../config/env';
 import styles from './SlotSelectionPage.module.css';
 
-const USE_MOCK_DATA = false;
+const USE_MOCK_DATA = true;
 
 // Generate mock slots for the next 5 days
 // Time slots: 10am, 2pm, 6pm (90-minute appointments)
