@@ -278,17 +278,11 @@ END:VCALENDAR`;
         )}
 
         <div className={styles.icon}>
-          <svg viewBox="0 0 64 64" className={styles.checkIcon}>
-            <circle cx="32" cy="32" r="30" fill="#03624C" />
-            <path
-              d="M20 32 L28 40 L44 24"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <img
+            src="https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2026/03/calendar_check_100dp_053C5E_FILL0_wght400_GRAD0_opsz48.svg"
+            alt=""
+            className={styles.checkIcon}
+          />
         </div>
 
         <h1 className={styles.title}>Booking confirmed!</h1>
