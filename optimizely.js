@@ -25,6 +25,7 @@
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
     heightDebug: false,
     getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
+    getAvailabilityApiKey: '', // x-api-key for get-availability; set via __solarOptlyConfig
     slotCheckTimeoutMs: 5000,
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
@@ -270,6 +271,9 @@
       method: 'GET',
     };
     if (controller) fetchOptions.signal = controller.signal;
+    if (CONFIG.getAvailabilityApiKey) {
+      fetchOptions.headers = { 'x-api-key': CONFIG.getAvailabilityApiKey };
+    }
 
     var fetchPromise = fetch(url, fetchOptions)
       .then(function (res) {
