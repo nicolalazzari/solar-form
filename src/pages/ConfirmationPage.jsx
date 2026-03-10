@@ -40,6 +40,12 @@ export default function ConfirmationPage() {
         setBookingReference(mockRef);
         setBookingConfirmed(true);
         confirmBooking(mockRef);
+        if (typeof window !== 'undefined' && window.parent !== window) {
+          window.parent.postMessage(
+            { type: 'solar-optly-booking-complete', bookingReference: mockRef },
+            '*'
+          );
+        }
         setLoading(false);
         return;
       }
@@ -191,6 +197,14 @@ export default function ConfirmationPage() {
       setBookingReference(generatedRef);
       setBookingConfirmed(true);
       confirmBooking(generatedRef);
+
+      // Notify parent to navigate to booking recap TYP (when in Optimizely iframe)
+      if (typeof window !== 'undefined' && window.parent !== window) {
+        window.parent.postMessage(
+          { type: 'solar-optly-booking-complete', bookingReference: generatedRef },
+          '*'
+        );
+      }
     } catch (err) {
       console.error('Booking submission failed:', err);
       // If booking fails, show callback required

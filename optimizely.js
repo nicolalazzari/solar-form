@@ -27,6 +27,7 @@
     bookingSlotsApiUrl: 'https://wakypxxobpdvqwblheio.supabase.co/functions/v1',
     supabaseAnonKey: '', // Must be set when deploying to Optimizely
     slotCheckTimeoutMs: 5000,
+    bookingRecapTypUrl: '', // Navigate here on booking complete; empty = current URL + ?booking=confirmed
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
       // (e.g. "homeowner") or binary values (e.g. "yes"/"no").
@@ -482,6 +483,18 @@
             );
             log('Sent prefill answers to iframe', prefillAnswers);
           }
+          return;
+        }
+
+        if (payload.type === 'solar-optly-booking-complete') {
+          log('Booking complete; navigating to booking recap TYP', payload.bookingReference);
+          var recapUrl = CONFIG.bookingRecapTypUrl;
+          if (!recapUrl) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('booking', 'confirmed');
+            recapUrl = url.toString();
+          }
+          window.location.href = recapUrl;
           return;
         }
 
