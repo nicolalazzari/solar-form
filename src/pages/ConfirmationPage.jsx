@@ -145,7 +145,7 @@ export default function ConfirmationPage() {
 
       const headers = {
         'Content-Type': 'application/json',
-        ...(config.supabaseAnonKey && { 'x-api-key': config.supabaseAnonKey }),
+        ...(config.projectSolarApiKey && { 'x-api-key': config.projectSolarApiKey }),
       };
 
       console.log('[DEBUG] Booking appointment:', bookAppointmentPayload);
