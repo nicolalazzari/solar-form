@@ -22,11 +22,8 @@ export const config = {
   // Project Solar API (all edge functions: book-appointment, get-availability, submit-booking, log-exit, log-interaction)
   projectSolarApiUrl: import.meta.env.VITE_PROJECT_SOLAR_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
 
-  // Supabase anon key for edge function authentication
+  // Supabase anon key for edge function authentication (book-appointment x-api-key, submit-booking Bearer)
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-
-  // API key for book-appointment (required by sejpbjqjfxmehyvlweil; optional for some deployments)
-  projectSolarApiKey: import.meta.env.VITE_PROJECT_SOLAR_API_KEY || import.meta.env.VITE_PROJECT_SOLAR_MVF_API_KEY || '',
 
   // Environment
   isDev: import.meta.env.DEV,
