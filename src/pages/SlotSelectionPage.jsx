@@ -74,15 +74,14 @@ export default function SlotSelectionPage() {
         return;
       }
 
-      // Use our proxy to avoid CORS (MVF API blocks x-api-key header in browser)
       const postcode = (bookingData.postcode || '').trim().replace(/\s/g, '');
       const response = await fetch(
-        `${config.projectSolarApiUrl}/get-availability-proxy?postcode=${encodeURIComponent(postcode)}`,
+        `${config.projectSolarMvfApiUrl}/get-availability?postcode=${encodeURIComponent(postcode)}`,
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            ...(config.supabaseAnonKey && { Authorization: `Bearer ${config.supabaseAnonKey}` }),
+            ...(config.projectSolarMvfApiKey && { 'x-api-key': config.projectSolarMvfApiKey }),
           },
         }
       );

@@ -126,15 +126,14 @@ export default function ConfirmationPage() {
         provider_lead_id: bookingData.submissionId || bookingData.sessionId || '',
       };
 
-      // Use our proxy to avoid CORS (MVF API blocks x-api-key header in browser)
       const headers = {
         'Content-Type': 'application/json',
-        ...(config.supabaseAnonKey && { Authorization: `Bearer ${config.supabaseAnonKey}` }),
+        ...(config.projectSolarMvfApiKey && { 'x-api-key': config.projectSolarMvfApiKey }),
       };
 
       console.log('[DEBUG] Booking appointment:', bookAppointmentPayload);
 
-      const bookingResponse = await fetch(`${config.projectSolarApiUrl}/book-appointment-proxy`, {
+      const bookingResponse = await fetch(`${config.projectSolarMvfApiUrl}/book-appointment`, {
         method: 'POST',
         headers,
         body: JSON.stringify(bookAppointmentPayload),
