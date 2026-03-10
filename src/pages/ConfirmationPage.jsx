@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import { config } from '../config/env';
 import styles from './ConfirmationPage.module.css';
@@ -12,7 +13,8 @@ const generateMockReference = () => {
 };
 
 export default function ConfirmationPage() {
-  const { bookingData, confirmBooking, updateBookingData } = useBooking();
+  const navigate = useNavigate();
+  const { bookingData, confirmBooking, updateBookingData, setBookingSlot } = useBooking();
   const [loading, setLoading] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
@@ -206,12 +208,18 @@ export default function ConfirmationPage() {
       confirmBooking(generatedRef);
     } catch (err) {
       console.error('Booking submission failed:', err);
-      // If booking fails (e.g. validation.phone - landline rejected, API expects mobile), show callback
-      const isPhoneValidation = /validation\.phone|customer\.mobile/i.test(String(err?.message || ''));
-      updateBookingData({
-        journeyStatus: 'callback_required',
-        ...(isPhoneValidation && { lastError: 'phone_validation' }),
-      });
+      const errMsg = String(err?.message || '');
+      const isSlotUnavailable = /time slot not available|410|slot.*unavailable/i.test(errMsg);
+      const isPhoneValidation = /validation\.phone|customer\.mobile/i.test(errMsg);
+
+      if (isSlotUnavailable) {
+        updateBookingData({ lastError: 'slot_unavailable' });
+      } else {
+        updateBookingData({
+          journeyStatus: 'callback_required',
+          ...(isPhoneValidation && { lastError: 'phone_validation' }),
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -345,6 +353,39 @@ END:VCALENDAR`;
         <p className={styles.note}>
           A confirmation email has been sent to {bookingData.emailAddress || 'your email address'}
         </p>
+      </div>
+    );
+  }
+
+  // Slot no longer available (410) - let user pick another
+  if (bookingData.lastError === 'slot_unavailable') {
+    const handlePickAnotherSlot = () => {
+      setBookingSlot(null);
+      updateBookingData({ lastError: null });
+      navigate('/slot-selection');
+    };
+    return (
+      <div className={styles.container}>
+        <div className={styles.icon}>
+          <svg viewBox="0 0 64 64" className={styles.warningIcon}>
+            <circle cx="32" cy="32" r="30" fill="#ffc107" />
+            <text x="32" y="42" textAnchor="middle" fontSize="32" fill="#000">!</text>
+          </svg>
+        </div>
+
+        <h1 className={styles.title}>This slot is no longer available</h1>
+
+        <p className={styles.message}>
+          Someone else may have taken this appointment. Please choose another time.
+        </p>
+
+        <button
+          type="button"
+          className={styles.calendarButton}
+          onClick={handlePickAnotherSlot}
+        >
+          Choose another slot
+        </button>
       </div>
     );
   }
