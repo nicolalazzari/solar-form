@@ -325,6 +325,13 @@
   border-color: #03624C;
 }
 
+.contactFieldHint {
+  display: block;
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  margin-top: 0.25rem;
+}
+
 .consentStatement {
   font-size: 0.75rem;
   color: #4F4F4F;

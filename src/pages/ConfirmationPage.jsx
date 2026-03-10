@@ -115,14 +115,19 @@ export default function ConfirmationPage() {
       });
 
       // Step 1: Book appointment via Project Solar API (POST book-appointment)
-      // Normalize phone to E.164 UK format (+44...) for API validation
-      const rawPhone = (bookingData.phoneNumber || '').trim().replace(/\s/g, '');
-      let mobile = rawPhone;
-      if (mobile) {
-        if (mobile.startsWith('+44')) mobile = mobile;
-        else if (mobile.startsWith('0044')) mobile = '+' + mobile.slice(2);
-        else if (mobile.startsWith('0') && mobile.length === 11) mobile = '+44' + mobile.slice(1);
-        else if (/^\d{10,11}$/.test(mobile)) mobile = '+44' + mobile;
+      // Normalize phone to E.164 UK format (+44...) for API validation.
+      // Project Solar expects customer.mobile - UK mobile (07xxx) preferred; landlines may fail validation.
+      const rawPhone = (bookingData.phoneNumber || '').trim();
+      const digits = rawPhone.replace(/\D/g, '');
+      let mobile = '';
+      if (digits.length >= 10) {
+        if (digits.startsWith('44') && digits.length >= 12) {
+          mobile = '+' + digits;
+        } else if (digits.startsWith('0') && digits.length === 11) {
+          mobile = '+44' + digits.slice(1);
+        } else if (digits.length === 10 || digits.length === 11) {
+          mobile = '+44' + (digits.startsWith('0') ? digits.slice(1) : digits);
+        }
       }
 
       const bookAppointmentPayload = {
@@ -201,8 +206,12 @@ export default function ConfirmationPage() {
       confirmBooking(generatedRef);
     } catch (err) {
       console.error('Booking submission failed:', err);
-      // If booking fails, show callback required
-      updateBookingData({ journeyStatus: 'callback_required' });
+      // If booking fails (e.g. validation.phone - landline rejected, API expects mobile), show callback
+      const isPhoneValidation = /validation\.phone|customer\.mobile/i.test(String(err?.message || ''));
+      updateBookingData({
+        journeyStatus: 'callback_required',
+        ...(isPhoneValidation && { lastError: 'phone_validation' }),
+      });
     } finally {
       setLoading(false);
     }
@@ -384,15 +393,20 @@ END:VCALENDAR`;
       <h1 className={styles.title}>We'll give you a call</h1>
 
       <p className={styles.message}>
-        {isDisqualified
-          ? "Based on your answers, we'd like to discuss your options with you directly. One of our solar experts will call you soon."
-          : "Thank you for your interest. One of our team will call you to discuss your solar options and arrange an appointment."}
+        {bookingData.lastError === 'phone_validation'
+          ? "We need a mobile number to complete your booking online. One of our team will call you on the number below to arrange your appointment."
+          : isDisqualified
+            ? "Based on your answers, we'd like to discuss your options with you directly. One of our solar experts will call you soon."
+            : "Thank you for your interest. One of our team will call you to discuss your solar options and arrange an appointment."}
       </p>
 
       <div className={styles.callbackInfo}>
         <p>We'll call you on:</p>
         <p className={styles.phoneNumber}>{bookingData.phoneNumber || 'your registered number'}</p>
         <p className={styles.callbackNote}>Usually within 24 hours</p>
+        {bookingData.lastError === 'phone_validation' && (
+          <p className={styles.callbackNote}>Or call us on 0800 112 3110 to complete your booking now.</p>
+        )}
       </div>
     </div>
   );

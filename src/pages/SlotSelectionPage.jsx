@@ -340,7 +340,7 @@ export default function SlotSelectionPage() {
           )}
           {missingPhone && (
             <div className={styles.contactField}>
-              <label htmlFor="slot-phone">Phone *</label>
+              <label htmlFor="slot-phone">Mobile number *</label>
               <input
                 id="slot-phone"
                 type="tel"
@@ -349,6 +349,7 @@ export default function SlotSelectionPage() {
                 placeholder="07XXX XXXXXX"
                 autoComplete="tel"
               />
+              <span className={styles.contactFieldHint}>Please enter a UK mobile number (07xxx)</span>
             </div>
           )}
         </div>
