@@ -47,28 +47,48 @@
       }
 
       const url = `${apiUrl}/get-availability?postcode=${encodeURIComponent(postcode)}`;
-      const headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey };
+      const lines = [];
 
-      output.textContent = `Fetching: ${url}\n\n...`;
-      output.className = '';
-
+      // Test A: Simple GET (no custom headers) - no preflight
+      lines.push('=== Test A: GET without x-api-key (no preflight) ===');
       try {
-        const res = await fetch(url, { method: 'GET', headers });
-        const data = await res.text();
-        let parsed;
-        try { parsed = JSON.parse(data); } catch { parsed = data; }
-
-        if (res.ok) {
-          output.textContent = `SUCCESS (${res.status})\n\n${JSON.stringify(parsed, null, 2)}`;
-          output.className = 'success';
-        } else {
-          output.textContent = `HTTP ${res.status}\n\n${JSON.stringify(parsed, null, 2)}`;
-          output.className = 'error';
-        }
-      } catch (err) {
-        output.textContent = `CORS or network error:\n\n${err.message}\n\n${err.stack || ''}`;
-        output.className = 'error';
+        const resA = await fetch(url);
+        const dataA = await resA.text();
+        lines.push(`Status: ${resA.status} (expected 401 if key required)`);
+        lines.push(`Response: ${dataA.slice(0, 200)}${dataA.length > 200 ? '...' : ''}`);
+        lines.push('');
+      } catch (errA) {
+        lines.push(`FAILED: ${errA.message}`);
+        lines.push('(Network or CORS block - even simple GET failed)');
+        lines.push('');
       }
+
+      // Test B: GET with x-api-key - triggers preflight
+      lines.push('=== Test B: GET with x-api-key (triggers preflight) ===');
+      try {
+        const resB = await fetch(url, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+        });
+        const dataB = await resB.text();
+        let parsed;
+        try { parsed = JSON.parse(dataB); } catch { parsed = dataB; }
+        lines.push(`Status: ${resB.status}`);
+        if (resB.ok) {
+          lines.push('SUCCESS - CORS allows x-api-key');
+          lines.push(JSON.stringify(parsed, null, 2));
+        } else {
+          lines.push(`Response: ${JSON.stringify(parsed, null, 2)}`);
+        }
+      } catch (errB) {
+        lines.push(`FAILED: ${errB.message}`);
+        lines.push('');
+        lines.push('CORS preflight blocked: x-api-key header not in Access-Control-Allow-Headers.');
+        lines.push('Fix: Use the proxy (get-availability-proxy) or ask MVF to add x-api-key to CORS.');
+      }
+
+      output.textContent = lines.join('\n');
+      output.className = lines.some(l => l.includes('FAILED')) ? 'error' : 'success';
     });
   </script>
 </body>
