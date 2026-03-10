@@ -25,7 +25,6 @@
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
     heightDebug: true,
     getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
-    getAvailabilityApiKey: '', // MVF API key (x-api-key) - set when deploying to Optimizely
     slotCheckTimeoutMs: 5000,
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
@@ -244,12 +243,8 @@
 
     var fetchOptions = {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
     };
     if (controller) fetchOptions.signal = controller.signal;
-    if (CONFIG.getAvailabilityApiKey) {
-      fetchOptions.headers['x-api-key'] = CONFIG.getAvailabilityApiKey;
-    }
 
     var fetchPromise = fetch(url, fetchOptions)
       .then(function (res) {

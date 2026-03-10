@@ -77,13 +77,7 @@ export default function SlotSelectionPage() {
       const postcode = (bookingData.postcode || '').trim().replace(/\s/g, '');
       const response = await fetch(
         `${config.projectSolarMvfApiUrl}/get-availability?postcode=${encodeURIComponent(postcode)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(config.projectSolarMvfApiKey && { 'x-api-key': config.projectSolarMvfApiKey }),
-          },
-        }
+        { method: 'GET' }
       );
 
       if (!response.ok) {
