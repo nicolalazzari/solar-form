@@ -682,20 +682,22 @@
   function buildPrefillAnswers(answers, eventObj) {
     if (!answers || typeof answers !== 'object') return {};
     var postcode = extractPostcodeFromAnswers(answers);
-    var firstName = extractTextFromAnswers(answers, ['first_name', 'full_name', 'name']) ||
+    // Chameleon uses: first_name (full name), email1, phone_work
+    var fullName = extractTextFromAnswers(answers, ['first_name', 'full_name', 'name']) ||
       extractByKeyPattern(answers, /first_name|full_name|name/i);
     var lastName = extractTextFromAnswers(answers, ['last_name']) ||
       extractByKeyPattern(answers, /last_name/i);
-    var email = extractTextFromAnswers(answers, ['email_address', 'email']) ||
+    var email = extractTextFromAnswers(answers, ['email1', 'email_address', 'email']) ||
       extractByKeyPattern(answers, /email/i);
-    var phone = extractTextFromAnswers(answers, ['phone_number', 'phone', 'mobile']) ||
+    var phone = extractTextFromAnswers(answers, ['phone_work', 'phone_number', 'phone', 'mobile']) ||
       extractByKeyPattern(answers, /phone|mobile|tel/i);
 
-    // If firstName is actually full name (e.g. "test test") and last_name empty, split
-    if (firstName && !lastName && firstName.indexOf(' ') !== -1) {
-      var parts = firstName.split(/\s+/);
+    // first_name contains full name ("name surname"); split into first/last
+    var firstName = fullName;
+    if (fullName && !lastName && fullName.indexOf(' ') !== -1) {
+      var parts = fullName.split(/\s+/);
+      firstName = parts[0] || fullName;
       lastName = parts.slice(1).join(' ') || '';
-      firstName = parts[0] || firstName;
     }
 
     var result = {
