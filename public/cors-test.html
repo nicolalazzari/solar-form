@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CORS Test - MVF get-availability</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+    input { padding: 0.5rem; width: 120px; margin-right: 0.5rem; }
+    button { padding: 0.5rem 1rem; cursor: pointer; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; font-size: 12px; }
+    .success { color: #03624C; }
+    .error { color: #c00; }
+  </style>
+</head>
+<body>
+  <h1>CORS Test – MVF get-availability</h1>
+  <p>Tests whether the MVF API allows <code>x-api-key</code> from the browser.</p>
+  <p><strong>How to run:</strong> <code>npm run dev</code> then open <a href="/cors-test.html">/cors-test.html</a>. Paste the API key and click Run.</p>
+
+  <p>
+    <label>Postcode: <input type="text" id="postcode" value="SW109QU" placeholder="SW109QU"></label>
+    <button type="button" id="run">Run test</button>
+  </p>
+
+  <p>
+    <label>API URL: <input type="text" id="apiUrl" value="https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1" style="width: 360px;"></label>
+  </p>
+  <p>
+    <label>API Key: <input type="password" id="apiKey" placeholder="Paste your x-api-key" style="width: 280px;"></label>
+  </p>
+
+  <h2>Result</h2>
+  <pre id="output">Click "Run test" to check CORS...</pre>
+
+  <script>
+    document.getElementById('run').addEventListener('click', async () => {
+      const postcode = document.getElementById('postcode').value.trim().replace(/\s/g, '') || 'SW109QU';
+      const apiUrl = document.getElementById('apiUrl').value.trim();
+      const apiKey = document.getElementById('apiKey').value.trim();
+      const output = document.getElementById('output');
+
+      if (!apiKey) {
+        output.textContent = 'Error: Enter the API key first.';
+        output.className = 'error';
+        return;
+      }
+
+      const url = `${apiUrl}/get-availability?postcode=${encodeURIComponent(postcode)}`;
+      const headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey };
+
+      output.textContent = `Fetching: ${url}\n\n...`;
+      output.className = '';
+
+      try {
+        const res = await fetch(url, { method: 'GET', headers });
+        const data = await res.text();
+        let parsed;
+        try { parsed = JSON.parse(data); } catch { parsed = data; }
+
+        if (res.ok) {
+          output.textContent = `SUCCESS (${res.status})\n\n${JSON.stringify(parsed, null, 2)}`;
+          output.className = 'success';
+        } else {
+          output.textContent = `HTTP ${res.status}\n\n${JSON.stringify(parsed, null, 2)}`;
+          output.className = 'error';
+        }
+      } catch (err) {
+        output.textContent = `CORS or network error:\n\n${err.message}\n\n${err.stack || ''}`;
+        output.className = 'error';
+      }
+    });
+  </script>
+</body>
+</html>
