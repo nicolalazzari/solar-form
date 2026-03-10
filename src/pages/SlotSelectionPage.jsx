@@ -56,6 +56,12 @@ export default function SlotSelectionPage() {
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [accordionOpen, setAccordionOpen] = useState(false);
+  const [contactOverrides, setContactOverrides] = useState({ lastName: '', email: '', phone: '' });
+
+  const missingLastName = !(bookingData.lastName || contactOverrides.lastName).trim();
+  const missingEmail = !(bookingData.emailAddress || contactOverrides.email).trim();
+  const missingPhone = !(bookingData.phoneNumber || contactOverrides.phone).trim();
+  const hasMissingContact = missingLastName || missingEmail || missingPhone;
 
   useEffect(() => {
     fetchAvailableSlots();
@@ -153,12 +159,20 @@ export default function SlotSelectionPage() {
     setSelectedSlot(slot);
   };
 
+  const resolvedLastName = (bookingData.lastName || contactOverrides.lastName || '').trim();
+  const resolvedEmail = (bookingData.emailAddress || contactOverrides.email || '').trim();
+  const resolvedPhone = (bookingData.phoneNumber || contactOverrides.phone || '').trim();
+  const canConfirm = selectedSlot && resolvedLastName && resolvedEmail && resolvedPhone;
+
   const handleConfirm = () => {
-    if (!selectedSlot) return;
+    if (!selectedSlot || !canConfirm) return;
 
     setBookingSlot(selectedSlot);
 
     updateBookingData({
+      lastName: resolvedLastName,
+      emailAddress: resolvedEmail,
+      phoneNumber: resolvedPhone,
       currentPage: '/confirmation',
       lastAction: 'slot_confirmed',
       lastActionPage: '/slot-selection',
@@ -276,7 +290,7 @@ export default function SlotSelectionPage() {
           <div className={styles.summaryRow}>
             <span className={styles.summaryField}>Name</span>
             <span className={styles.summaryValue}>
-              {(bookingData.firstName || bookingData.lastName || '').trim() || '—'}
+              {[(bookingData.firstName || '').trim(), resolvedLastName].filter(Boolean).join(' ') || '—'}
             </span>
           </div>
           <div className={styles.summaryRow}>
@@ -294,6 +308,52 @@ export default function SlotSelectionPage() {
         </div>
       )}
 
+      {selectedSlot && hasMissingContact && (
+        <div className={styles.contactForm}>
+          <span className={styles.summaryLabel}>Contact details</span>
+          <p className={styles.contactFormHint}>Please provide your contact details to complete the booking.</p>
+          {missingLastName && (
+            <div className={styles.contactField}>
+              <label htmlFor="slot-lastname">Last name *</label>
+              <input
+                id="slot-lastname"
+                type="text"
+                value={contactOverrides.lastName}
+                onChange={(e) => setContactOverrides(prev => ({ ...prev, lastName: e.target.value }))}
+                placeholder="Your last name"
+                autoComplete="family-name"
+              />
+            </div>
+          )}
+          {missingEmail && (
+            <div className={styles.contactField}>
+              <label htmlFor="slot-email">Email *</label>
+              <input
+                id="slot-email"
+                type="email"
+                value={contactOverrides.email}
+                onChange={(e) => setContactOverrides(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="your@email.com"
+                autoComplete="email"
+              />
+            </div>
+          )}
+          {missingPhone && (
+            <div className={styles.contactField}>
+              <label htmlFor="slot-phone">Phone *</label>
+              <input
+                id="slot-phone"
+                type="tel"
+                value={contactOverrides.phone}
+                onChange={(e) => setContactOverrides(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="07XXX XXXXXX"
+                autoComplete="tel"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       <p className={styles.consentStatement}>
         By submitting this booking, you consent to MVF, trading as The Eco Experts, sharing your details with Project Solar to arrange and discuss your solar appointment. Project Solar may contact you by telephone (including automated calls), SMS, email, post or OTT messaging services such as WhatsApp for this purpose. You can withdraw your consent at any time.
       </p>
@@ -302,7 +362,7 @@ export default function SlotSelectionPage() {
         type="button"
         className={styles.confirmButton}
         onClick={handleConfirm}
-        disabled={!selectedSlot}
+        disabled={!canConfirm}
       >
         Confirm appointment
       </button>

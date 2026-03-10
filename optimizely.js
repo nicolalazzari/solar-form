@@ -195,6 +195,22 @@
     return '';
   }
 
+  /** Fallback: scan answer keys by regex for Chameleon sugar IDs / alternate keys */
+  function extractByKeyPattern(answers, pattern) {
+    if (!answers || typeof answers !== 'object') return '';
+    for (var k in answers) {
+      if (
+        Object.prototype.hasOwnProperty.call(answers, k) &&
+        pattern.test(k) &&
+        answers[k] &&
+        String(answers[k]).trim()
+      ) {
+        return String(answers[k]).trim();
+      }
+    }
+    return '';
+  }
+
   function extractPostcodeFromAnswers(answers) {
     if (!answers || typeof answers !== 'object') return '';
     var keys = [
@@ -666,11 +682,34 @@
   function buildPrefillAnswers(answers, eventObj) {
     if (!answers || typeof answers !== 'object') return {};
     var postcode = extractPostcodeFromAnswers(answers);
-    return {
-      first_name: extractTextFromAnswers(answers, ['first_name']) || '',
+    var firstName = extractTextFromAnswers(answers, ['first_name', 'full_name', 'name']) ||
+      extractByKeyPattern(answers, /first_name|full_name|name/i);
+    var lastName = extractTextFromAnswers(answers, ['last_name']) ||
+      extractByKeyPattern(answers, /last_name/i);
+    var email = extractTextFromAnswers(answers, ['email_address', 'email']) ||
+      extractByKeyPattern(answers, /email/i);
+    var phone = extractTextFromAnswers(answers, ['phone_number', 'phone', 'mobile']) ||
+      extractByKeyPattern(answers, /phone|mobile|tel/i);
+
+    // If firstName is actually full name (e.g. "test test") and last_name empty, split
+    if (firstName && !lastName && firstName.indexOf(' ') !== -1) {
+      var parts = firstName.split(/\s+/);
+      lastName = parts.slice(1).join(' ') || '';
+      firstName = parts[0] || firstName;
+    }
+
+    var result = {
+      first_name: firstName || '',
+      last_name: lastName || '',
       primary_address_postalcode: postcode || '',
+      phone_number: phone || '',
+      email_address: email || '',
       submissionId: (eventObj && (eventObj.submissionId || eventObj.submission_id)) || '',
     };
+    if (CONFIG.debug && (!result.last_name || !result.email_address || !result.phone_number)) {
+      log('Prefill missing fields; raw answer keys:', Object.keys(answers || {}));
+    }
+    return result;
   }
 
   function onQualifiedMatch(context, eventObj) {

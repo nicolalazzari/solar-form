@@ -279,6 +279,52 @@
   line-height: 1.4;
 }
 
+.contactForm {
+  padding: 1.25rem;
+  background-color: #ffffff;
+  border: 1px solid #DAE7E6;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.contactFormHint {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  margin: 0 0 1rem 0;
+}
+
+.contactField {
+  margin-bottom: 1rem;
+}
+
+.contactField:last-child {
+  margin-bottom: 0;
+}
+
+.contactField label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 0.375rem;
+}
+
+.contactField input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(237, 237, 237, 1);
+  border-radius: 8px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.875rem;
+  color: #000000;
+  box-sizing: border-box;
+}
+
+.contactField input:focus {
+  outline: none;
+  border-color: #03624C;
+}
+
 .consentStatement {
   font-size: 0.75rem;
   color: #4F4F4F;
