@@ -14,7 +14,7 @@
     appUrl:
       'https://solar-form-optly-def.vercel.app/loader',
     typPathContains: '/typ/project-solar/appointment/sp-uk/',
-    debug: true,
+    debug: false,
     maxWaitMs: 30000,
     pollMs: 250,
     eligibilityStorageKey: 'solar_optly_eligible_submission',
@@ -23,7 +23,7 @@
     hiddenMainPageRowSelector:
       'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center',
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
-    heightDebug: true,
+    heightDebug: false,
     getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
     slotCheckTimeoutMs: 5000,
     requiredAnswers: {
@@ -631,6 +631,12 @@
 
     var targetIframe = getTargetIframe(preferredIFrameId);
     if (!targetIframe) return false;
+
+    // Ensure iframe has allow-same-origin so our app gets proper origin (fixes CORS null, Google Maps)
+    var sandbox = targetIframe.getAttribute('sandbox') || '';
+    if (sandbox && sandbox.indexOf('allow-same-origin') === -1) {
+      targetIframe.setAttribute('sandbox', sandbox + ' allow-same-origin');
+    }
 
     var nextSrc = buildAppUrl();
 
