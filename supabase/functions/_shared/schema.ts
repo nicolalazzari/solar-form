@@ -36,6 +36,17 @@ function calcSelectedSegmentsCount(segments: unknown): string {
   return '';
 }
 
+function splitFullName(fullName: string): { firstName: string; lastName: string } {
+  const s = String(fullName || '').trim();
+  if (!s) return { firstName: '', lastName: '' };
+  const spaceIdx = s.indexOf(' ');
+  if (spaceIdx === -1) return { firstName: s, lastName: '' };
+  return {
+    firstName: s.slice(0, spaceIdx).trim(),
+    lastName: s.slice(spaceIdx + 1).trim(),
+  };
+}
+
 function calcAppointmentWithin5Days(data: Data): string {
   // Support both object (selectedSlot.startTime) and flat field (selectedSlotStart)
   let startTime: string | undefined;
@@ -56,10 +67,19 @@ function calcAppointmentWithin5Days(data: Data): string {
  * matching the Sheet1 column order.
  */
 export function mapToSheet1Row(data: Data): unknown[] {
+  // Split full name (e.g. answers[first_name] = "John Smith") into First Name / Last Name
+  let firstName = String(data.firstName || '').trim();
+  let lastName = String(data.lastName || '').trim();
+  if (firstName && !lastName && firstName.indexOf(' ') !== -1) {
+    const split = splitFullName(firstName);
+    firstName = split.firstName;
+    lastName = split.lastName;
+  }
+
   return [
     /* A  Submission Timestamp       */ new Date().toISOString(),
-    /* B  First Name                 */ data.firstName || '',
-    /* C  Last Name                  */ data.lastName || '',
+    /* B  First Name                 */ firstName,
+    /* C  Last Name                  */ lastName,
     /* D  Email                      */ data.emailAddress || data.email || '',
     /* E  Phone                      */ data.phoneNumber || data.phone || '',
     /* F  Postcode                   */ data.postcode || '',
@@ -104,11 +124,19 @@ export function mapToSheet1Row(data: Data): unknown[] {
  * matching the Interactions tab column order.
  */
 export function mapToInteractionsRow(data: Data): unknown[] {
+  let firstName = String(data.firstName || '').trim();
+  let lastName = String(data.lastName || '').trim();
+  if (firstName && !lastName && firstName.indexOf(' ') !== -1) {
+    const split = splitFullName(firstName);
+    firstName = split.firstName;
+    lastName = split.lastName;
+  }
+
   return [
     /* A  Timestamp          */ new Date().toISOString(),
     /* B  Session ID         */ data.sessionId || '',
-    /* C  First Name         */ data.firstName || '',
-    /* D  Last name          */ data.lastName || '',
+    /* C  First Name         */ firstName,
+    /* D  Last name          */ lastName,
     /* E  Email              */ data.emailAddress || '',
     /* F  Phone              */ data.phoneNumber || '',
     /* G  Postcode           */ data.postcode || '',
