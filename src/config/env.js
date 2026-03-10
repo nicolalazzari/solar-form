@@ -27,7 +27,7 @@ export const config = {
 
   // Appointments API (MVF/EcoExperts - POST appointments/{submissionId})
   appointmentsApiUrl: import.meta.env.VITE_APPOINTMENTS_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
-  appointmentsApiKey: import.meta.env.VITE_APPOINTMENTS_API_KEY || '',
+  appointmentsApiKey: import.meta.env.VITE_APPOINTMENTS_API_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || '',
 
   // Environment
   isDev: import.meta.env.DEV,

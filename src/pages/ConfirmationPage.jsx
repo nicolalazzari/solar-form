@@ -136,7 +136,9 @@ export default function ConfirmationPage() {
 
       const headers = {
         'Content-Type': 'application/json',
-        ...(config.appointmentsApiKey && { 'x-api-key': config.appointmentsApiKey }),
+        ...((config.appointmentsApiKey || config.supabaseAnonKey) && {
+          'x-api-key': config.appointmentsApiKey || config.supabaseAnonKey,
+        }),
       };
 
       console.log('[DEBUG] Booking appointment:', { submissionId, payload: appointmentsPayload });
