@@ -114,50 +114,50 @@ export default function ConfirmationPage() {
         creditCheck: payload.creditCheck,
       });
 
-      // Step 1: Book appointment with Project Solar API
-      const formatBookingDate = (isoString) => {
-        if (!isoString) return '';
-        const date = new Date(isoString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${day}-${month}-${year} ${hours}:${minutes}`;
-      };
-
-      const projectSolarPayload = {
-        firstname: bookingData.firstName || '',
-        lastname: bookingData.lastName || '',
-        email: bookingData.emailAddress || '',
-        mobile: bookingData.phoneNumber || '',
-        postcode: bookingData.postcode || '',
-        addressLine: bookingData.fullAddress || '',
-        bookingDate: formatBookingDate(bookingData.selectedSlot?.startTime),
-        providerLeadId: bookingData.submissionId || '',
-      };
-
-      console.log('[DEBUG] Booking with Project Solar:', projectSolarPayload);
-
-      const bookingResponse = await fetch(`${config.projectSolarApiUrl}/book-appointment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Step 1: Book appointment via MVF/EcoExperts Appointments API
+      // POST appointments/{submissionId} - see API Spec
+      const submissionId = bookingData.submissionId || bookingData.sessionId || `solar-${Date.now()}`;
+      const appointmentsPayload = {
+        lead: {
+          first_name: bookingData.firstName || '',
+          last_name: bookingData.lastName || '',
+          postcode: bookingData.postcode || '',
+          email: bookingData.emailAddress || '',
+          phone_number: bookingData.phoneNumber || '',
+          address: bookingData.fullAddress || '',
         },
-        body: JSON.stringify(projectSolarPayload),
+        appointment_form: {
+          is_over_75: bookingData.isOver75 === true,
+          roof_works_planned: bookingData.roofWorksPlanned === true,
+          income_over_15k: bookingData.incomeOver15k === true,
+          likely_to_pass_credit_check: bookingData.likelyToPassCreditCheck === true,
+        },
+      };
+
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(config.appointmentsApiKey && { 'x-api-key': config.appointmentsApiKey }),
+      };
+
+      console.log('[DEBUG] Booking appointment:', { submissionId, payload: appointmentsPayload });
+
+      const bookingResponse = await fetch(`${config.appointmentsApiUrl}/appointments/${encodeURIComponent(submissionId)}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(appointmentsPayload),
       });
 
       if (!bookingResponse.ok) {
         const errorData = await bookingResponse.json().catch(() => ({}));
-        console.error('[ERROR] Project Solar booking failed:', errorData);
-        throw new Error(errorData.error || 'Failed to book appointment with Project Solar');
+        console.error('[ERROR] Appointment booking failed:', errorData);
+        throw new Error(errorData.error || errorData.reason || 'Failed to book appointment');
       }
 
       const bookingResult = await bookingResponse.json();
-      console.log('[DEBUG] Project Solar booking success:', bookingResult);
+      console.log('[DEBUG] Appointment booking success:', bookingResult);
 
       // Step 2: Log booking to Google Sheets
-      let generatedRef = '';
+      let generatedRef = bookingResult.booking_reference || bookingResult.bookingReference || bookingResult.id || '';
       try {
         const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
           method: 'POST',
@@ -171,20 +171,20 @@ export default function ConfirmationPage() {
         if (response.ok) {
           const data = await response.json();
           console.log('[DEBUG] Google Sheets log response:', data);
-          generatedRef = data.bookingReference || '';
-        } else {
-          console.error('[WARN] Google Sheets logging failed, but booking succeeded');
-          // Generate a reference anyway since booking succeeded
+          generatedRef = generatedRef || data.bookingReference || '';
+        }
+        if (!generatedRef) {
           const year = new Date().getFullYear();
           const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
           generatedRef = `PS-${year}-${random}`;
         }
       } catch (sheetsError) {
         console.error('[WARN] Google Sheets logging error:', sheetsError);
-        // Generate a reference anyway since booking succeeded
-        const year = new Date().getFullYear();
-        const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
-        generatedRef = `PS-${year}-${random}`;
+        if (!generatedRef) {
+          const year = new Date().getFullYear();
+          const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+          generatedRef = `PS-${year}-${random}`;
+        }
       }
 
       // Show booking confirmation (Project Solar booking succeeded)

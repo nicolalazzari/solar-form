@@ -25,6 +25,10 @@ export const config = {
   // Supabase anon key for edge function authentication
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
 
+  // Appointments API (MVF/EcoExperts - POST appointments/{submissionId})
+  appointmentsApiUrl: import.meta.env.VITE_APPOINTMENTS_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
+  appointmentsApiKey: import.meta.env.VITE_APPOINTMENTS_API_KEY || '',
+
   // Environment
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
