@@ -36,6 +36,15 @@
     },
   };
 
+  // Override from window.__solarOptlyConfig (set before script loads)
+  if (typeof window.__solarOptlyConfig === 'object' && window.__solarOptlyConfig !== null) {
+    for (var k in window.__solarOptlyConfig) {
+      if (Object.prototype.hasOwnProperty.call(window.__solarOptlyConfig, k)) {
+        CONFIG[k] = window.__solarOptlyConfig[k];
+      }
+    }
+  }
+
   function log() {
     if (!CONFIG.debug) return;
     var args = Array.prototype.slice.call(arguments);
