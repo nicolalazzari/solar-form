@@ -24,6 +24,9 @@
       'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center',
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
     heightDebug: true,
+    bookingSlotsApiUrl: 'https://wakypxxobpdvqwblheio.supabase.co/functions/v1',
+    supabaseAnonKey: '', // Must be set when deploying to Optimizely
+    slotCheckTimeoutMs: 5000,
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
       // (e.g. "homeowner") or binary values (e.g. "yes"/"no").
@@ -219,6 +222,57 @@
       }
     }
     return '';
+  }
+
+  function checkSlotsAvailable(postcode) {
+    if (!postcode || typeof postcode !== 'string' || !postcode.trim()) {
+      return Promise.resolve(false);
+    }
+    var url = CONFIG.bookingSlotsApiUrl + '/booking-slots';
+    var timeoutMs = CONFIG.slotCheckTimeoutMs || 5000;
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeoutId = null;
+
+    var timeoutPromise = new Promise(function (resolve) {
+      timeoutId = window.setTimeout(function () {
+        if (controller) controller.abort();
+        log('Slot check timeout');
+        resolve(false);
+      }, timeoutMs);
+    });
+
+    var fetchOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postcode: postcode.trim() }),
+    };
+    if (controller) fetchOptions.signal = controller.signal;
+    if (CONFIG.supabaseAnonKey) {
+      fetchOptions.headers = fetchOptions.headers || {};
+      fetchOptions.headers.Authorization = 'Bearer ' + CONFIG.supabaseAnonKey;
+    }
+
+    var fetchPromise = fetch(url, fetchOptions)
+      .then(function (res) {
+        if (!res.ok) return { slots: [] };
+        return res.json();
+      })
+      .then(function (data) {
+        var slots = data.slots || data.availability || data || [];
+        var arr = Array.isArray(slots) ? slots : [];
+        return arr.length > 0;
+      })
+      .catch(function (err) {
+        log('Slot check failed', err);
+        return false;
+      })
+      .finally(function () {
+        if (timeoutId) window.clearTimeout(timeoutId);
+      });
+
+    return Promise.race([fetchPromise, timeoutPromise]).catch(function () {
+      return false;
+    });
   }
 
   function buildAppUrl() {
@@ -681,7 +735,20 @@
         firstName: extractTextFromAnswers(answers, ['first_name']),
       });
       if (isEligible(eventObj.answers || {})) {
-        onQualifiedMatch('webform_submission_completed', eventObj);
+        var postcode = extractPostcodeFromAnswers(eventObj.answers || {});
+        if (!postcode) {
+          log('Eligible but no postcode; cannot check slots; staying on TYP');
+          return;
+        }
+        checkSlotsAvailable(postcode).then(function (hasSlots) {
+          if (hasSlots) {
+            onQualifiedMatch('webform_submission_completed', eventObj);
+          } else {
+            log('Eligible but no slots available; staying on TYP');
+          }
+        }).catch(function (err) {
+          log('Slot check failed', err);
+        });
       } else {
         log('Submission did not match eligibility');
       }
@@ -697,7 +764,20 @@
         firstName: extractTextFromAnswers(typrAnswers, ['first_name']),
       });
       if (isEligible(eventObj.answers || {})) {
-        onQualifiedMatch('thankYouPageReached', eventObj);
+        var postcode = extractPostcodeFromAnswers(eventObj.answers || {});
+        if (!postcode) {
+          log('Eligible but no postcode; cannot check slots; staying on TYP');
+          return;
+        }
+        checkSlotsAvailable(postcode).then(function (hasSlots) {
+          if (hasSlots) {
+            onQualifiedMatch('thankYouPageReached', eventObj);
+          } else {
+            log('Eligible but no slots available; staying on TYP');
+          }
+        }).catch(function (err) {
+          log('Slot check failed', err);
+        });
       } else if (window.__solarOptlyQualified) {
         var answers = eventObj.answers || {};
         var pc = extractPostcodeFromAnswers(answers);
