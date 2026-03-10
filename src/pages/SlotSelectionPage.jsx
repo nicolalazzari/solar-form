@@ -74,15 +74,15 @@ export default function SlotSelectionPage() {
         return;
       }
 
+      const postcode = (bookingData.postcode || '').trim().replace(/\s/g, '');
       const response = await fetch(
-        `${config.projectSolarApiUrl}/booking-slots`,
+        `${config.projectSolarMvfApiUrl}/get-availability?postcode=${encodeURIComponent(postcode)}`,
         {
-          method: 'POST',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.supabaseAnonKey}`,
+            ...(config.projectSolarMvfApiKey && { 'x-api-key': config.projectSolarMvfApiKey }),
           },
-          body: JSON.stringify({ postcode: bookingData.postcode || '' }),
         }
       );
 
@@ -92,26 +92,31 @@ export default function SlotSelectionPage() {
 
       const data = await response.json();
 
-      // Transform API response to expected slot format
-      // API returns: { datetime, displayDate, displayTime, dayOfWeek }
-      // We need: { id, startTime, endTime }
+      // Transform get-availability response: { availability: [{ date: "DD-MM-YYYY", slots: ["10:00", "14:00"] }] }
+      // to { id, startTime, endTime }
       const APPOINTMENT_DURATION_MINS = 90;
-      const normalizedSlots = (data.slots || data.availability || data || []).map((slot, index) => {
-        const startTime = slot.startTime || slot.start_time || slot.datetime;
-        let endTime = slot.endTime || slot.end_time;
+      const normalizedSlots = [];
+      const availability = data.availability || data.slots || [];
+      let slotIndex = 0;
 
-        // If no endTime provided, calculate from startTime + appointment duration
-        if (!endTime && startTime) {
-          const end = new Date(startTime);
+      availability.forEach((daySlot) => {
+        const dateStr = daySlot.date || ''; // DD-MM-YYYY
+        const times = daySlot.slots || [];
+        const [d, m, y] = dateStr.split('-').map(Number);
+        if (!d || !m || !y) return;
+        const year = y >= 100 ? y : 2000 + y;
+
+        times.forEach((timeStr) => {
+          const [hour, min] = (timeStr || '10:00').split(':').map(Number);
+          const start = new Date(year, m - 1, d, hour || 10, min || 0, 0, 0);
+          const end = new Date(start);
           end.setMinutes(end.getMinutes() + APPOINTMENT_DURATION_MINS);
-          endTime = end.toISOString();
-        }
-
-        return {
-          id: slot.id || `slot-${index}`,
-          startTime,
-          endTime,
-        };
+          normalizedSlots.push({
+            id: `slot-${slotIndex++}`,
+            startTime: start.toISOString(),
+            endTime: end.toISOString(),
+          });
+        });
       });
 
       setSlots(normalizedSlots);

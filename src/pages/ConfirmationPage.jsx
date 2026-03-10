@@ -114,39 +114,29 @@ export default function ConfirmationPage() {
         creditCheck: payload.creditCheck,
       });
 
-      // Step 1: Book appointment via MVF/EcoExperts Appointments API
-      // POST appointments/{submissionId} - see API Spec
-      const submissionId = bookingData.submissionId || bookingData.sessionId || `solar-${Date.now()}`;
-      const appointmentsPayload = {
-        lead: {
-          first_name: bookingData.firstName || '',
-          last_name: bookingData.lastName || '',
-          postcode: bookingData.postcode || '',
-          email: bookingData.emailAddress || '',
-          phone_number: bookingData.phoneNumber || '',
-          address: bookingData.fullAddress || '',
-        },
-        appointment_form: {
-          is_over_75: bookingData.isOver75 === true,
-          roof_works_planned: bookingData.roofWorksPlanned === true,
-          income_over_15k: bookingData.incomeOver15k === true,
-          likely_to_pass_credit_check: bookingData.likelyToPassCreditCheck === true,
-        },
+      // Step 1: Book appointment via Project Solar API (POST book-appointment)
+      const bookAppointmentPayload = {
+        firstname: bookingData.firstName || '',
+        lastname: bookingData.lastName || '',
+        postcode: bookingData.postcode || '',
+        email: bookingData.emailAddress || '',
+        booking_date: bookingData.selectedSlot?.startTime || '', // ISO e.g. 2026-03-15T10:00:00Z
+        addressLine: bookingData.fullAddress || '',
+        mobile: bookingData.phoneNumber || '',
+        provider_lead_id: bookingData.submissionId || bookingData.sessionId || '',
       };
 
       const headers = {
         'Content-Type': 'application/json',
-        ...((config.appointmentsApiKey || config.supabaseAnonKey) && {
-          'x-api-key': config.appointmentsApiKey || config.supabaseAnonKey,
-        }),
+        ...(config.projectSolarMvfApiKey && { 'x-api-key': config.projectSolarMvfApiKey }),
       };
 
-      console.log('[DEBUG] Booking appointment:', { submissionId, payload: appointmentsPayload });
+      console.log('[DEBUG] Booking appointment:', bookAppointmentPayload);
 
-      const bookingResponse = await fetch(`${config.appointmentsApiUrl}/appointments/${encodeURIComponent(submissionId)}`, {
+      const bookingResponse = await fetch(`${config.projectSolarMvfApiUrl}/book-appointment`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(appointmentsPayload),
+        body: JSON.stringify(bookAppointmentPayload),
       });
 
       if (!bookingResponse.ok) {

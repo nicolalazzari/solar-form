@@ -24,8 +24,8 @@
       'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center',
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
     heightDebug: true,
-    bookingSlotsApiUrl: 'https://wakypxxobpdvqwblheio.supabase.co/functions/v1',
-    supabaseAnonKey: '', // Must be set when deploying to Optimizely
+    getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
+    getAvailabilityApiKey: '', // Must be set when deploying to Optimizely (same as VITE_PROJECT_SOLAR_MVF_API_KEY)
     slotCheckTimeoutMs: 5000,
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
@@ -228,7 +228,8 @@
     if (!postcode || typeof postcode !== 'string' || !postcode.trim()) {
       return Promise.resolve(false);
     }
-    var url = CONFIG.bookingSlotsApiUrl + '/booking-slots';
+    var pc = postcode.trim().replace(/\s/g, '');
+    var url = CONFIG.getAvailabilityApiUrl + '/get-availability?postcode=' + encodeURIComponent(pc);
     var timeoutMs = CONFIG.slotCheckTimeoutMs || 5000;
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timeoutId = null;
@@ -242,14 +243,12 @@
     });
 
     var fetchOptions = {
-      method: 'POST',
+      method: 'GET',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postcode: postcode.trim() }),
     };
     if (controller) fetchOptions.signal = controller.signal;
-    if (CONFIG.supabaseAnonKey) {
-      fetchOptions.headers = fetchOptions.headers || {};
-      fetchOptions.headers.Authorization = 'Bearer ' + CONFIG.supabaseAnonKey;
+    if (CONFIG.getAvailabilityApiKey) {
+      fetchOptions.headers['x-api-key'] = CONFIG.getAvailabilityApiKey;
     }
 
     var fetchPromise = fetch(url, fetchOptions)
@@ -258,9 +257,12 @@
         return res.json();
       })
       .then(function (data) {
-        var slots = data.slots || data.availability || data || [];
-        var arr = Array.isArray(slots) ? slots : [];
-        return arr.length > 0;
+        // get-availability returns { availability: [{ date, slots: ["10:00", ...] }] }
+        var availability = data.availability || [];
+        if (Array.isArray(data.slots)) return data.slots.length > 0;
+        return availability.some(function (day) {
+          return (day.slots || []).length > 0;
+        });
       })
       .catch(function (err) {
         log('Slot check failed', err);

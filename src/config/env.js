@@ -25,9 +25,9 @@ export const config = {
   // Supabase anon key for edge function authentication
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
 
-  // Appointments API (MVF/EcoExperts - POST appointments/{submissionId})
-  appointmentsApiUrl: import.meta.env.VITE_APPOINTMENTS_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
-  appointmentsApiKey: import.meta.env.VITE_APPOINTMENTS_API_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+  // Project Solar / MVF API (book-appointment, get-availability, calls)
+  projectSolarMvfApiUrl: import.meta.env.VITE_PROJECT_SOLAR_MVF_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
+  projectSolarMvfApiKey: import.meta.env.VITE_PROJECT_SOLAR_MVF_API_KEY || '',
 
   // Environment
   isDev: import.meta.env.DEV,
