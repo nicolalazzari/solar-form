@@ -24,8 +24,9 @@
       'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center',
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
     heightDebug: true,
-    getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
-    getAvailabilityApiKey: '', // Must be set when deploying to Optimizely (same as VITE_PROJECT_SOLAR_MVF_API_KEY)
+    // Use our proxy (avoids CORS - MVF API blocks x-api-key in browser)
+    getAvailabilityApiUrl: 'https://wakypxxobpdvqwblheio.supabase.co/functions/v1',
+    getAvailabilityApiKey: '', // Supabase anon key for Bearer auth when calling our proxy
     slotCheckTimeoutMs: 5000,
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
@@ -229,7 +230,7 @@
       return Promise.resolve(false);
     }
     var pc = postcode.trim().replace(/\s/g, '');
-    var url = CONFIG.getAvailabilityApiUrl + '/get-availability?postcode=' + encodeURIComponent(pc);
+    var url = CONFIG.getAvailabilityApiUrl + '/get-availability-proxy?postcode=' + encodeURIComponent(pc);
     var timeoutMs = CONFIG.slotCheckTimeoutMs || 5000;
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timeoutId = null;
@@ -248,7 +249,7 @@
     };
     if (controller) fetchOptions.signal = controller.signal;
     if (CONFIG.getAvailabilityApiKey) {
-      fetchOptions.headers['x-api-key'] = CONFIG.getAvailabilityApiKey;
+      fetchOptions.headers.Authorization = 'Bearer ' + CONFIG.getAvailabilityApiKey;
     }
 
     var fetchPromise = fetch(url, fetchOptions)

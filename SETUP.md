@@ -237,7 +237,10 @@ These are set in the Lovable Cloud dashboard (not in `.env`):
 ```env
 GOOGLE_SHEETS_CREDENTIALS={"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}
 GOOGLE_SHEET_ID=your_google_sheet_id_here
+PROJECT_SOLAR_MVF_API_KEY=your_mvf_api_key_here
 ```
+
+**PROJECT_SOLAR_MVF_API_KEY** is required for `get-availability-proxy` and `book-appointment-proxy` (proxies to MVF API to avoid CORS).
 
 ### Deploying Edge Functions
 
