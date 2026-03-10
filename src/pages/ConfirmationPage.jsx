@@ -3,7 +3,7 @@ import { useBooking } from '../contexts';
 import { config } from '../config/env';
 import styles from './ConfirmationPage.module.css';
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 // Generate a mock booking reference
 const generateMockReference = () => {

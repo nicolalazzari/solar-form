@@ -25,7 +25,7 @@ import {
 import styles from './SolarAssessmentPage.module.css';
 
 // Temporary flag to use mock data during UAT
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 // Mock solar assessment data for UAT with bounding boxes for map display
 const MOCK_SOLAR_DATA = {
