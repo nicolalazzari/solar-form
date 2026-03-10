@@ -145,12 +145,12 @@ export default function ConfirmationPage() {
 
       const headers = {
         'Content-Type': 'application/json',
-        ...(config.projectSolarMvfApiKey && { 'x-api-key': config.projectSolarMvfApiKey }),
+        ...(config.projectSolarApiKey && { 'x-api-key': config.projectSolarApiKey }),
       };
 
       console.log('[DEBUG] Booking appointment:', bookAppointmentPayload);
 
-      const bookingResponse = await fetch(`${config.projectSolarMvfApiUrl}/book-appointment`, {
+      const bookingResponse = await fetch(`${config.projectSolarApiUrl}/book-appointment`, {
         method: 'POST',
         headers,
         body: JSON.stringify(bookAppointmentPayload),

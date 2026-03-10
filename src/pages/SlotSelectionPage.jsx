@@ -82,7 +82,7 @@ export default function SlotSelectionPage() {
 
       const postcode = (bookingData.postcode || '').trim().replace(/\s/g, '');
       const response = await fetch(
-        `${config.projectSolarMvfApiUrl}/get-availability?postcode=${encodeURIComponent(postcode)}`,
+        `${config.projectSolarApiUrl}/get-availability?postcode=${encodeURIComponent(postcode)}`,
         { method: 'GET' }
       );
 
