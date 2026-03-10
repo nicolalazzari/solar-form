@@ -115,15 +115,25 @@ export default function ConfirmationPage() {
       });
 
       // Step 1: Book appointment via Project Solar API (POST book-appointment)
+      // Normalize phone to E.164 UK format (+44...) for API validation
+      const rawPhone = (bookingData.phoneNumber || '').trim().replace(/\s/g, '');
+      let mobile = rawPhone;
+      if (mobile) {
+        if (mobile.startsWith('+44')) mobile = mobile;
+        else if (mobile.startsWith('0044')) mobile = '+' + mobile.slice(2);
+        else if (mobile.startsWith('0') && mobile.length === 11) mobile = '+44' + mobile.slice(1);
+        else if (/^\d{10,11}$/.test(mobile)) mobile = '+44' + mobile;
+      }
+
       const bookAppointmentPayload = {
-        firstname: bookingData.firstName || '',
-        lastname: bookingData.lastName || '',
-        postcode: bookingData.postcode || '',
-        email: bookingData.emailAddress || '',
-        booking_date: bookingData.selectedSlot?.startTime || '', // ISO e.g. 2026-03-15T10:00:00Z
-        addressLine: bookingData.fullAddress || '',
-        mobile: bookingData.phoneNumber || '',
-        provider_lead_id: bookingData.submissionId || bookingData.sessionId || '',
+        firstname: (bookingData.firstName || '').trim(),
+        lastname: (bookingData.lastName || '').trim(),
+        postcode: (bookingData.postcode || '').trim().replace(/\s/g, '').toUpperCase(),
+        email: (bookingData.emailAddress || '').trim(),
+        booking_date: bookingData.selectedSlot?.startTime || '',
+        addressLine: (bookingData.fullAddress || '').trim(),
+        mobile,
+        provider_lead_id: String(bookingData.submissionId || bookingData.sessionId || ''),
       };
 
       const headers = {
@@ -142,7 +152,13 @@ export default function ConfirmationPage() {
       if (!bookingResponse.ok) {
         const errorData = await bookingResponse.json().catch(() => ({}));
         console.error('[ERROR] Appointment booking failed:', errorData);
-        throw new Error(errorData.error || errorData.reason || 'Failed to book appointment');
+        if (errorData.details) console.error('[ERROR] Validation details:', errorData.details);
+        const details = errorData.details || errorData.errors || [];
+        const detailMsg = Array.isArray(details) ? details.map(d => (typeof d === 'object' ? JSON.stringify(d) : d)).join('; ') : JSON.stringify(details);
+        throw new Error(
+          (errorData.error || errorData.reason || 'Failed to book appointment') +
+          (detailMsg ? `: ${detailMsg}` : '')
+        );
       }
 
       const bookingResult = await bookingResponse.json();
