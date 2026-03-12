@@ -116,6 +116,8 @@
     return d.innerHTML;
   }
 
+  var __debugPopupLastContent = '';
+
   function updateDebugPopup() {
     var el = ensureDebugPopup();
     if (!el) return;
@@ -138,10 +140,14 @@
       }).join('');
     }
 
-    el.innerHTML =
+    var newContent =
       '<div style="margin-bottom:8px;font-weight:700;color:#9ecba7;">Solar Debug</div>' +
       answersRow +
       (answersHtml ? '<div style="margin-top:8px;max-height:200px;overflow:auto;">' + answersHtml + '</div>' : '');
+
+    if (newContent === __debugPopupLastContent) return;
+    __debugPopupLastContent = newContent;
+    el.innerHTML = newContent;
   }
 
   function normalize(value) {
