@@ -28,6 +28,13 @@ export default function ConfirmationPage() {
       submitBooking();
     } else {
       setLoading(false);
+      if (window.parent !== window && (isDisqualified || isSessionExpired)) {
+        window.parent.postMessage({
+          type: 'solar-optly-booking-result',
+          success: false,
+          error: isDisqualified ? 'disqualified' : 'session_expired',
+        }, '*');
+      }
     }
   }, []);
 
@@ -203,11 +210,27 @@ export default function ConfirmationPage() {
       setBookingReference(generatedRef);
       setBookingConfirmed(true);
       confirmBooking(generatedRef);
+
+      if (window.parent !== window) {
+        window.parent.postMessage({
+          type: 'solar-optly-booking-result',
+          success: true,
+          bookingReference: generatedRef,
+        }, '*');
+      }
     } catch (err) {
       console.error('Booking submission failed:', err);
       const errMsg = String(err?.message || '');
       const isSlotUnavailable = /time slot not available|410|slot.*unavailable/i.test(errMsg);
       const isPhoneValidation = /validation\.phone|customer\.mobile/i.test(errMsg);
+
+      if (window.parent !== window) {
+        window.parent.postMessage({
+          type: 'solar-optly-booking-result',
+          success: false,
+          error: errMsg,
+        }, '*');
+      }
 
       if (isSlotUnavailable) {
         updateBookingData({ lastError: 'slot_unavailable' });

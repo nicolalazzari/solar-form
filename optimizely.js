@@ -27,6 +27,8 @@
     getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
     getAvailabilityApiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlanBianFqZnhtZWh5dmx3ZWlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MzMwODYsImV4cCI6MjA0ODIwOTA4Nn0.8pFmhFXMPhVPkSHnVJlWDuey0FUFa0dHHkT8yvYbNJs',
     slotCheckTimeoutMs: 5000,
+    appointmentsApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1/appointments',
+    appointmentsApiKey: '5FVpsEtJ77rQoH3hD8jxPZSI6kIZx5WYlvvw98mRCUfvTh9yFdLXiRdFRV8cTA1O',
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
       // (e.g. "homeowner") or binary values (e.g. "yes"/"no").
@@ -165,10 +167,36 @@
         '<div style="font-size:10px;color:#f1c40f;margin-top:4px;">checking...</div></div>';
     }
 
+    var appointmentHtml = '';
+    var appointmentLog = window.__solarOptlyAppointmentLog || [];
+    if (appointmentLog.length > 0) {
+      var logItems = appointmentLog.map(function (entry) {
+        var statusColors = { progressing: '#f1c40f', successful: '#27ae60', failed: '#c0392b' };
+        var resultColors = { ok: '#27ae60', error: '#c0392b', pending: '#888' };
+        var statusColor = statusColors[entry.status] || '#888';
+        var resultColor = resultColors[entry.result] || '#888';
+        var timeStr = entry.ts ? entry.ts.split('T')[1].split('.')[0] : '';
+        var resultDetail = entry.result === 'error' ? (' ' + escapeHtml(entry.error || '')) : '';
+        if (entry.httpStatus) resultDetail += ' [' + entry.httpStatus + ']';
+        return '<div style="margin:2px 0;padding:3px 6px;background:#1a1a2e;border-radius:3px;font-size:9px;display:flex;align-items:center;gap:4px;">' +
+          '<span style="color:#666;min-width:50px;">' + escapeHtml(timeStr) + '</span>' +
+          '<span style="background:' + statusColor + ';color:#000;padding:1px 5px;border-radius:3px;font-weight:700;font-size:8px;text-transform:uppercase;">' + escapeHtml(entry.status) + '</span>' +
+          '<span style="color:#aaa;">' + escapeHtml(entry.step) + '</span>' +
+          '<span style="color:' + resultColor + ';margin-left:auto;font-size:8px;">' + escapeHtml(entry.result) + resultDetail + '</span>' +
+          '</div>';
+      }).join('');
+      appointmentHtml =
+        '<div style="margin:8px 0;padding:8px;background:#2d2d44;border-radius:6px;">' +
+        '<div style="font-weight:600;font-size:11px;margin-bottom:4px;">Appointment API</div>' +
+        '<div style="max-height:150px;overflow:auto;">' + logItems + '</div>' +
+        '</div>';
+    }
+
     var newContent =
       '<div style="margin-bottom:8px;font-weight:700;color:#9ecba7;">Solar Debug</div>' +
       answersRow +
       slotHtml +
+      appointmentHtml +
       (answersHtml ? '<div style="margin-top:8px;max-height:200px;overflow:auto;">' + answersHtml + '</div>' : '');
 
     if (newContent === __debugPopupLastContent) return;
@@ -423,6 +451,84 @@
 
     return Promise.race([fetchPromise, timeoutPromise]).catch(function () {
       return false;
+    });
+  }
+
+  // --- Appointment API tracking ---
+
+  window.__solarOptlyAppointmentLog = window.__solarOptlyAppointmentLog || [];
+  window.__solarOptlyAppointmentForm = window.__solarOptlyAppointmentForm || null;
+
+  function getSubmissionId() {
+    var prefill = window.__solarOptlyPrefillAnswers || {};
+    return prefill.submissionId || '';
+  }
+
+  function buildLeadPayload() {
+    var prefill = window.__solarOptlyPrefillAnswers || {};
+    return {
+      first_name: prefill.first_name || '',
+      last_name: prefill.last_name || '',
+      postcode: prefill.primary_address_postalcode || '',
+      email: prefill.email_address || '',
+      phone_number: prefill.phone_number || '',
+      address: '',
+    };
+  }
+
+  function postAppointmentUpdate(status, step) {
+    var submissionId = getSubmissionId();
+    if (!submissionId) {
+      log('postAppointmentUpdate skipped: no submissionId');
+      return;
+    }
+
+    var url = CONFIG.appointmentsApiUrl + '/' + encodeURIComponent(submissionId);
+    var body = {
+      status: status,
+      current_step: step,
+      lead: buildLeadPayload(),
+    };
+
+    if (window.__solarOptlyAppointmentForm) {
+      body.appointment_form = window.__solarOptlyAppointmentForm;
+    }
+
+    var entry = {
+      ts: new Date().toISOString(),
+      status: status,
+      step: step,
+      submissionId: submissionId,
+      result: 'pending',
+    };
+    window.__solarOptlyAppointmentLog.push(entry);
+
+    log('postAppointmentUpdate', status, step, body);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': CONFIG.appointmentsApiKey,
+      },
+      body: JSON.stringify(body),
+    }).then(function (res) {
+      entry.httpStatus = res.status;
+      if (!res.ok) {
+        entry.result = 'error';
+        entry.error = 'HTTP ' + res.status;
+        log('postAppointmentUpdate failed', entry.error);
+        return;
+      }
+      return res.json().then(function (data) {
+        entry.result = 'ok';
+        entry.response = data;
+        log('postAppointmentUpdate ok', data);
+      });
+    }).catch(function (err) {
+      entry.result = 'error';
+      entry.error = String(err);
+      log('postAppointmentUpdate error', err);
     });
   }
 
@@ -770,6 +876,32 @@
           syncMainPageRowVisibility();
           revealIframeAfterSwap(preferredIFrameId);
           log('User decided:', payload.choice || '(unknown)');
+          if (payload.choice === 'book_online') {
+            postAppointmentUpdate('progressing', 'book_online');
+          } else if (payload.choice === 'no_thanks') {
+            postAppointmentUpdate('failed', 'declined_booking');
+          }
+          return;
+        }
+
+        if (payload.type === 'solar-optly-eligibility') {
+          window.__solarOptlyAppointmentForm = payload.answers || null;
+          log('Received eligibility answers from iframe', payload.answers, 'eligible:', payload.eligible);
+          if (payload.eligible) {
+            postAppointmentUpdate('progressing', 'eligibility_passed');
+          } else {
+            postAppointmentUpdate('failed', 'eligibility_disqualified');
+          }
+          return;
+        }
+
+        if (payload.type === 'solar-optly-booking-result') {
+          if (payload.success) {
+            postAppointmentUpdate('successful', 'booking_confirmed');
+          } else {
+            postAppointmentUpdate('failed', 'booking_failed');
+          }
+          log('Booking result from iframe', payload);
           return;
         }
 
@@ -791,6 +923,25 @@
           payloadHeight: payload.height,
           path: payload.path,
         });
+
+        // Track page navigation from iframe for appointment updates
+        var iframePath = payload.path || '';
+        if (iframePath && iframePath !== window.__solarOptlyLastIframePath) {
+          window.__solarOptlyLastIframePath = iframePath;
+          var pageStepMap = {
+            '/': 'index',
+            '/address': 'address',
+            '/solar-assessment': 'solar_assessment',
+            '/eligibility-questions': 'eligibility_questions',
+            '/slot-selection': 'slot_selection',
+            '/confirmation': 'confirmation',
+          };
+          var step = pageStepMap[iframePath];
+          if (step && step !== 'index' && step !== 'confirmation') {
+            postAppointmentUpdate('progressing', 'page_' + step);
+          }
+        }
+
         applyIframeHeight(payload.height);
         revealIframeAfterSwap(preferredIFrameId);
       });
@@ -1120,22 +1271,27 @@
           return;
         }
         window.__solarOptlySlotCheckInFlight = true;
+        postAppointmentUpdate('progressing', 'slot_check');
         checkSlotsAvailable(postcode).then(function (hasSlots) {
           window.__solarOptlySlotCheckInFlight = false;
           if (hasSlots) {
+            postAppointmentUpdate('progressing', 'qualified');
             onQualifiedMatch('webform_submission_completed', eventObj);
           } else {
+            postAppointmentUpdate('failed', 'no_slots');
             hideFullPageSubmitOverlay();
             revealIframeAfterSwap(eventObj.iFrameId);
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
           window.__solarOptlySlotCheckInFlight = false;
+          postAppointmentUpdate('failed', 'slot_check_error');
           hideFullPageSubmitOverlay();
           revealIframeAfterSwap(eventObj.iFrameId);
           log('Slot check failed', err);
         });
       } else {
+        postAppointmentUpdate('failed', 'not_eligible');
         hideFullPageSubmitOverlay();
         revealIframeAfterSwap(eventObj.iFrameId);
         log('Submission did not match eligibility');
@@ -1162,17 +1318,21 @@
           return;
         }
         window.__solarOptlySlotCheckInFlight = true;
+        postAppointmentUpdate('progressing', 'slot_check');
         checkSlotsAvailable(postcode).then(function (hasSlots) {
           window.__solarOptlySlotCheckInFlight = false;
           if (hasSlots) {
+            postAppointmentUpdate('progressing', 'qualified');
             onQualifiedMatch('thankYouPageReached', eventObj);
           } else {
+            postAppointmentUpdate('failed', 'no_slots');
             hideFullPageSubmitOverlay();
             revealIframeAfterSwap(eventObj.iFrameId);
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
           window.__solarOptlySlotCheckInFlight = false;
+          postAppointmentUpdate('failed', 'slot_check_error');
           hideFullPageSubmitOverlay();
           revealIframeAfterSwap(eventObj.iFrameId);
           log('Slot check failed', err);

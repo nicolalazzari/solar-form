@@ -77,6 +77,19 @@ export default function EligibilityQuestionsPage() {
 
     setEligibilityData(answers);
 
+    if (window.parent !== window) {
+      window.parent.postMessage({
+        type: 'solar-optly-eligibility',
+        answers: {
+          is_over_75: !!answers.isOver75,
+          roof_works_planned: !!answers.roofWorksPlanned,
+          income_over_15k: !!answers.incomeOver15k,
+          likely_to_pass_credit_check: !!answers.likelyToPassCreditCheck,
+        },
+        eligible,
+      }, '*');
+    }
+
     if (!eligible) {
       setJourneyStatus('disqualified_eligibility');
       updateBookingData({
