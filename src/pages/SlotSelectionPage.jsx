@@ -108,9 +108,9 @@ export default function SlotSelectionPage() {
 
         times.forEach((timeStr) => {
           const [hour, min] = (timeStr || '10:00').split(':').map(Number);
-          const start = new Date(year, m - 1, d, hour || 10, min || 0, 0, 0);
+          const start = new Date(Date.UTC(year, m - 1, d, hour || 10, min || 0, 0, 0));
           const end = new Date(start);
-          end.setMinutes(end.getMinutes() + APPOINTMENT_DURATION_MINS);
+          end.setUTCMinutes(end.getUTCMinutes() + APPOINTMENT_DURATION_MINS);
           normalizedSlots.push({
             id: `slot-${slotIndex++}`,
             startTime: start.toISOString(),
