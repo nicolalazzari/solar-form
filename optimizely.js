@@ -947,12 +947,9 @@
         iFrameId: eventObj.iFrameId,
         submissionId: eventObj.submissionId,
       });
+      hideIframeDuringSwap(eventObj.iFrameId);
       showFullPageSubmitOverlay(eventObj.iFrameId);
       showSwapOverlay(eventObj.iFrameId);
-    }
-
-    if (eventObj.event === 'thankYouPageRequested' && window.__solarOptlyQualified) {
-      hideIframeDuringSwap(eventObj.iFrameId);
     }
 
     if (eventObj.event === 'webform_submission_completed') {
@@ -973,14 +970,17 @@
             onQualifiedMatch('webform_submission_completed', eventObj);
           } else {
             hideFullPageSubmitOverlay();
+            revealIframeAfterSwap(eventObj.iFrameId);
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
           hideFullPageSubmitOverlay();
+          revealIframeAfterSwap(eventObj.iFrameId);
           log('Slot check failed', err);
         });
       } else {
         hideFullPageSubmitOverlay();
+        revealIframeAfterSwap(eventObj.iFrameId);
         log('Submission did not match eligibility');
       }
       return;
@@ -1005,10 +1005,12 @@
             onQualifiedMatch('thankYouPageReached', eventObj);
           } else {
             hideFullPageSubmitOverlay();
+            revealIframeAfterSwap(eventObj.iFrameId);
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
           hideFullPageSubmitOverlay();
+          revealIframeAfterSwap(eventObj.iFrameId);
           log('Slot check failed', err);
         });
       } else if (window.__solarOptlyQualified) {
@@ -1028,7 +1030,7 @@
         lockIframeToApp(eventObj.iFrameId);
       } else {
         hideFullPageSubmitOverlay();
-        hideSwapOverlay(eventObj.iFrameId);
+        revealIframeAfterSwap(eventObj.iFrameId);
         log('thankYouPageReached had no eligible answers and no prior qualification');
       }
     }
