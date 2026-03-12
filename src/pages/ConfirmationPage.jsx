@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../contexts';
 import { config, isDebugMode } from '../config/env';
@@ -19,9 +19,22 @@ export default function ConfirmationPage() {
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
 
+  const pendingSuccessRef = useRef(null);
+
   const isDisqualified = bookingData.journeyStatus?.startsWith('disqualified') || false;
   const isSessionExpired = bookingData.journeyStatus === 'session_expired';
   const isCallbackRequired = bookingData.journeyStatus === 'callback_required';
+
+  useEffect(() => {
+    if (bookingConfirmed && pendingSuccessRef.current != null && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'solar-optly-booking-result',
+        success: true,
+        bookingReference: pendingSuccessRef.current,
+      }, '*');
+      pendingSuccessRef.current = null;
+    }
+  }, [bookingConfirmed]);
 
   useEffect(() => {
     if (bookingData.selectedSlot && !isDisqualified && !isSessionExpired && !isCallbackRequired) {
@@ -210,14 +223,7 @@ export default function ConfirmationPage() {
       setBookingReference(generatedRef);
       setBookingConfirmed(true);
       confirmBooking(generatedRef);
-
-      if (window.parent !== window) {
-        window.parent.postMessage({
-          type: 'solar-optly-booking-result',
-          success: true,
-          bookingReference: generatedRef,
-        }, '*');
-      }
+      pendingSuccessRef.current = generatedRef;
     } catch (err) {
       console.error('Booking submission failed:', err);
       const errMsg = String(err?.message || '');
