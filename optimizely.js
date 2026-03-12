@@ -630,6 +630,10 @@
       var node = nodes[index];
       if (!node) continue;
 
+      var currentlyHidden = node.hasAttribute('data-solar-optly-hidden');
+      var needsChange = shouldShow ? currentlyHidden : !currentlyHidden;
+      if (!needsChange) continue;
+
       if (shouldShow) {
         node.style.removeProperty('display');
         node.removeAttribute('data-solar-optly-hidden');
@@ -640,13 +644,15 @@
       affected += 1;
     }
 
-    log('Updated main page rows visibility', {
-      selector: CONFIG.hiddenMainPageRowSelector,
-      targetIndexes: targetIndexes,
-      shouldShow: shouldShow,
-      matchedCount: nodes.length,
-      affectedCount: affected,
-    });
+    if (affected > 0) {
+      log('Updated main page rows visibility', {
+        selector: CONFIG.hiddenMainPageRowSelector,
+        targetIndexes: targetIndexes,
+        shouldShow: shouldShow,
+        matchedCount: nodes.length,
+        affectedCount: affected,
+      });
+    }
   }
 
   function syncMainPageRowVisibility() {
@@ -657,8 +663,13 @@
     if (window.__solarOptlyMainPageRowObserver) return;
 
     try {
+      var debounceId = null;
       var observer = new MutationObserver(function () {
-        syncMainPageRowVisibility();
+        if (debounceId) window.clearTimeout(debounceId);
+        debounceId = window.setTimeout(function () {
+          debounceId = null;
+          syncMainPageRowVisibility();
+        }, 100);
       });
       observer.observe(document.documentElement || document.body, {
         childList: true,
@@ -848,6 +859,10 @@
   function processDataLayerEvent(eventObj) {
     if (!eventObj || typeof eventObj !== 'object') return;
     log('dataLayer event seen', eventObj.event || '(no event name)', eventObj);
+
+    if (eventObj.event === 'thankYouPageReached' || eventObj.event === 'webform_submission_completed') {
+      syncMainPageRowVisibility();
+    }
 
     if (eventObj.event === 'pageChanged') {
       var question = normalize(eventObj.currentQuestion || '');
