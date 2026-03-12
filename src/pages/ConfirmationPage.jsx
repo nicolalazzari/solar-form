@@ -193,28 +193,8 @@ export default function ConfirmationPage() {
       const bookingResult = await bookingResponse.json();
       console.log('[DEBUG] Appointment booking success:', bookingResult);
 
-      // Step 2: Log booking to Google Sheets (skipped when debug=1)
+      // Google Sheets logging disabled — Outreach service (appointments API) handles persistence.
       let generatedRef = bookingResult.booking_reference || bookingResult.bookingReference || bookingResult.id || '';
-      if (!isDebugMode()) {
-        try {
-          const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${config.supabaseAnonKey}`,
-            },
-            body: JSON.stringify(payload),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('[DEBUG] Google Sheets log response:', data);
-            generatedRef = generatedRef || data.bookingReference || '';
-          }
-        } catch (sheetsError) {
-          console.error('[WARN] Google Sheets logging error:', sheetsError);
-        }
-      }
       if (!generatedRef) {
         const year = new Date().getFullYear();
         const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');

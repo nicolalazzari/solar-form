@@ -45,7 +45,9 @@ export function InactivityProvider({ children }) {
   // --- API call helpers ---
 
   const fireAndForget = useCallback((endpoint, payload) => {
-    if (isDebugMode()) return;
+    // Google Sheets logging disabled — the Outreach service (appointments API)
+    // now handles persistence. Re-enable once Sheets CORS is updated or removed.
+    return;
     fetch(`${config.projectSolarApiUrl}/${endpoint}`, {
       method: 'POST',
       headers: {
