@@ -494,6 +494,7 @@
 
   window.__solarOptlyAppointmentLog = window.__solarOptlyAppointmentLog || [];
   window.__solarOptlyAppointmentForm = window.__solarOptlyAppointmentForm || null;
+  window.__solarOptlySolarData = window.__solarOptlySolarData || null;
 
   function getSubmissionId() {
     var prefill = window.__solarOptlyPrefillAnswers || {};
@@ -544,6 +545,13 @@
 
     if (window.__solarOptlyAppointmentForm) {
       body.appointment_form = window.__solarOptlyAppointmentForm;
+    }
+    if (window.__solarOptlySolarData) {
+      body.appointment_form = Object.assign(
+        {},
+        body.appointment_form || {},
+        window.__solarOptlySolarData
+      );
     }
 
     var entry = {
@@ -985,6 +993,12 @@
           return;
         }
 
+        if (payload.type === 'solar-optly-solar-data') {
+          window.__solarOptlySolarData = payload.solarData || null;
+          log('Received solar data from iframe', payload.solarData);
+          return;
+        }
+
         if (payload.type === 'solar-optly-eligibility') {
           window.__solarOptlyAppointmentForm = payload.answers || null;
           log('Received eligibility answers from iframe', payload.answers, 'eligible:', payload.eligible);
@@ -998,6 +1012,11 @@
 
         if (payload.type === 'solar-optly-booking-result') {
           if (payload.success) {
+            if (payload.bookingSlot) {
+              var form = window.__solarOptlyAppointmentForm || {};
+              form.booking_slot = payload.bookingSlot;
+              window.__solarOptlyAppointmentForm = form;
+            }
             postAppointmentUpdate('successful', 'booking_confirmed');
           } else {
             var reason = payload.error || 'booking_failed';

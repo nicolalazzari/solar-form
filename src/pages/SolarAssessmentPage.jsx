@@ -518,6 +518,23 @@ export default function SolarAssessmentPage() {
       roofSpaceOver10m2: solarData.totalRoofArea >= 10,
     });
 
+    if (window.parent !== window) {
+      window.parent.postMessage({
+        type: 'solar-optly-solar-data',
+        solarData: {
+          total_panel_count: totalPanelCount,
+          total_estimated_energy: totalEstimatedEnergy,
+          estimated_annual_savings: estimatedSavings.totalSavings,
+          solar_roof_area: Math.round(usableRoofArea * 10) / 10,
+          sun_exposure_hours: solarPotential.avgSunHours,
+          carbon_offset: carbonOffsetKg,
+          imagery_quality: solarData.imageryQuality,
+          imagery_date: solarData.imageryDate,
+          selected_segments_count: selectedSegments.length,
+        },
+      }, '*');
+    }
+
     updateBookingData({
       currentPage: '/eligibility-questions',
       lastAction: 'solar_assessment_passed',

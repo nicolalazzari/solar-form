@@ -31,6 +31,7 @@ export default function ConfirmationPage() {
         type: 'solar-optly-booking-result',
         success: true,
         bookingReference: pendingSuccessRef.current,
+        bookingSlot: bookingData.selectedSlot?.startTime || '',
       }, '*');
       pendingSuccessRef.current = null;
     }
