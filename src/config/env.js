@@ -16,16 +16,7 @@ export const config = {
   // Ideal Postcodes API
   idealPostcodesApiKey: import.meta.env.VITE_IDEAL_POSTCODES_API_KEY || '',
 
-  // Google Sheets (for client-side reference only)
-  googleSheetId: import.meta.env.VITE_GOOGLE_SHEET_ID || '',
-
-  // Project Solar API (submit-booking, log-exit, log-interaction)
-  projectSolarApiUrl: import.meta.env.VITE_PROJECT_SOLAR_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
-
-  // Supabase anon key for edge functions (Bearer auth)
-  supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-
-  // MVF/Project Solar API (book-appointment, get-availability)
+  // Project Solar API (book-appointment, get-availability)
   projectSolarMvfApiUrl: import.meta.env.VITE_PROJECT_SOLAR_MVF_API_URL || 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
   projectSolarMvfApiKey: import.meta.env.VITE_PROJECT_SOLAR_MVF_API_KEY || '5FVpsEtJ77rQoH3hD8jxPZSI6kIZx5WYlvvw98mRCUfvTh9yFdLXiRdFRV8cTA1O',
 
@@ -34,13 +25,6 @@ export const config = {
   isProd: import.meta.env.PROD,
   mode: import.meta.env.MODE,
 };
-
-/** True when URL has debug=1 or debug=true (skips Google Sheets logging) */
-export function isDebugMode() {
-  if (typeof window === 'undefined') return false;
-  const params = new URLSearchParams(window.location.search);
-  return params.get('debug') === 'true' || params.get('debug') === '1';
-}
 
 /**
  * Validate required environment variables

@@ -121,10 +121,6 @@ const mockApiResponses = {
     ],
   },
 
-  submitBooking: {
-    bookingReference: 'PS-2024-001234',
-    success: true,
-  },
 };
 
 /**
@@ -161,13 +157,6 @@ function setupFetchMock(customResponses = {}) {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve(responses.bookingSlots),
-      });
-    }
-
-    if (urlString.includes('submit-booking')) {
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(responses.submitBooking),
       });
     }
 

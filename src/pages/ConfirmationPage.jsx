@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking, useInactivity } from '../contexts';
-import { config, isDebugMode } from '../config/env';
+import { config } from '../config/env';
 import styles from './ConfirmationPage.module.css';
 
 const USE_MOCK_DATA = false;
@@ -68,77 +68,7 @@ export default function ConfirmationPage() {
         return;
       }
 
-      // Build a clean flat payload with only scalar values for the edge function
-      const journeyTimeSec = bookingData.journeyStartTime
-        ? Math.round((Date.now() - new Date(bookingData.journeyStartTime).getTime()) / 1000)
-        : 0;
-      const timeOnPageSec = bookingData.pageEnteredAt
-        ? Math.round((Date.now() - new Date(bookingData.pageEnteredAt).getTime()) / 1000)
-        : 0;
-
-      const payload = {
-        firstName: bookingData.firstName || '',
-        lastName: bookingData.lastName || '',
-        emailAddress: bookingData.emailAddress || '',
-        email: bookingData.emailAddress || '',
-        phoneNumber: bookingData.phoneNumber || '',
-        phone: bookingData.phoneNumber || '',
-        postcode: bookingData.postcode || '',
-        fullAddress: bookingData.fullAddress || '',
-        address: bookingData.fullAddress || '',
-        sessionId: bookingData.sessionId || '',
-        currentPage: bookingData.currentPage || '',
-        journeyStatus: bookingData.journeyStatus || '',
-        journeyStartTime: bookingData.journeyStartTime || '',
-        pageEnteredAt: bookingData.pageEnteredAt || '',
-        lastAction: bookingData.lastAction || '',
-        lastActionPage: bookingData.lastActionPage || '',
-        submissionId: bookingData.submissionId || '',
-        action: 'booking_confirmed',
-        leadStatus: 'Booked',
-        // Pre-calculated time values
-        timeOnPage: timeOnPageSec,
-        totalJourneyTime: journeyTimeSec,
-        journeyTime: journeyTimeSec,
-        // Solar data (scalars only — use String() so 0 survives || checks in deployed function)
-        totalPanelCount: bookingData.totalPanelCount || 0,
-        totalEstimatedEnergy: bookingData.totalEstimatedEnergy || 0,
-        estimatedAnnualSavings: bookingData.estimatedAnnualSavings || 0,
-        imageryQuality: bookingData.imageryQuality || '',
-        imageryDate: bookingData.imageryDate || '',
-        carbonOffset: bookingData.carbonOffset ?? 0,
-        solarRoofArea: bookingData.solarRoofArea ?? 0,
-        sunExposureHours: bookingData.sunExposureHours ?? 0,
-        roofSpaceOver10m2: bookingData.roofSpaceOver10m2 ? 'Yes' : 'No',
-        selectedSegmentsCount: Array.isArray(bookingData.selectedSegments) ? bookingData.selectedSegments.length : 0,
-        // Eligibility (send both boolean and string versions for deployed function compatibility)
-        isOver75: bookingData.isOver75,
-        ageOver75: bookingData.isOver75 === true ? 'Yes' : bookingData.isOver75 === false ? 'No' : '',
-        roofWorksPlanned: bookingData.roofWorksPlanned,
-        roofWorks: bookingData.roofWorksPlanned === true ? 'Yes' : bookingData.roofWorksPlanned === false ? 'No' : '',
-        incomeOver15k: bookingData.incomeOver15k,
-        income: bookingData.incomeOver15k === true ? 'Yes' : bookingData.incomeOver15k === false ? 'No' : '',
-        likelyToPassCreditCheck: bookingData.likelyToPassCreditCheck,
-        creditCheck: bookingData.likelyToPassCreditCheck === true ? 'Yes' : bookingData.likelyToPassCreditCheck === false ? 'No' : '',
-        // Slot (flat scalars only — objects break Sheets write)
-        bookingId: bookingData.selectedSlot?.startTime || '',
-        bookingReference: bookingData.selectedSlot?.startTime || '',
-        selectedSlotStart: bookingData.selectedSlot?.startTime || '',
-        selectedSlotEnd: bookingData.selectedSlot?.endTime || '',
-      };
-
-      console.log('[DEBUG] Eligibility fields being sent:', {
-        isOver75: payload.isOver75,
-        ageOver75: payload.ageOver75,
-        roofWorksPlanned: payload.roofWorksPlanned,
-        roofWorks: payload.roofWorks,
-        incomeOver15k: payload.incomeOver15k,
-        income: payload.income,
-        likelyToPassCreditCheck: payload.likelyToPassCreditCheck,
-        creditCheck: payload.creditCheck,
-      });
-
-      // Step 1: Book appointment via Project Solar API (POST book-appointment)
+      // Book appointment via Project Solar API (POST book-appointment)
       // Normalize phone to E.164 UK format (+44...) for API validation.
       // Project Solar expects customer.mobile - UK mobile (07xxx) preferred; landlines may fail validation.
       const rawPhone = (bookingData.phoneNumber || '').trim();
@@ -193,7 +123,6 @@ export default function ConfirmationPage() {
       const bookingResult = await bookingResponse.json();
       console.log('[DEBUG] Appointment booking success:', bookingResult);
 
-      // Google Sheets logging disabled — Outreach service (appointments API) handles persistence.
       let generatedRef = bookingResult.booking_reference || bookingResult.bookingReference || bookingResult.id || '';
       if (!generatedRef) {
         const year = new Date().getFullYear();
