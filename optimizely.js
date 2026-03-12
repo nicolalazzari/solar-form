@@ -428,7 +428,49 @@
     targetIframe.style.opacity = '1';
     targetIframe.removeAttribute('data-solar-optly-swapping');
     hideSwapOverlay(preferredIFrameId);
+    hideFullPageSubmitOverlay();
     return true;
+  }
+
+  function ensureFullPageSubmitOverlay() {
+    var id = 'solar-optly-fullpage-overlay';
+    var el = document.getElementById(id);
+    if (el) return el;
+    if (!document.body) return null;
+
+    el = document.createElement('div');
+    el.id = id;
+    el.setAttribute('data-solar-optly-fullpage-overlay', '1');
+    el.style.cssText =
+      'position:fixed;inset:0;background:#ffffff;z-index:999999;display:flex;' +
+      'align-items:center;justify-content:center;opacity:0;pointer-events:none;' +
+      'transition:opacity 300ms ease;';
+    var spinner = document.createElement('div');
+    spinner.style.cssText =
+      'width:40px;height:40px;border:4px solid rgba(237,237,237,1);' +
+      'border-top-color:#03624C;border-radius:50%;animation:solar-optly-spin 0.8s linear infinite;';
+    el.appendChild(spinner);
+
+    var style = document.createElement('style');
+    style.textContent = '@keyframes solar-optly-spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function showFullPageSubmitOverlay() {
+    var el = ensureFullPageSubmitOverlay();
+    if (!el) return;
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'auto';
+  }
+
+  function hideFullPageSubmitOverlay() {
+    var el = document.getElementById('solar-optly-fullpage-overlay');
+    if (!el) return;
+    el.style.opacity = '0';
+    el.style.pointerEvents = 'none';
   }
 
   function ensureSwapOverlay(preferredIFrameId) {
@@ -585,6 +627,7 @@
         }
 
         if (payload.type === 'solar-optly-decision-made') {
+          hideFullPageSubmitOverlay();
           window.__solarOptlyIframeReadyForReveal = true;
           syncMainPageRowVisibility();
           revealIframeAfterSwap(preferredIFrameId);
@@ -887,6 +930,7 @@
       (eventObj.event === 'thankYouPageRequested' || eventObj.event === 'formSubmit') &&
       window.__solarOptlySubmitStageArmed
     ) {
+      showFullPageSubmitOverlay();
       showSwapOverlay(eventObj.iFrameId);
     }
 
@@ -911,12 +955,15 @@
           if (hasSlots) {
             onQualifiedMatch('webform_submission_completed', eventObj);
           } else {
+            hideFullPageSubmitOverlay();
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
+          hideFullPageSubmitOverlay();
           log('Slot check failed', err);
         });
       } else {
+        hideFullPageSubmitOverlay();
         log('Submission did not match eligibility');
       }
       return;
@@ -940,9 +987,11 @@
           if (hasSlots) {
             onQualifiedMatch('thankYouPageReached', eventObj);
           } else {
+            hideFullPageSubmitOverlay();
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
+          hideFullPageSubmitOverlay();
           log('Slot check failed', err);
         });
       } else if (window.__solarOptlyQualified) {
@@ -961,6 +1010,7 @@
         swapIframeWhenReady(eventObj.iFrameId);
         lockIframeToApp(eventObj.iFrameId);
       } else {
+        hideFullPageSubmitOverlay();
         hideSwapOverlay(eventObj.iFrameId);
         log('thankYouPageReached had no eligible answers and no prior qualification');
       }
