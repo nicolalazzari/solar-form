@@ -947,7 +947,6 @@
         iFrameId: eventObj.iFrameId,
         submissionId: eventObj.submissionId,
       });
-      alert('form submitted!');
       showFullPageSubmitOverlay(eventObj.iFrameId);
       showSwapOverlay(eventObj.iFrameId);
     }
