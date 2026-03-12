@@ -800,6 +800,61 @@
     enforce();
   }
 
+  function swapIframeSrcImmediately(preferredIFrameId) {
+    var targetIframe = getTargetIframe(preferredIFrameId);
+    if (!targetIframe || window.__solarOptlyIframeInjected) return;
+
+    var sandbox = targetIframe.getAttribute('sandbox') || '';
+    if (sandbox && sandbox.indexOf('allow-same-origin') === -1) {
+      targetIframe.setAttribute('sandbox', sandbox + ' allow-same-origin');
+    }
+
+    var nextSrc = buildAppUrl();
+    targetIframe.src = nextSrc;
+    targetIframe.setAttribute('data-solar-optly', 'mounted');
+    window.__solarOptlyIframeInjected = true;
+    window.__solarOptlyIframeReadyForReveal = false;
+
+    if (!targetIframe.__solarOptlyRevealOnAppLoadAttached) {
+      targetIframe.addEventListener('load', function () {
+        var current = targetIframe.getAttribute('src') || '';
+        if (!isAppUrl(current)) return;
+        revealIframeAfterSwap(preferredIFrameId || targetIframe.id);
+      });
+      targetIframe.__solarOptlyRevealOnAppLoadAttached = true;
+    }
+    window.setTimeout(function () {
+      revealIframeAfterSwap(preferredIFrameId || targetIframe.id);
+    }, 2500);
+
+    attachIframeHeightSync(preferredIFrameId || targetIframe.id);
+    log('Swapped iframe immediately (prevent TYP)', { iframeId: targetIframe.id });
+  }
+
+  function revertToChameleonTyp(preferredIFrameId) {
+    var targetIframe = getTargetIframe(preferredIFrameId);
+    var typUrl = window.__solarOptlyTypUrl;
+    if (!targetIframe) return;
+    if (!typUrl) {
+      window.__solarOptlyIframeInjected = false;
+      hideFullPageSubmitOverlay();
+      hideSwapOverlay(preferredIFrameId);
+      targetIframe.style.visibility = '';
+      targetIframe.style.opacity = '';
+      targetIframe.removeAttribute('data-solar-optly-swapping');
+      log('Revert skipped: no TYP URL stored');
+      return;
+    }
+    window.__solarOptlyIframeInjected = false;
+    hideFullPageSubmitOverlay();
+    hideSwapOverlay(preferredIFrameId);
+    targetIframe.style.visibility = '';
+    targetIframe.style.opacity = '';
+    targetIframe.removeAttribute('data-solar-optly-swapping');
+    targetIframe.src = typUrl;
+    log('Reverted to Chameleon TYP (not qualified)', { iframeId: targetIframe.id });
+  }
+
   function swapIframeSrc(preferredIFrameId) {
     if (window.__solarOptlyIframeInjected) return true;
 
@@ -944,6 +999,12 @@
     ) {
       showFullPageSubmitOverlay(eventObj.iFrameId);
       showSwapOverlay(eventObj.iFrameId);
+      hideIframeDuringSwap(eventObj.iFrameId);
+      swapIframeSrcImmediately(eventObj.iFrameId);
+    }
+
+    if (eventObj.event === 'resultsPageURL' && eventObj.pageUrl) {
+      window.__solarOptlyTypUrl = eventObj.pageUrl;
     }
 
     if (eventObj.event === 'thankYouPageRequested' && window.__solarOptlyQualified) {
@@ -967,15 +1028,15 @@
           if (hasSlots) {
             onQualifiedMatch('webform_submission_completed', eventObj);
           } else {
-            hideFullPageSubmitOverlay();
+            revertToChameleonTyp(eventObj.iFrameId);
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
-          hideFullPageSubmitOverlay();
+          revertToChameleonTyp(eventObj.iFrameId);
           log('Slot check failed', err);
         });
       } else {
-        hideFullPageSubmitOverlay();
+        revertToChameleonTyp(eventObj.iFrameId);
         log('Submission did not match eligibility');
       }
       return;
@@ -999,11 +1060,11 @@
           if (hasSlots) {
             onQualifiedMatch('thankYouPageReached', eventObj);
           } else {
-            hideFullPageSubmitOverlay();
+            revertToChameleonTyp(eventObj.iFrameId);
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
-          hideFullPageSubmitOverlay();
+          revertToChameleonTyp(eventObj.iFrameId);
           log('Slot check failed', err);
         });
       } else if (window.__solarOptlyQualified) {
@@ -1022,8 +1083,7 @@
         swapIframeWhenReady(eventObj.iFrameId);
         lockIframeToApp(eventObj.iFrameId);
       } else {
-        hideFullPageSubmitOverlay();
-        hideSwapOverlay(eventObj.iFrameId);
+        revertToChameleonTyp(eventObj.iFrameId);
         log('thankYouPageReached had no eligible answers and no prior qualification');
       }
     }
