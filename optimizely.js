@@ -551,6 +551,11 @@
     el.style.pointerEvents = 'auto';
     var targetIframe = getTargetIframe(preferredIFrameId);
     if (targetIframe) {
+      // Preserve the iframe's current height so we can restore it for the Chameleon TYP
+      if (!window.__solarOptlyPreOverlayHeight) {
+        window.__solarOptlyPreOverlayHeight =
+          parseInt(targetIframe.style.height, 10) || window.__solarOptlyChameleonHeight || 0;
+      }
       targetIframe.style.height = '378px';
       var wrapper = targetIframe.closest('.chameleon-widget-wrapper');
       if (wrapper) {
@@ -566,16 +571,38 @@
     if (!overlay) return;
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
+
+    // Determine restore height: prefer latest Chameleon resizeWidget value, then pre-overlay snapshot
+    var restoreHeight = window.__solarOptlyChameleonHeight || window.__solarOptlyPreOverlayHeight || 0;
+    window.__solarOptlyPreOverlayHeight = 0;
+
     var iframes = document.querySelectorAll('iframe[id^="' + CONFIG.iframeIdPrefix + '"]');
     for (var i = 0; i < iframes.length; i++) {
-      iframes[i].style.removeProperty('height');
+      if (restoreHeight > 0 && !window.__solarOptlyIframeInjected) {
+        // Chameleon TYP: restore to the height Chameleon expects
+        iframes[i].style.height = restoreHeight + 'px';
+      } else {
+        // Solar form: let attachIframeHeightSync handle it
+        iframes[i].style.removeProperty('height');
+      }
       var wrapper = iframes[i].closest('.chameleon-widget-wrapper');
       if (wrapper) {
-        wrapper.style.removeProperty('height');
+        if (restoreHeight > 0 && !window.__solarOptlyIframeInjected) {
+          wrapper.style.height = restoreHeight + 'px';
+        } else {
+          wrapper.style.removeProperty('height');
+        }
         var card = wrapper.firstElementChild;
-        if (card && card.nodeType === 1) card.style.removeProperty('height');
+        if (card && card.nodeType === 1) {
+          if (restoreHeight > 0 && !window.__solarOptlyIframeInjected) {
+            card.style.height = restoreHeight + 'px';
+          } else {
+            card.style.removeProperty('height');
+          }
+        }
       }
     }
+    heightLog('hideFullPageSubmitOverlay', { restoreHeight: restoreHeight, solarFormInjected: !!window.__solarOptlyIframeInjected });
   }
 
   function ensureSwapOverlay(preferredIFrameId) {
@@ -1193,9 +1220,21 @@
     if (window.__solarOptlyPostMessageHooked) return;
     window.__solarOptlyPostMessageHooked = true;
     window.addEventListener('message', function (event) {
-      if (!window.__solarOptlySubmitStageArmed) return;
       var data = event.data;
       if (typeof data !== 'string') return;
+
+      // Track Chameleon's native resizeWidget height so we can restore it later
+      if (data.indexOf('resizeWidget:') === 0) {
+        try {
+          var resizePayload = JSON.parse(data.split(/:(.+)/)[1]);
+          if (resizePayload && resizePayload.requiredWidgetHeight) {
+            window.__solarOptlyChameleonHeight = parseInt(resizePayload.requiredWidgetHeight, 10) || 0;
+            heightLog('captured Chameleon resizeWidget height', window.__solarOptlyChameleonHeight);
+          }
+        } catch (e) { /* ignore */ }
+      }
+
+      if (!window.__solarOptlySubmitStageArmed) return;
       var isSubmit =
         data.indexOf('thankYouPageRequested:') === 0 ||
         data.indexOf('formSubmit:') === 0;
