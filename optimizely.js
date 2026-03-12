@@ -432,6 +432,35 @@
     return true;
   }
 
+  function ensureFullPageOverlay() {
+    var id = 'solar-optly-submit-fullpage';
+    var el = document.getElementById(id);
+    if (el) return el;
+    if (!document.body) return null;
+    el = document.createElement('div');
+    el.id = id;
+    el.setAttribute('data-solar-optly-fullpage', '1');
+    el.style.cssText =
+      'position:fixed;inset:0;background:#fff;z-index:999998;opacity:0;pointer-events:none;transition:none;';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function showFullPageOverlay() {
+    var el = ensureFullPageOverlay();
+    if (!el) return;
+    el.style.transition = 'none';
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'auto';
+  }
+
+  function hideFullPageOverlay() {
+    var el = document.getElementById('solar-optly-submit-fullpage');
+    if (!el) return;
+    el.style.opacity = '0';
+    el.style.pointerEvents = 'none';
+  }
+
   function ensureSubmitOverlay(preferredIFrameId) {
     var targetIframe = getTargetIframe(preferredIFrameId);
     if (!targetIframe) return null;
@@ -452,7 +481,7 @@
     overlay.style.cssText =
       'position:absolute;top:0;right:0;bottom:0;left:0;background:#ffffff;' +
       'z-index:10000;display:flex;align-items:center;justify-content:center;' +
-      'opacity:0;pointer-events:none;transition:opacity 300ms ease;';
+      'opacity:0;pointer-events:none;transition:none;';
     var spinner = document.createElement('div');
     spinner.style.cssText =
       'width:40px;height:40px;border:4px solid rgba(237,237,237,1);' +
@@ -474,6 +503,7 @@
   function showFullPageSubmitOverlay(preferredIFrameId) {
     var el = ensureSubmitOverlay(preferredIFrameId);
     if (!el) return;
+    el.style.transition = 'none';
     el.style.opacity = '1';
     el.style.pointerEvents = 'auto';
   }
@@ -483,6 +513,7 @@
     if (!overlay) return;
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
+    hideFullPageOverlay();
   }
 
   function ensureSwapOverlay(preferredIFrameId) {
@@ -936,6 +967,10 @@
     if (eventObj.event === 'pageChanged') {
       var question = normalize(eventObj.currentQuestion || '');
       window.__solarOptlySubmitStageArmed = question === 'phone number';
+      if (question === 'phone number' && eventObj.iFrameId) {
+        ensureSubmitOverlay(eventObj.iFrameId);
+        ensureFullPageOverlay();
+      }
     }
 
     if (
@@ -948,6 +983,7 @@
         submissionId: eventObj.submissionId,
       });
       hideIframeDuringSwap(eventObj.iFrameId);
+      showFullPageOverlay();
       showFullPageSubmitOverlay(eventObj.iFrameId);
       showSwapOverlay(eventObj.iFrameId);
     }
