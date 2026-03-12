@@ -172,6 +172,17 @@ export default function AddressPage() {
       });
     }
 
+    const confirmedAddress = USE_MANUAL_ENTRY
+      ? (manualAddress ? `${manualAddress}, ${postcode}` : '')
+      : (selectedAddress?.fullAddress || '');
+
+    if (confirmedAddress && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'solar-optly-address',
+        address: confirmedAddress,
+      }, '*');
+    }
+
     updateBookingData({
       currentPage: '/solar-assessment',
       lastAction: 'address_confirmed',

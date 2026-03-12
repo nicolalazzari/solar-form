@@ -495,6 +495,7 @@
   window.__solarOptlyAppointmentLog = window.__solarOptlyAppointmentLog || [];
   window.__solarOptlyAppointmentForm = window.__solarOptlyAppointmentForm || null;
   window.__solarOptlySolarData = window.__solarOptlySolarData || null;
+  window.__solarOptlyConfirmedAddress = window.__solarOptlyConfirmedAddress || '';
 
   function getSubmissionId() {
     var prefill = window.__solarOptlyPrefillAnswers || {};
@@ -521,7 +522,7 @@
       postcode: prefill.primary_address_postalcode || '',
       email: prefill.email_address || '',
       phone_number: normalizePhoneE164(prefill.phone_number || ''),
-      address: '',
+      address: window.__solarOptlyConfirmedAddress || '',
     };
   }
 
@@ -990,6 +991,12 @@
           } else if (payload.choice === 'no_thanks') {
             postAppointmentUpdate('failed', 'declined_booking');
           }
+          return;
+        }
+
+        if (payload.type === 'solar-optly-address') {
+          window.__solarOptlyConfirmedAddress = payload.address || '';
+          log('Received confirmed address from iframe', payload.address);
           return;
         }
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBooking } from '../contexts';
+import { useBooking, useInactivity } from '../contexts';
 import { config, isDebugMode } from '../config/env';
 import styles from './ConfirmationPage.module.css';
 
@@ -15,6 +15,7 @@ const generateMockReference = () => {
 export default function ConfirmationPage() {
   const navigate = useNavigate();
   const { bookingData, confirmBooking, updateBookingData, setBookingSlot } = useBooking();
+  const { isSessionExpired: inactivityExpired } = useInactivity();
   const [loading, setLoading] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
@@ -22,7 +23,7 @@ export default function ConfirmationPage() {
   const pendingSuccessRef = useRef(null);
 
   const isDisqualified = bookingData.journeyStatus?.startsWith('disqualified') || false;
-  const isSessionExpired = bookingData.journeyStatus === 'session_expired';
+  const isSessionExpired = inactivityExpired || bookingData.journeyStatus === 'session_expired';
   const isCallbackRequired = bookingData.journeyStatus === 'callback_required';
 
   useEffect(() => {
