@@ -1021,7 +1021,13 @@
           log('Eligible but no postcode; cannot check slots; staying on TYP');
           return;
         }
+        if (window.__solarOptlySlotCheckInFlight) {
+          log('Slot check already in flight; skipping duplicate');
+          return;
+        }
+        window.__solarOptlySlotCheckInFlight = true;
         checkSlotsAvailable(postcode).then(function (hasSlots) {
+          window.__solarOptlySlotCheckInFlight = false;
           if (hasSlots) {
             onQualifiedMatch('webform_submission_completed', eventObj);
           } else {
@@ -1030,6 +1036,7 @@
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
+          window.__solarOptlySlotCheckInFlight = false;
           hideFullPageSubmitOverlay();
           revealIframeAfterSwap(eventObj.iFrameId);
           log('Slot check failed', err);
@@ -1056,7 +1063,13 @@
           log('Eligible but no postcode; cannot check slots; staying on TYP');
           return;
         }
+        if (window.__solarOptlySlotCheckInFlight) {
+          log('Slot check already in flight; skipping duplicate from thankYouPageReached');
+          return;
+        }
+        window.__solarOptlySlotCheckInFlight = true;
         checkSlotsAvailable(postcode).then(function (hasSlots) {
+          window.__solarOptlySlotCheckInFlight = false;
           if (hasSlots) {
             onQualifiedMatch('thankYouPageReached', eventObj);
           } else {
@@ -1065,11 +1078,16 @@
             log('Eligible but no slots available; staying on TYP');
           }
         }).catch(function (err) {
+          window.__solarOptlySlotCheckInFlight = false;
           hideFullPageSubmitOverlay();
           revealIframeAfterSwap(eventObj.iFrameId);
           log('Slot check failed', err);
         });
-      } else if (window.__solarOptlyQualified) {
+      } else if (window.__solarOptlyQualified || window.__solarOptlySlotCheckInFlight) {
+        if (window.__solarOptlySlotCheckInFlight) {
+          log('Slot check in flight; keeping overlay until it resolves');
+          return;
+        }
         var answers = eventObj.answers || {};
         var pc = extractPostcodeFromAnswers(answers);
         var fn = extractTextFromAnswers(answers, ['first_name']);
