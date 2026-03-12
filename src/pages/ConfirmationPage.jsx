@@ -294,6 +294,30 @@ END:VCALENDAR`;
     );
   }
 
+  // Session expired (takes priority over other error states)
+  if (isSessionExpired) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.icon}>
+          <svg viewBox="0 0 64 64" className={styles.warningIcon}>
+            <circle cx="32" cy="32" r="30" fill="#ffc107" />
+            <text x="32" y="42" textAnchor="middle" fontSize="32" fill="#000">!</text>
+          </svg>
+        </div>
+
+        <h1 className={styles.title}>Session expired</h1>
+
+        <p className={styles.message}>
+          Your session has timed out due to inactivity. Don't worry - one of our team will call you to arrange an appointment.
+        </p>
+
+        <p className={styles.note}>
+          We'll call you on {bookingData.phoneNumber || 'your registered number'} within 24 hours.
+        </p>
+      </div>
+    );
+  }
+
   // Slot no longer available (410) - let user pick another
   if (bookingData.lastError === 'slot_unavailable') {
     const handlePickAnotherSlot = () => {
@@ -323,30 +347,6 @@ END:VCALENDAR`;
         >
           Choose another slot
         </button>
-      </div>
-    );
-  }
-
-  // Session expired
-  if (isSessionExpired) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.icon}>
-          <svg viewBox="0 0 64 64" className={styles.warningIcon}>
-            <circle cx="32" cy="32" r="30" fill="#ffc107" />
-            <text x="32" y="42" textAnchor="middle" fontSize="32" fill="#000">!</text>
-          </svg>
-        </div>
-
-        <h1 className={styles.title}>Session expired</h1>
-
-        <p className={styles.message}>
-          Your session has timed out due to inactivity. Don't worry - one of our team will call you to arrange an appointment.
-        </p>
-
-        <p className={styles.note}>
-          We'll call you on {bookingData.phoneNumber || 'your registered number'} within 24 hours.
-        </p>
       </div>
     );
   }
