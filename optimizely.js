@@ -1360,6 +1360,14 @@
         postcode: extractPostcodeFromAnswers(answers),
         firstName: extractTextFromAnswers(answers, ['first_name']),
       });
+
+      // Build prefill answers early so submissionId + lead data are
+      // available for appointment API calls during the slot check.
+      if (!window.__solarOptlyPrefillAnswers || !window.__solarOptlyPrefillAnswers.submissionId) {
+        window.__solarOptlyPrefillAnswers = buildPrefillAnswers(answers, eventObj);
+        log('Early prefill answers built for appointment tracking', window.__solarOptlyPrefillAnswers);
+      }
+
       if (isEligible(eventObj.answers || {})) {
         var postcode = extractPostcodeFromAnswers(eventObj.answers || {});
         if (!postcode) {
@@ -1407,6 +1415,15 @@
         postcode: extractPostcodeFromAnswers(typrAnswers),
         firstName: extractTextFromAnswers(typrAnswers, ['first_name']),
       });
+
+      if (!window.__solarOptlyPrefillAnswers || !window.__solarOptlyPrefillAnswers.submissionId) {
+        var built = buildPrefillAnswers(typrAnswers, eventObj);
+        if (built.submissionId) {
+          window.__solarOptlyPrefillAnswers = built;
+          log('Early prefill answers built from thankYouPageReached', built);
+        }
+      }
+
       if (isEligible(eventObj.answers || {})) {
         var postcode = extractPostcodeFromAnswers(eventObj.answers || {});
         if (!postcode) {
