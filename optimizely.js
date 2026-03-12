@@ -524,7 +524,7 @@
     };
   }
 
-  function postAppointmentUpdate(status, step) {
+  function postAppointmentUpdate(status, step, errorDetail) {
     var submissionId = getSubmissionId();
     if (!submissionId) {
       log('postAppointmentUpdate skipped: no submissionId');
@@ -537,6 +537,10 @@
       current_step: step,
       lead: buildLeadPayload(),
     };
+
+    if (errorDetail) {
+      body.error_detail = errorDetail;
+    }
 
     if (window.__solarOptlyAppointmentForm) {
       body.appointment_form = window.__solarOptlyAppointmentForm;
@@ -553,6 +557,8 @@
     window.__solarOptlyAppointmentLog.push(entry);
 
     log('postAppointmentUpdate', status, step, body);
+
+    var shouldGetAfter = status === 'successful';
 
     fetch(url, {
       method: 'POST',
@@ -573,10 +579,10 @@
         entry.result = 'ok';
         entry.response = data;
         log('postAppointmentUpdate ok', data);
+        if (shouldGetAfter) {
+          getAppointmentStatus();
+        }
       });
-      if (status === 'successful') {
-        getAppointmentStatus();
-      }
     }).catch(function (err) {
       entry.result = 'error';
       entry.error = String(err);
@@ -999,7 +1005,7 @@
               'session_expired': 'session_expired',
               'disqualified': 'disqualified',
             };
-            postAppointmentUpdate('failed', stepMap[reason] || 'booking_failed');
+            postAppointmentUpdate('failed', stepMap[reason] || 'booking_failed', reason);
           }
           log('Booking result from iframe', payload);
           return;

@@ -150,16 +150,16 @@ export default function ConfirmationPage() {
         provider_lead_id: String(bookingData.submissionId || bookingData.sessionId || ''),
       };
 
-      const headers = {
+      const bookHeaders = {
         'Content-Type': 'application/json',
-        ...(config.supabaseAnonKey && { 'x-api-key': config.supabaseAnonKey }),
+        ...(config.projectSolarMvfApiKey && { 'x-api-key': config.projectSolarMvfApiKey }),
       };
 
       console.log('[DEBUG] Booking appointment:', bookAppointmentPayload);
 
-      const bookingResponse = await fetch(`${config.projectSolarApiUrl}/book-appointment`, {
+      const bookingResponse = await fetch(`${config.projectSolarMvfApiUrl}/book-appointment`, {
         method: 'POST',
-        headers,
+        headers: bookHeaders,
         body: JSON.stringify(bookAppointmentPayload),
       });
 
