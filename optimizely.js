@@ -1005,11 +1005,7 @@
       (eventObj.event === 'thankYouPageRequested' || eventObj.event === 'formSubmit') &&
       window.__solarOptlySubmitStageArmed
     ) {
-      console.log('[Solar Submit Flow] OVERLAY TRIGGERED', eventObj.event, new Date().toISOString());
-      hideIframeDuringSwap(eventObj.iFrameId);
-      showFullPageOverlay();
-      showFullPageSubmitOverlay(eventObj.iFrameId);
-      showSwapOverlay(eventObj.iFrameId);
+      showSubmitOverlays(eventObj.iFrameId, 'dataLayer');
     }
 
     if (eventObj.event === 'webform_submission_completed') {
@@ -1105,6 +1101,35 @@
       __processedEventIndexes[i] = true;
       processDataLayerEvent(window.dataLayer[i]);
     }
+  }
+
+  function showSubmitOverlays(iFrameId, source) {
+    console.log('[Solar Submit Flow] OVERLAY TRIGGERED (' + source + ')', new Date().toISOString());
+    hideIframeDuringSwap(iFrameId);
+    showFullPageOverlay();
+    showFullPageSubmitOverlay(iFrameId);
+    showSwapOverlay(iFrameId);
+  }
+
+  function attachPostMessageInterceptor() {
+    if (window.__solarOptlyPostMessageHooked) return;
+    window.__solarOptlyPostMessageHooked = true;
+    window.addEventListener('message', function (event) {
+      if (!window.__solarOptlySubmitStageArmed) return;
+      var data = event.data;
+      if (typeof data !== 'string') return;
+      var isSubmit =
+        data.indexOf('thankYouPageRequested:') === 0 ||
+        data.indexOf('formSubmit:') === 0;
+      if (!isSubmit) return;
+      var iFrameId = null;
+      try {
+        var payload = JSON.parse(data.split(/:(.+)/)[1]);
+        iFrameId = payload && payload.iFrameId;
+      } catch (e) { /* ignore */ }
+      showSubmitOverlays(iFrameId, 'postMessage');
+    });
+    log('postMessage interceptor attached');
   }
 
   function wrapPush() {
@@ -1207,5 +1232,6 @@
     watchMainPageRowVisibility();
   }
 
+  attachPostMessageInterceptor();
   attachDataLayerHook();
 })();
