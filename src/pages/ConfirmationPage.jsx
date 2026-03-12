@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../contexts';
-import { config } from '../config/env';
+import { config, isDebugMode } from '../config/env';
 import styles from './ConfirmationPage.module.css';
 
 const USE_MOCK_DATA = false;
@@ -171,35 +171,32 @@ export default function ConfirmationPage() {
       const bookingResult = await bookingResponse.json();
       console.log('[DEBUG] Appointment booking success:', bookingResult);
 
-      // Step 2: Log booking to Google Sheets
+      // Step 2: Log booking to Google Sheets (skipped when debug=1)
       let generatedRef = bookingResult.booking_reference || bookingResult.bookingReference || bookingResult.id || '';
-      try {
-        const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.supabaseAnonKey}`,
-          },
-          body: JSON.stringify(payload),
-        });
+      if (!isDebugMode()) {
+        try {
+          const response = await fetch(`${config.projectSolarApiUrl}/submit-booking`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${config.supabaseAnonKey}`,
+            },
+            body: JSON.stringify(payload),
+          });
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log('[DEBUG] Google Sheets log response:', data);
-          generatedRef = generatedRef || data.bookingReference || '';
+          if (response.ok) {
+            const data = await response.json();
+            console.log('[DEBUG] Google Sheets log response:', data);
+            generatedRef = generatedRef || data.bookingReference || '';
+          }
+        } catch (sheetsError) {
+          console.error('[WARN] Google Sheets logging error:', sheetsError);
         }
-        if (!generatedRef) {
-          const year = new Date().getFullYear();
-          const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
-          generatedRef = `PS-${year}-${random}`;
-        }
-      } catch (sheetsError) {
-        console.error('[WARN] Google Sheets logging error:', sheetsError);
-        if (!generatedRef) {
-          const year = new Date().getFullYear();
-          const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
-          generatedRef = `PS-${year}-${random}`;
-        }
+      }
+      if (!generatedRef) {
+        const year = new Date().getFullYear();
+        const random = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+        generatedRef = `PS-${year}-${random}`;
       }
 
       // Show booking confirmation (Project Solar booking succeeded)

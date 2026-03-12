@@ -31,6 +31,13 @@ export const config = {
   mode: import.meta.env.MODE,
 };
 
+/** True when URL has debug=1 or debug=true (skips Google Sheets logging) */
+export function isDebugMode() {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  return params.get('debug') === 'true' || params.get('debug') === '1';
+}
+
 /**
  * Validate required environment variables
  * Call this on app startup to ensure all required vars are set

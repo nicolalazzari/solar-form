@@ -46,6 +46,15 @@
     }
   }
 
+  // Enable debug when URL has debug=true (e.g. ?debug=true or &debug=true)
+  (function () {
+    var search = (window.location && window.location.search) || '';
+    var params = new URLSearchParams(search);
+    if (params.get('debug') === 'true' || params.get('debug') === '1') {
+      CONFIG.debug = true;
+    }
+  })();
+
   function log() {
     if (!CONFIG.debug) return;
     var args = Array.prototype.slice.call(arguments);
@@ -66,6 +75,79 @@
     } catch (e) {
       // no-op
     }
+  }
+
+  var __debugEventLog = [];
+  var __debugEventLogMax = 20;
+
+  function ensureDebugPopup() {
+    if (!CONFIG.debug) return null;
+    var id = 'solar-optly-debug-panel';
+    var el = document.getElementById(id);
+    if (el) return el;
+
+    el = document.createElement('div');
+    el.id = id;
+    el.style.cssText =
+      'position:fixed;top:12px;right:12px;width:320px;max-height:70vh;overflow:auto;' +
+      'background:#1a1a2e;color:#eee;font:11px/1.4 monospace;padding:10px;' +
+      'border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:999999;' +
+      'border:1px solid #333;';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function updateDebugPopup() {
+    var el = ensureDebugPopup();
+    if (!el) return;
+
+    var dl = window.dataLayer || [];
+    var dlStr = JSON.stringify(dl, null, 2);
+    if (dlStr.length > 1200) dlStr = dlStr.slice(0, 1200) + '\n... (truncated)';
+
+    var eventsHtml = __debugEventLog
+      .slice(-__debugEventLogMax)
+      .reverse()
+      .map(function (e) {
+        var name = (e.event || e.type || '(no event)');
+        var ts = e.ts ? new Date(e.ts).toLocaleTimeString() : '';
+        return '<div style="margin:4px 0;padding:4px;background:#2d2d44;border-radius:4px;font-size:10px;">' +
+          '<strong>' + escapeHtml(String(name)) + '</strong>' +
+          (ts ? ' <span style="color:#888">' + escapeHtml(ts) + '</span>' : '') +
+          '</div>';
+      })
+      .join('');
+
+    function escapeHtml(s) {
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    el.innerHTML =
+      '<div style="margin-bottom:8px;font-weight:700;color:#9ecba7;">Solar Debug</div>' +
+      '<div style="margin-bottom:6px;font-size:10px;color:#888;">dataLayer (' + dl.length + ' items)</div>' +
+      '<pre style="margin:0 0 10px;padding:6px;background:#0d0d14;border-radius:4px;font-size:10px;overflow:auto;max-height:180px;">' +
+      escapeHtml(dlStr) +
+      '</pre>' +
+      '<div style="margin-bottom:6px;font-size:10px;color:#888;">Recent events</div>' +
+      '<div style="max-height:140px;overflow:auto;">' +
+      (eventsHtml || '<div style="color:#666;font-size:10px;">No events yet</div>') +
+      '</div>';
+  }
+
+  function logDebugEvent(eventObj) {
+    if (!CONFIG.debug || !eventObj) return;
+    __debugEventLog.push({
+      event: eventObj.event,
+      type: eventObj.event,
+      ts: now(),
+      raw: eventObj,
+    });
+    if (__debugEventLog.length > __debugEventLogMax * 2) {
+      __debugEventLog = __debugEventLog.slice(-__debugEventLogMax);
+    }
+    updateDebugPopup();
   }
 
   function normalize(value) {
@@ -304,6 +386,11 @@
   function buildAppUrl() {
     var separator = CONFIG.appUrl.indexOf('?') === -1 ? '?' : '&';
     var url = CONFIG.appUrl + separator + 'optly_iframe=1&ts=' + now();
+    var search = (window.location && window.location.search) || '';
+    var params = new URLSearchParams(search);
+    if (params.get('debug') === 'true' || params.get('debug') === '1') {
+      url += '&debug=1';
+    }
     var pc = window.__solarOptlyPrefillPostcode;
     var fn = window.__solarOptlyPrefillFirstName;
     if (pc) {
@@ -767,6 +854,7 @@
   function processDataLayerEvent(eventObj) {
     if (!eventObj || typeof eventObj !== 'object') return;
     log('dataLayer event seen', eventObj.event || '(no event name)', eventObj);
+    logDebugEvent(eventObj);
 
     if (eventObj.event === 'pageChanged') {
       var question = normalize(eventObj.currentQuestion || '');
@@ -924,6 +1012,15 @@
     }
 
     log('dataLayer hook attached');
+
+    if (CONFIG.debug) {
+      ensureDebugPopup();
+      updateDebugPopup();
+      if (!window.__solarOptlyDebugRefresh) {
+        window.__solarOptlyDebugRefresh = true;
+        window.setInterval(updateDebugPopup, 1000);
+      }
+    }
   }
 
   // If the script initializes on TYP after full-page reload, inject for eligible users only.

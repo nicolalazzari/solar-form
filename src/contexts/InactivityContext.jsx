@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useBooking } from './BookingContext';
-import { config } from '../config/env';
+import { config, isDebugMode } from '../config/env';
 
 const InactivityContext = createContext(null);
 
@@ -45,6 +45,7 @@ export function InactivityProvider({ children }) {
   // --- API call helpers ---
 
   const fireAndForget = useCallback((endpoint, payload) => {
+    if (isDebugMode()) return;
     fetch(`${config.projectSolarApiUrl}/${endpoint}`, {
       method: 'POST',
       headers: {
