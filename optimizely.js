@@ -665,6 +665,12 @@
     try {
       var debounceId = null;
       var observer = new MutationObserver(function () {
+        if (hasAnswersInDataLayer()) {
+          observer.disconnect();
+          window.__solarOptlyMainPageRowObserver = null;
+          log('Main page row observer stopped (answers present)');
+          return;
+        }
         if (debounceId) window.clearTimeout(debounceId);
         debounceId = window.setTimeout(function () {
           debounceId = null;
