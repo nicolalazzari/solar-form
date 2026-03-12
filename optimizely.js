@@ -171,7 +171,7 @@
     var appointmentLog = window.__solarOptlyAppointmentLog || [];
     if (appointmentLog.length > 0) {
       var logItems = appointmentLog.map(function (entry, idx) {
-        var statusColors = { progressing: '#f1c40f', successful: '#27ae60', failed: '#c0392b' };
+        var statusColors = { progressing: '#f1c40f', successful: '#27ae60', failed: '#c0392b', GET: '#4dabf7' };
         var resultColors = { ok: '#27ae60', error: '#c0392b', pending: '#888' };
         var statusColor = statusColors[entry.status] || '#888';
         var resultColor = resultColors[entry.result] || '#888';
@@ -574,10 +574,56 @@
         entry.response = data;
         log('postAppointmentUpdate ok', data);
       });
+      if (status === 'successful') {
+        getAppointmentStatus();
+      }
     }).catch(function (err) {
       entry.result = 'error';
       entry.error = String(err);
       log('postAppointmentUpdate error', err);
+    });
+  }
+
+  function getAppointmentStatus() {
+    var submissionId = getSubmissionId();
+    if (!submissionId) return;
+
+    var url = CONFIG.appointmentsApiUrl + '/' + encodeURIComponent(submissionId);
+    var entry = {
+      ts: new Date().toISOString(),
+      status: 'GET',
+      step: 'final_check',
+      submissionId: submissionId,
+      result: 'pending',
+      requestBody: { method: 'GET', url: url },
+    };
+    window.__solarOptlyAppointmentLog.push(entry);
+
+    log('getAppointmentStatus', url);
+
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'x-api-key': CONFIG.appointmentsApiKey,
+      },
+    }).then(function (res) {
+      entry.httpStatus = res.status;
+      if (!res.ok) {
+        entry.result = 'error';
+        entry.error = 'HTTP ' + res.status;
+        log('getAppointmentStatus failed', entry.error);
+        return;
+      }
+      return res.json().then(function (data) {
+        entry.result = 'ok';
+        entry.response = data;
+        window.__solarOptlyAppointmentFinal = data;
+        log('getAppointmentStatus ok', data);
+      });
+    }).catch(function (err) {
+      entry.result = 'error';
+      entry.error = String(err);
+      log('getAppointmentStatus error', err);
     });
   }
 
