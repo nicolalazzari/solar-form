@@ -82,6 +82,7 @@
 
   function ensureDebugPopup() {
     if (!CONFIG.debug) return null;
+    if (!document.body) return null;
     var id = 'solar-optly-debug-panel';
     var el = document.getElementById(id);
     if (el) return el;
