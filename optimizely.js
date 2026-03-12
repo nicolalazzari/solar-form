@@ -572,29 +572,35 @@
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
 
-    // Determine restore height: prefer latest Chameleon resizeWidget value, then pre-overlay snapshot
+    // When the solar form is injected, attachIframeHeightSync manages the
+    // iframe height — don't interfere by removing or overwriting it.
+    if (window.__solarOptlyIframeInjected) {
+      heightLog('hideFullPageSubmitOverlay', { skippedHeightRestore: true, reason: 'solar form manages own height' });
+      window.__solarOptlyPreOverlayHeight = 0;
+      return;
+    }
+
+    // Chameleon TYP: restore to the height Chameleon expects
     var restoreHeight = window.__solarOptlyChameleonHeight || window.__solarOptlyPreOverlayHeight || 0;
     window.__solarOptlyPreOverlayHeight = 0;
 
     var iframes = document.querySelectorAll('iframe[id^="' + CONFIG.iframeIdPrefix + '"]');
     for (var i = 0; i < iframes.length; i++) {
-      if (restoreHeight > 0 && !window.__solarOptlyIframeInjected) {
-        // Chameleon TYP: restore to the height Chameleon expects
+      if (restoreHeight > 0) {
         iframes[i].style.height = restoreHeight + 'px';
       } else {
-        // Solar form: let attachIframeHeightSync handle it
         iframes[i].style.removeProperty('height');
       }
       var wrapper = iframes[i].closest('.chameleon-widget-wrapper');
       if (wrapper) {
-        if (restoreHeight > 0 && !window.__solarOptlyIframeInjected) {
+        if (restoreHeight > 0) {
           wrapper.style.height = restoreHeight + 'px';
         } else {
           wrapper.style.removeProperty('height');
         }
         var card = wrapper.firstElementChild;
         if (card && card.nodeType === 1) {
-          if (restoreHeight > 0 && !window.__solarOptlyIframeInjected) {
+          if (restoreHeight > 0) {
             card.style.height = restoreHeight + 'px';
           } else {
             card.style.removeProperty('height');
@@ -602,7 +608,7 @@
         }
       }
     }
-    heightLog('hideFullPageSubmitOverlay', { restoreHeight: restoreHeight, solarFormInjected: !!window.__solarOptlyIframeInjected });
+    heightLog('hideFullPageSubmitOverlay', { restoreHeight: restoreHeight });
   }
 
   function ensureSwapOverlay(preferredIFrameId) {
