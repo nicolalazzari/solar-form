@@ -77,6 +77,47 @@
     }
   }
 
+  function hasAnswersInDataLayer() {
+    var dl = window.dataLayer;
+    if (!dl) return false;
+    if (dl.answers && typeof dl.answers === 'object') return true;
+    for (var i = 0; i < dl.length; i++) {
+      if (dl[i] && dl[i].answers && typeof dl[i].answers === 'object') return true;
+    }
+    return false;
+  }
+
+  function ensureDebugPopup() {
+    if (!CONFIG.debug) return null;
+    if (!document.body) return null;
+    var id = 'solar-optly-debug-panel';
+    var el = document.getElementById(id);
+    if (el) return el;
+
+    el = document.createElement('div');
+    el.id = id;
+    el.style.cssText =
+      'position:fixed;top:12px;right:12px;width:320px;max-height:70vh;overflow:auto;' +
+      'background:#1a1a2e;color:#eee;font:11px/1.4 monospace;padding:10px;' +
+      'border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:999999;' +
+      'border:1px solid #333;';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function updateDebugPopup() {
+    var el = ensureDebugPopup();
+    if (!el) return;
+
+    var answersRow = hasAnswersInDataLayer()
+      ? '<div style="background:#c0392b;color:#fff;padding:6px 10px;margin:-10px -10px 10px -10px;border-radius:8px 8px 0 0;font-weight:600;font-size:12px;">answers collected</div>'
+      : '';
+
+    el.innerHTML =
+      '<div style="margin-bottom:8px;font-weight:700;color:#9ecba7;">Solar Debug</div>' +
+      answersRow;
+  }
+
   function normalize(value) {
     return String(value == null ? '' : value).trim().toLowerCase();
   }
@@ -938,6 +979,15 @@
     }
 
     log('dataLayer hook attached');
+
+    if (CONFIG.debug) {
+      ensureDebugPopup();
+      updateDebugPopup();
+      if (!window.__solarOptlyDebugRefresh) {
+        window.__solarOptlyDebugRefresh = true;
+        window.setInterval(updateDebugPopup, 1000);
+      }
+    }
   }
 
   // If the script initializes on TYP after full-page reload, inject for eligible users only.
