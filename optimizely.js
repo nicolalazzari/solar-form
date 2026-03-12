@@ -577,12 +577,18 @@
         if (!payload) return;
 
         if (payload.type === 'solar-optly-loader-complete') {
+          revealIframeAfterSwap(preferredIFrameId);
+          heightLog('received loader-complete; TYP stays hidden until user decides', {
+            iframeId: activeIframe.id,
+          });
+          return;
+        }
+
+        if (payload.type === 'solar-optly-decision-made') {
           window.__solarOptlyIframeReadyForReveal = true;
           syncMainPageRowVisibility();
           revealIframeAfterSwap(preferredIFrameId);
-          heightLog('received loader-complete event; showing main rows', {
-            iframeId: activeIframe.id,
-          });
+          log('User decided:', payload.choice || '(unknown)');
           return;
         }
 
@@ -605,10 +611,6 @@
           path: payload.path,
         });
         applyIframeHeight(payload.height);
-        if (payload.path && payload.path !== '/loader') {
-          window.__solarOptlyIframeReadyForReveal = true;
-          syncMainPageRowVisibility();
-        }
         revealIframeAfterSwap(preferredIFrameId);
       });
       window.__solarOptlyHeightMessageHandlerAttached = true;

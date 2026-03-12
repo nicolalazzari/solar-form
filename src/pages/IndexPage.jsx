@@ -10,7 +10,14 @@ export default function IndexPage() {
   const { startTracking } = useInactivity();
   const [showCallbackConfirmation, setShowCallbackConfirmation] = useState(false);
 
+  const notifyDecisionMade = (choice) => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'solar-optly-decision-made', choice }, '*');
+    }
+  };
+
   const handleBookOnline = () => {
+    notifyDecisionMade('book_online');
     // Initialize session and capture data
     initializeSession();
 
@@ -54,6 +61,7 @@ export default function IndexPage() {
   };
 
   const handleNoThanks = () => {
+    notifyDecisionMade('no_thanks');
     updateBookingData({
       journeyStatus: 'callback_required',
       lastAction: 'no_thanks_clicked',
