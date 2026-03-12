@@ -506,6 +506,16 @@
     el.style.transition = 'none';
     el.style.opacity = '1';
     el.style.pointerEvents = 'auto';
+    var targetIframe = getTargetIframe(preferredIFrameId);
+    if (targetIframe) {
+      targetIframe.style.height = '378px';
+      var wrapper = targetIframe.closest('.chameleon-widget-wrapper');
+      if (wrapper) {
+        wrapper.style.height = '378px';
+        var card = wrapper.firstElementChild;
+        if (card && card.nodeType === 1) card.style.height = '378px';
+      }
+    }
   }
 
   function hideFullPageSubmitOverlay() {
@@ -513,6 +523,16 @@
     if (!overlay) return;
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
+    var iframes = document.querySelectorAll('iframe[id^="' + CONFIG.iframeIdPrefix + '"]');
+    for (var i = 0; i < iframes.length; i++) {
+      iframes[i].style.removeProperty('height');
+      var wrapper = iframes[i].closest('.chameleon-widget-wrapper');
+      if (wrapper) {
+        wrapper.style.removeProperty('height');
+        var card = wrapper.firstElementChild;
+        if (card && card.nodeType === 1) card.style.removeProperty('height');
+      }
+    }
   }
 
   function ensureSwapOverlay(preferredIFrameId) {
