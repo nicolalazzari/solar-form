@@ -948,7 +948,12 @@
           if (payload.success) {
             postAppointmentUpdate('successful', 'booking_confirmed');
           } else {
-            postAppointmentUpdate('failed', 'booking_failed');
+            var reason = payload.error || 'booking_failed';
+            var stepMap = {
+              'session_expired': 'session_expired',
+              'disqualified': 'disqualified',
+            };
+            postAppointmentUpdate('failed', stepMap[reason] || 'booking_failed');
           }
           log('Booking result from iframe', payload);
           return;
