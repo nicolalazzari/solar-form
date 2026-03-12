@@ -464,6 +464,18 @@
     return prefill.submissionId || '';
   }
 
+  function normalizePhoneE164(raw) {
+    if (!raw) return '';
+    var digits = raw.replace(/\D/g, '');
+    if (digits.length < 10) return raw;
+    if (digits.indexOf('44') === 0 && digits.length >= 12) return '+' + digits;
+    if (digits.indexOf('0') === 0 && digits.length === 11) return '+44' + digits.slice(1);
+    if (digits.length === 10 || digits.length === 11) {
+      return '+44' + (digits.indexOf('0') === 0 ? digits.slice(1) : digits);
+    }
+    return raw;
+  }
+
   function buildLeadPayload() {
     var prefill = window.__solarOptlyPrefillAnswers || {};
     return {
@@ -471,7 +483,7 @@
       last_name: prefill.last_name || '',
       postcode: prefill.primary_address_postalcode || '',
       email: prefill.email_address || '',
-      phone_number: prefill.phone_number || '',
+      phone_number: normalizePhoneE164(prefill.phone_number || ''),
       address: '',
     };
   }
