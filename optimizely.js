@@ -25,7 +25,7 @@
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
     heightDebug: false,
     getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
-    getAvailabilityApiKey: '5FVpsEtJ77rQoH3hD8jxPZSI6kIZx5WYlvvw98mRCUfvTh9yFdLXiRdFRV8cTA1O',
+    getAvailabilityApiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlanBianFqZnhtZWh5dmx3ZWlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MzMwODYsImV4cCI6MjA0ODIwOTA4Nn0.8pFmhFXMPhVPkSHnVJlWDuey0FUFa0dHHkT8yvYbNJs',
     slotCheckTimeoutMs: 5000,
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
@@ -381,7 +381,7 @@
     };
     if (controller) fetchOptions.signal = controller.signal;
     if (CONFIG.getAvailabilityApiKey) {
-      fetchOptions.headers = { 'x-api-key': CONFIG.getAvailabilityApiKey };
+      fetchOptions.headers = { 'Authorization': 'Bearer ' + CONFIG.getAvailabilityApiKey };
     }
 
     var fetchPromise = fetch(url, fetchOptions)
