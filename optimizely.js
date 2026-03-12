@@ -170,7 +170,7 @@
     var appointmentHtml = '';
     var appointmentLog = window.__solarOptlyAppointmentLog || [];
     if (appointmentLog.length > 0) {
-      var logItems = appointmentLog.map(function (entry) {
+      var logItems = appointmentLog.map(function (entry, idx) {
         var statusColors = { progressing: '#f1c40f', successful: '#27ae60', failed: '#c0392b' };
         var resultColors = { ok: '#27ae60', error: '#c0392b', pending: '#888' };
         var statusColor = statusColors[entry.status] || '#888';
@@ -178,17 +178,38 @@
         var timeStr = entry.ts ? entry.ts.split('T')[1].split('.')[0] : '';
         var resultDetail = entry.result === 'error' ? (' ' + escapeHtml(entry.error || '')) : '';
         if (entry.httpStatus) resultDetail += ' [' + entry.httpStatus + ']';
-        return '<div style="margin:2px 0;padding:3px 6px;background:#1a1a2e;border-radius:3px;font-size:9px;display:flex;align-items:center;gap:4px;">' +
+
+        var detailId = 'solar-appt-detail-' + idx;
+        var reqJson = '';
+        try { reqJson = JSON.stringify(entry.requestBody, null, 1); } catch (e) { reqJson = '(unavailable)'; }
+        var resJson = '';
+        if (entry.response) {
+          try { resJson = JSON.stringify(entry.response, null, 1); } catch (e) { resJson = '(parse error)'; }
+        } else if (entry.result === 'pending') {
+          resJson = '(pending)';
+        } else if (entry.error) {
+          resJson = entry.error;
+        }
+
+        return '<div style="margin:2px 0;background:#1a1a2e;border-radius:3px;font-size:9px;">' +
+          '<div style="padding:3px 6px;display:flex;align-items:center;gap:4px;cursor:pointer;" onclick="var d=document.getElementById(\'' + detailId + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';">' +
           '<span style="color:#666;min-width:50px;">' + escapeHtml(timeStr) + '</span>' +
           '<span style="background:' + statusColor + ';color:#000;padding:1px 5px;border-radius:3px;font-weight:700;font-size:8px;text-transform:uppercase;">' + escapeHtml(entry.status) + '</span>' +
           '<span style="color:#aaa;">' + escapeHtml(entry.step) + '</span>' +
           '<span style="color:' + resultColor + ';margin-left:auto;font-size:8px;">' + escapeHtml(entry.result) + resultDetail + '</span>' +
-          '</div>';
+          '<span style="color:#666;font-size:8px;">&#9660;</span>' +
+          '</div>' +
+          '<div id="' + detailId + '" style="display:none;padding:4px 6px;border-top:1px solid #333;">' +
+          '<div style="color:#9ecba7;font-size:8px;font-weight:600;margin-bottom:2px;">Request:</div>' +
+          '<pre style="margin:0;color:#ccc;font-size:8px;white-space:pre-wrap;word-break:break-all;max-height:120px;overflow:auto;">' + escapeHtml(reqJson) + '</pre>' +
+          '<div style="color:#9ecba7;font-size:8px;font-weight:600;margin:4px 0 2px;">Response:</div>' +
+          '<pre style="margin:0;color:#ccc;font-size:8px;white-space:pre-wrap;word-break:break-all;max-height:120px;overflow:auto;">' + escapeHtml(resJson) + '</pre>' +
+          '</div></div>';
       }).join('');
       appointmentHtml =
         '<div style="margin:8px 0;padding:8px;background:#2d2d44;border-radius:6px;">' +
-        '<div style="font-weight:600;font-size:11px;margin-bottom:4px;">Appointment API</div>' +
-        '<div style="max-height:150px;overflow:auto;">' + logItems + '</div>' +
+        '<div style="font-weight:600;font-size:11px;margin-bottom:4px;">Appointment API (' + appointmentLog.length + ')</div>' +
+        '<div style="max-height:250px;overflow:auto;">' + logItems + '</div>' +
         '</div>';
     }
 
@@ -200,8 +221,23 @@
       (answersHtml ? '<div style="margin-top:8px;max-height:200px;overflow:auto;">' + answersHtml + '</div>' : '');
 
     if (newContent === __debugPopupLastContent) return;
+    // Preserve expanded appointment detail panels across re-renders
+    var expandedPanels = {};
+    var detailEls = el.querySelectorAll('[id^="solar-appt-detail-"]');
+    for (var d = 0; d < detailEls.length; d++) {
+      if (detailEls[d].style.display !== 'none') {
+        expandedPanels[detailEls[d].id] = true;
+      }
+    }
     __debugPopupLastContent = newContent;
     el.innerHTML = newContent;
+    // Restore expanded state
+    for (var panelId in expandedPanels) {
+      if (Object.prototype.hasOwnProperty.call(expandedPanels, panelId)) {
+        var panel = document.getElementById(panelId);
+        if (panel) panel.style.display = 'block';
+      }
+    }
   }
 
   function normalize(value) {
@@ -512,6 +548,7 @@
       step: step,
       submissionId: submissionId,
       result: 'pending',
+      requestBody: body,
     };
     window.__solarOptlyAppointmentLog.push(entry);
 
