@@ -140,9 +140,35 @@
       }).join('');
     }
 
+    var slotHtml = '';
+    var slotResult = window.__solarOptlySlotCheckResult;
+    if (slotResult) {
+      var slotColor = slotResult.hasSlots ? '#27ae60' : '#c0392b';
+      var slotLabel = slotResult.hasSlots ? 'YES' : 'NO';
+      var slotDetail = '';
+      if (slotResult.error) {
+        slotDetail = slotResult.error;
+      } else {
+        slotDetail = slotResult.totalSlots + ' slots across ' + slotResult.days + ' days';
+      }
+      slotHtml =
+        '<div style="margin:8px 0;padding:8px;background:#2d2d44;border-radius:6px;">' +
+        '<div style="font-weight:600;font-size:11px;margin-bottom:4px;">Slot Check</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<span style="background:' + slotColor + ';color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;font-size:11px;">' + slotLabel + '</span>' +
+        '<span style="font-size:10px;color:#aaa;">' + escapeHtml(slotDetail) + '</span>' +
+        '</div></div>';
+    } else if (window.__solarOptlySlotCheckInFlight) {
+      slotHtml =
+        '<div style="margin:8px 0;padding:8px;background:#2d2d44;border-radius:6px;">' +
+        '<div style="font-weight:600;font-size:11px;">Slot Check</div>' +
+        '<div style="font-size:10px;color:#f1c40f;margin-top:4px;">checking...</div></div>';
+    }
+
     var newContent =
       '<div style="margin-bottom:8px;font-weight:700;color:#9ecba7;">Solar Debug</div>' +
       answersRow +
+      slotHtml +
       (answersHtml ? '<div style="margin-top:8px;max-height:200px;overflow:auto;">' + answersHtml + '</div>' : '');
 
     if (newContent === __debugPopupLastContent) return;
@@ -345,6 +371,7 @@
       timeoutId = window.setTimeout(function () {
         if (controller) controller.abort();
         log('Slot check timeout');
+        window.__solarOptlySlotCheckResult = { hasSlots: false, error: 'Timeout (' + timeoutMs + 'ms)' };
         resolve(false);
       }, timeoutMs);
     });
@@ -359,19 +386,35 @@
 
     var fetchPromise = fetch(url, fetchOptions)
       .then(function (res) {
-        if (!res.ok) return { slots: [] };
+        if (!res.ok) {
+          window.__solarOptlySlotCheckResult = { status: res.status, hasSlots: false, error: 'HTTP ' + res.status };
+          return { slots: [] };
+        }
         return res.json();
       })
       .then(function (data) {
-        // get-availability returns { availability: [{ date, slots: ["10:00", ...] }] }
         var availability = data.availability || [];
-        if (Array.isArray(data.slots)) return data.slots.length > 0;
-        return availability.some(function (day) {
-          return (day.slots || []).length > 0;
-        });
+        var hasSlots;
+        if (Array.isArray(data.slots)) {
+          hasSlots = data.slots.length > 0;
+        } else {
+          hasSlots = availability.some(function (day) {
+            return (day.slots || []).length > 0;
+          });
+        }
+        var totalSlots = 0;
+        availability.forEach(function (day) { totalSlots += (day.slots || []).length; });
+        window.__solarOptlySlotCheckResult = {
+          hasSlots: hasSlots,
+          days: availability.length,
+          totalSlots: totalSlots,
+          raw: data,
+        };
+        return hasSlots;
       })
       .catch(function (err) {
         log('Slot check failed', err);
+        window.__solarOptlySlotCheckResult = { hasSlots: false, error: String(err) };
         return false;
       })
       .finally(function () {
