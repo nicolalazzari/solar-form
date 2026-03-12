@@ -77,8 +77,15 @@
     }
   }
 
-  var __debugEventLog = [];
-  var __debugEventLogMax = 20;
+  function hasAnswersInDataLayer() {
+    var dl = window.dataLayer;
+    if (!dl) return false;
+    if (dl.answers && typeof dl.answers === 'object') return true;
+    for (var i = 0; i < dl.length; i++) {
+      if (dl[i] && dl[i].answers && typeof dl[i].answers === 'object') return true;
+    }
+    return false;
+  }
 
   function ensureDebugPopup() {
     if (!CONFIG.debug) return null;
@@ -102,53 +109,13 @@
     var el = ensureDebugPopup();
     if (!el) return;
 
-    var dl = window.dataLayer || [];
-    var dlStr = JSON.stringify(dl, null, 2);
-    if (dlStr.length > 1200) dlStr = dlStr.slice(0, 1200) + '\n... (truncated)';
-
-    var eventsHtml = __debugEventLog
-      .slice(-__debugEventLogMax)
-      .reverse()
-      .map(function (e) {
-        var name = (e.event || e.type || '(no event)');
-        var ts = e.ts ? new Date(e.ts).toLocaleTimeString() : '';
-        return '<div style="margin:4px 0;padding:4px;background:#2d2d44;border-radius:4px;font-size:10px;">' +
-          '<strong>' + escapeHtml(String(name)) + '</strong>' +
-          (ts ? ' <span style="color:#888">' + escapeHtml(ts) + '</span>' : '') +
-          '</div>';
-      })
-      .join('');
-
-    function escapeHtml(s) {
-      var d = document.createElement('div');
-      d.textContent = s;
-      return d.innerHTML;
-    }
+    var answersRow = hasAnswersInDataLayer()
+      ? '<div style="background:#c0392b;color:#fff;padding:6px 10px;margin:-10px -10px 10px -10px;border-radius:8px 8px 0 0;font-weight:600;font-size:12px;">answers collected</div>'
+      : '';
 
     el.innerHTML =
       '<div style="margin-bottom:8px;font-weight:700;color:#9ecba7;">Solar Debug</div>' +
-      '<div style="margin-bottom:6px;font-size:10px;color:#888;">dataLayer (' + dl.length + ' items)</div>' +
-      '<pre style="margin:0 0 10px;padding:6px;background:#0d0d14;border-radius:4px;font-size:10px;overflow:auto;max-height:180px;">' +
-      escapeHtml(dlStr) +
-      '</pre>' +
-      '<div style="margin-bottom:6px;font-size:10px;color:#888;">Recent events</div>' +
-      '<div style="max-height:140px;overflow:auto;">' +
-      (eventsHtml || '<div style="color:#666;font-size:10px;">No events yet</div>') +
-      '</div>';
-  }
-
-  function logDebugEvent(eventObj) {
-    if (!CONFIG.debug || !eventObj) return;
-    __debugEventLog.push({
-      event: eventObj.event,
-      type: eventObj.event,
-      ts: now(),
-      raw: eventObj,
-    });
-    if (__debugEventLog.length > __debugEventLogMax * 2) {
-      __debugEventLog = __debugEventLog.slice(-__debugEventLogMax);
-    }
-    updateDebugPopup();
+      answersRow;
   }
 
   function normalize(value) {
@@ -855,7 +822,6 @@
   function processDataLayerEvent(eventObj) {
     if (!eventObj || typeof eventObj !== 'object') return;
     log('dataLayer event seen', eventObj.event || '(no event name)', eventObj);
-    logDebugEvent(eventObj);
 
     if (eventObj.event === 'pageChanged') {
       var question = normalize(eventObj.currentQuestion || '');
