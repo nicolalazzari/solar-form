@@ -25,7 +25,7 @@
     hiddenMainPageRowIndexes: [0, 2], // Hide/show only 1st and 3rd matches
     heightDebug: false,
     getAvailabilityApiUrl: 'https://sejpbjqjfxmehyvlweil.supabase.co/functions/v1',
-    getAvailabilityApiKey: '', // x-api-key for get-availability; set via __solarOptlyConfig
+    getAvailabilityApiKey: '5FVpsEtJ77rQoH3hD8jxPZSI6kIZx5WYlvvw98mRCUfvTh9yFdLXiRdFRV8cTA1O',
     slotCheckTimeoutMs: 5000,
     requiredAnswers: {
       // Accept multiple variants because Chameleon configs can emit either label text
