@@ -105,6 +105,7 @@ export default function EligibilityQuestionsPage() {
       currentPage: '/slot-selection',
       lastAction: 'eligibility_passed',
       lastActionPage: '/eligibility-questions',
+      journeyStatus: 'eligibility_passed',
     });
 
     navigate({ pathname: '/slot-selection', search: location.search });

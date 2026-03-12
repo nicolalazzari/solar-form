@@ -176,6 +176,7 @@ export default function SlotSelectionPage() {
       currentPage: '/confirmation',
       lastAction: 'slot_confirmed',
       lastActionPage: '/slot-selection',
+      journeyStatus: 'slot_confirmed',
     });
 
     navigate({ pathname: '/confirmation', search: location.search });

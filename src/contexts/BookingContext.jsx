@@ -131,6 +131,7 @@ export function BookingProvider({ children }) {
       ...prev,
       sessionId: uuidv4(),
       journeyStartTime: new Date().toISOString(),
+      journeyStatus: 'started',
     }));
   }, []);
 
