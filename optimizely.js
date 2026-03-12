@@ -78,13 +78,17 @@
   }
 
   function hasAnswersInDataLayer() {
+    return !!getAnswersFromDataLayer();
+  }
+
+  function getAnswersFromDataLayer() {
     var dl = window.dataLayer;
-    if (!dl) return false;
-    if (dl.answers && typeof dl.answers === 'object') return true;
-    for (var i = 0; i < dl.length; i++) {
-      if (dl[i] && dl[i].answers && typeof dl[i].answers === 'object') return true;
+    if (!dl) return null;
+    if (dl.answers && typeof dl.answers === 'object') return dl.answers;
+    for (var i = dl.length - 1; i >= 0; i--) {
+      if (dl[i] && dl[i].answers && typeof dl[i].answers === 'object') return dl[i].answers;
     }
-    return false;
+    return null;
   }
 
   function ensureDebugPopup() {
@@ -105,17 +109,39 @@
     return el;
   }
 
+  function escapeHtml(s) {
+    if (s == null) return '';
+    var d = document.createElement('div');
+    d.textContent = String(s);
+    return d.innerHTML;
+  }
+
   function updateDebugPopup() {
     var el = ensureDebugPopup();
     if (!el) return;
 
-    var answersRow = hasAnswersInDataLayer()
+    var answers = getAnswersFromDataLayer();
+    var answersRow = answers
       ? '<div style="background:#c0392b;color:#fff;padding:6px 10px;margin:-10px -10px 10px -10px;border-radius:8px 8px 0 0;font-weight:600;font-size:12px;">answers collected</div>'
       : '';
 
+    var answersHtml = '';
+    if (answers) {
+      var keys = Object.keys(answers);
+      answersHtml = keys.map(function (k) {
+        var v = answers[k];
+        var valStr = v === null || v === undefined ? '' : String(v);
+        if (valStr.length > 40) valStr = valStr.slice(0, 37) + '...';
+        return '<div style="margin:4px 0;padding:4px;background:#2d2d44;border-radius:4px;font-size:10px;">' +
+          '<span style="color:#9ecba7">' + escapeHtml(k) + '</span>: ' + escapeHtml(valStr) +
+          '</div>';
+      }).join('');
+    }
+
     el.innerHTML =
       '<div style="margin-bottom:8px;font-weight:700;color:#9ecba7;">Solar Debug</div>' +
-      answersRow;
+      answersRow +
+      (answersHtml ? '<div style="margin-top:8px;max-height:200px;overflow:auto;">' + answersHtml + '</div>' : '');
   }
 
   function normalize(value) {
