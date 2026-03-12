@@ -5,7 +5,7 @@ import { config, isDebugMode } from '../config/env';
 const InactivityContext = createContext(null);
 
 const INACTIVITY_TIMEOUT = 30000; // 30 seconds
-const COUNTDOWN_SECONDS = 60; // 60-second countdown
+const COUNTDOWN_SECONDS = 30; // 30-second countdown
 
 export function InactivityProvider({ children }) {
   const { bookingData, setJourneyStatus, updateBookingData } = useBooking();
