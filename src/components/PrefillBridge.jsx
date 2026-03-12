@@ -27,9 +27,11 @@ export function PrefillBridge() {
 
       appliedRef.current = true;
 
+      const titleCase = (s) => s ? s.replace(/\b\w/g, c => c.toUpperCase()) : '';
+
       const userData = {
-        firstName: answers.first_name || '',
-        lastName: answers.last_name || '',
+        firstName: titleCase(answers.first_name || ''),
+        lastName: titleCase(answers.last_name || ''),
         postcode: answers.primary_address_postalcode || '',
         phoneNumber: answers.phone_number || '',
         emailAddress: answers.email_address || '',

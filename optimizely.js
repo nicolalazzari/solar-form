@@ -1286,12 +1286,14 @@
       window.__solarOptlyPrefillPostcode = postcode;
       log('Captured postcode prefill from answers', postcode);
     }
-    if (firstName) {
-      window.__solarOptlyPrefillFirstName = firstName;
-      log('Captured first_name prefill from answers', firstName);
-    }
     window.__solarOptlyPrefillAnswers = buildPrefillAnswers(answers, eventObj);
     log('Stored prefill answers for postMessage', window.__solarOptlyPrefillAnswers);
+    // Use the split first name (not the raw full name) for the URL param
+    var splitFirstName = window.__solarOptlyPrefillAnswers.first_name || firstName || '';
+    if (splitFirstName) {
+      window.__solarOptlyPrefillFirstName = splitFirstName;
+      log('Captured first_name prefill from answers', splitFirstName);
+    }
     window.__solarOptlyQualified = true;
     window.__solarOptlyIframeReadyForReveal = false;
     persistEligibilityMarker();

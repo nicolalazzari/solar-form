@@ -80,7 +80,7 @@ function QueryPrefillBridge() {
 
     const rawFirstName = params.get('prefill_first_name');
     if (rawFirstName) {
-      const firstName = rawFirstName.trim();
+      const firstName = rawFirstName.trim().replace(/\b\w/g, c => c.toUpperCase());
       if (firstName && bookingData.firstName !== firstName) {
         updates.firstName = firstName;
       }
