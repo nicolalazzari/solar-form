@@ -466,13 +466,13 @@
     if (!targetIframe) return null;
 
     var wrapper = targetIframe.closest('.chameleon-widget-wrapper');
-    if (!wrapper) return null;
+    var parent = wrapper ? (wrapper.parentElement || wrapper) : targetIframe.parentElement;
+    if (!parent) return null;
 
-    var parent = wrapper.parentElement || wrapper;
     var overlay = parent.querySelector('[data-solar-optly-submit-overlay="1"]');
     if (overlay) return overlay;
 
-    if (parent.style.position === '') {
+    if (!parent.style.position || parent.style.position === 'static') {
       parent.style.position = 'relative';
     }
 
@@ -484,7 +484,7 @@
       'opacity:0;pointer-events:none;transition:none;';
     var spinner = document.createElement('div');
     spinner.style.cssText =
-      'width:40px;height:40px;border:4px solid rgba(237,237,237,1);' +
+      'width:48px;height:48px;border:5px solid #DAE7E6;' +
       'border-top-color:#03624C;border-radius:50%;animation:solar-optly-spin 0.8s linear infinite;';
     overlay.appendChild(spinner);
 
@@ -513,7 +513,6 @@
     if (!overlay) return;
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
-    hideFullPageOverlay();
   }
 
   function ensureSwapOverlay(preferredIFrameId) {
@@ -997,7 +996,6 @@
       window.__solarOptlySubmitStageArmed = question === 'phone number';
       if (question === 'phone number' && eventObj.iFrameId) {
         ensureSubmitOverlay(eventObj.iFrameId);
-        ensureFullPageOverlay();
       }
     }
 
@@ -1124,7 +1122,6 @@
   function showSubmitOverlays(iFrameId, source) {
     console.log('[Solar Submit Flow] OVERLAY TRIGGERED (' + source + ')', new Date().toISOString());
     hideIframeDuringSwap(iFrameId);
-    showFullPageOverlay();
     showFullPageSubmitOverlay(iFrameId);
     showSwapOverlay(iFrameId);
   }
