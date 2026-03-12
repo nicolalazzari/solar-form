@@ -956,9 +956,37 @@
     lockIframeToApp(preferredIFrameId);
   }
 
+  var __submitFlowEventIndex = 0;
+
   function processDataLayerEvent(eventObj) {
     if (!eventObj || typeof eventObj !== 'object') return;
-    log('dataLayer event seen', eventObj.event || '(no event name)', eventObj);
+
+    var eventName = eventObj.event || '(no event name)';
+    var isSubmitFlow = [
+      'pageChanged',
+      'thankYouPageRequested',
+      'formSubmit',
+      'resultsPageURL',
+      'webform_submission_completed',
+      'thankYouPageReached',
+    ].indexOf(eventName) !== -1;
+
+    if (isSubmitFlow) {
+      __submitFlowEventIndex += 1;
+      console.log(
+        '[Solar Submit Flow #' + __submitFlowEventIndex + ']',
+        eventName,
+        new Date().toISOString(),
+        {
+          currentQuestion: eventObj.currentQuestion,
+          iFrameId: eventObj.iFrameId,
+          submissionId: eventObj.submissionId,
+          armed: window.__solarOptlySubmitStageArmed,
+        }
+      );
+    }
+
+    log('dataLayer event seen', eventName, eventObj);
 
     if (eventObj.event === 'thankYouPageReached' || eventObj.event === 'webform_submission_completed') {
       syncMainPageRowVisibility();
@@ -977,11 +1005,7 @@
       (eventObj.event === 'thankYouPageRequested' || eventObj.event === 'formSubmit') &&
       window.__solarOptlySubmitStageArmed
     ) {
-      console.log('[Solar Optimizely] Form submitted', {
-        event: eventObj.event,
-        iFrameId: eventObj.iFrameId,
-        submissionId: eventObj.submissionId,
-      });
+      console.log('[Solar Submit Flow] OVERLAY TRIGGERED', eventObj.event, new Date().toISOString());
       hideIframeDuringSwap(eventObj.iFrameId);
       showFullPageOverlay();
       showFullPageSubmitOverlay(eventObj.iFrameId);
