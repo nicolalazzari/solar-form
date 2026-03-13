@@ -1680,8 +1680,6 @@
     watchMainPageRowVisibility();
     log('On TYP but no fresh eligibility marker; keeping original TYP');
   } else {
-    window.__solarOptlyIframeReadyForReveal = true;
-    syncMainPageRowVisibility();
     watchMainPageRowVisibility();
   }
 
