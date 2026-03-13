@@ -110,6 +110,7 @@ export default function RoofSegmentMap({
                 <InfoWindow
                   position={{ lat: mc.latitude, lng: mc.longitude }}
                   onCloseClick={() => setActiveSegment(null)}
+                  pixelOffset={[0, -20]}
                 >
                   <div className={styles.infoWindow}>
                     <div className={styles.infoHeader}>
