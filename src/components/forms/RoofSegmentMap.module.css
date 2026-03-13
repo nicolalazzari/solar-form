@@ -124,6 +124,10 @@
   height: 24px !important;
 }
 
+:global(.gm-style-iw-chr button span) {
+  margin: 0 !important;
+}
+
 .infoWindow {
   font-family: 'Be Vietnam Pro', sans-serif;
   min-width: 180px;
