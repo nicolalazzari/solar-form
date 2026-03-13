@@ -134,7 +134,6 @@ export default function RoofSegmentMap({
                     lat: markerCenter.latitude,
                     lng: markerCenter.longitude,
                   }}
-                  onClick={(e) => handleMarkerClick(index, e)}
                 >
                   <div
                     className={`${styles.segmentMarker} ${isSelected ? styles.selected : ''}`}
