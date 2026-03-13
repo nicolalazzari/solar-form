@@ -141,6 +141,10 @@ export default function RoofSegmentMap({
                     style={{
                       backgroundColor: bgColor,
                     }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMarkerClick(index, { domEvent: e });
+                    }}
                     onMouseEnter={(e) => handleMarkerHover(index, { domEvent: e })}
                     onMouseLeave={handleMarkerLeave}
                   >
