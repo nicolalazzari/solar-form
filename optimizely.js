@@ -10,20 +10,6 @@
   if (window.__solarOptlyThankYouScriptLoaded) return;
   window.__solarOptlyThankYouScriptLoaded = true;
 
-  // Inject CSS immediately to hide target rows before the rest of the script parses,
-  // preventing a flash of content. The rows are shown again by setMainPageRowVisibility()
-  // once the user makes a decision or when the solar form isn't needed.
-  (function () {
-    if (document.getElementById('solar-optly-early-hide')) return;
-    var style = document.createElement('style');
-    style.id = 'solar-optly-early-hide';
-    style.textContent =
-      'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center:nth-of-type(1),' +
-      'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center:nth-of-type(3)' +
-      '{display:none!important}';
-    (document.head || document.documentElement).appendChild(style);
-  })();
-
   var CONFIG = {
     appUrl:
       'https://solar-form-optly-def.vercel.app/loader',
@@ -1104,12 +1090,6 @@
   }
 
   function setMainPageRowVisibility(shouldShow) {
-    // Remove the early-hide CSS when showing rows, so it doesn't override inline styles
-    if (shouldShow) {
-      var earlyHide = document.getElementById('solar-optly-early-hide');
-      if (earlyHide) earlyHide.remove();
-    }
-
     var nodes = document.querySelectorAll(CONFIG.hiddenMainPageRowSelector);
     if (!nodes || nodes.length === 0) {
       log('No target row found to toggle visibility');
@@ -1249,7 +1229,7 @@
     targetIframe.src = nextSrc;
     targetIframe.setAttribute('data-solar-optly', 'mounted');
     window.__solarOptlyIframeInjected = true;
-    window.__solarOptlyIframeReadyForReveal = false;
+    window.__solarOptlyIframeReadyForReveal = true;
 
     if (!targetIframe.__solarOptlyRevealOnAppLoadAttached) {
       targetIframe.addEventListener('load', function () {
@@ -1343,7 +1323,7 @@
       log('Captured first_name prefill from answers', splitFirstName);
     }
     window.__solarOptlyQualified = true;
-    window.__solarOptlyIframeReadyForReveal = false;
+    window.__solarOptlyIframeReadyForReveal = true;
     persistEligibilityMarker();
     log('Eligibility matched via', context);
     var preferredIFrameId = (eventObj && eventObj.iFrameId) || null;
@@ -1671,7 +1651,7 @@
       log('Loaded prefill answers from marker', freshMarker.prefillAnswers);
     }
     window.__solarOptlyQualified = true;
-    window.__solarOptlyIframeReadyForReveal = false;
+    window.__solarOptlyIframeReadyForReveal = true;
     hideIframeDuringSwap();
     syncMainPageRowVisibility();
     watchMainPageRowVisibility();
@@ -1679,7 +1659,7 @@
     swapIframeWhenReady();
     lockIframeToApp();
   } else if (isTypUrl()) {
-    window.__solarOptlyIframeReadyForReveal = false;
+    window.__solarOptlyIframeReadyForReveal = true;
     syncMainPageRowVisibility();
     watchMainPageRowVisibility();
     log('On TYP but no fresh eligibility marker; keeping original TYP');
