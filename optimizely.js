@@ -10,6 +10,17 @@
   if (window.__solarOptlyThankYouScriptLoaded) return;
   window.__solarOptlyThankYouScriptLoaded = true;
 
+  (function () {
+    if (document.getElementById('solar-optly-early-hide')) return;
+    var s = document.createElement('style');
+    s.id = 'solar-optly-early-hide';
+    s.textContent =
+      'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center:nth-of-type(1),' +
+      'div.vc_row.wpb_row.vc_row-fluid.background-position-center-center:nth-of-type(3)' +
+      '{display:none!important}';
+    (document.head || document.documentElement).appendChild(s);
+  })();
+
   var CONFIG = {
     appUrl:
       'https://solar-form-optly-def.vercel.app/loader',
@@ -1090,6 +1101,11 @@
   }
 
   function setMainPageRowVisibility(shouldShow) {
+    if (shouldShow) {
+      var earlyHide = document.getElementById('solar-optly-early-hide');
+      if (earlyHide) earlyHide.remove();
+    }
+
     var nodes = document.querySelectorAll(CONFIG.hiddenMainPageRowSelector);
     if (!nodes || nodes.length === 0) {
       log('No target row found to toggle visibility');
@@ -1229,7 +1245,7 @@
     targetIframe.src = nextSrc;
     targetIframe.setAttribute('data-solar-optly', 'mounted');
     window.__solarOptlyIframeInjected = true;
-    window.__solarOptlyIframeReadyForReveal = true;
+    window.__solarOptlyIframeReadyForReveal = false;
 
     if (!targetIframe.__solarOptlyRevealOnAppLoadAttached) {
       targetIframe.addEventListener('load', function () {
@@ -1664,6 +1680,7 @@
     watchMainPageRowVisibility();
     log('On TYP but no fresh eligibility marker; keeping original TYP');
   } else {
+    window.__solarOptlyIframeReadyForReveal = true;
     syncMainPageRowVisibility();
     watchMainPageRowVisibility();
   }
