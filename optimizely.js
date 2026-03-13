@@ -988,7 +988,9 @@
 
         if (payload.type === 'solar-optly-loader-complete') {
           revealIframeAfterSwap(preferredIFrameId);
-          heightLog('received loader-complete; TYP stays hidden until user decides', {
+          window.__solarOptlyIframeReadyForReveal = true;
+          syncMainPageRowVisibility();
+          heightLog('received loader-complete; showing main page rows', {
             iframeId: activeIframe.id,
           });
           return;
