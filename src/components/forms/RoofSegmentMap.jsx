@@ -1,8 +1,7 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import { useState, useCallback, useMemo } from 'react';
+import { APIProvider, Map, AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps';
 import { config } from '../../config/env';
-import { getOrientationColor } from '../../utils/orientation';
-import RoofFaceInfoOverlay from './RoofFaceInfoOverlay';
+import { getOrientationColor, getOrientationFromAzimuth, getOrientationLabel } from '../../utils/orientation';
 import styles from './RoofSegmentMap.module.css';
 
 export default function RoofSegmentMap({
@@ -12,72 +11,25 @@ export default function RoofSegmentMap({
   selectedSegments,
   onSegmentClick,
 }) {
-  const [hoveredSegment, setHoveredSegment] = useState(null);
-  const [tappedSegment, setTappedSegment] = useState(null);
-  const [tooltipPosition, setTooltipPosition] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [activeSegment, setActiveSegment] = useState(null);
 
-  // Check for mobile viewport
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Get center point for map
   const center = useMemo(() => {
     if (latitude && longitude) {
       return { lat: latitude, lng: longitude };
     }
-    // Fallback to first segment center
     if (segments?.[0]?.center) {
       return {
         lat: segments[0].center.latitude,
         lng: segments[0].center.longitude,
       };
     }
-    return { lat: 51.5074, lng: -0.1278 }; // Default to London
+    return { lat: 51.5074, lng: -0.1278 };
   }, [latitude, longitude, segments]);
 
-  const handleMarkerClick = useCallback((index, e) => {
-    // Set tooltip position for desktop hover
-    if (e?.domEvent) {
-      setTooltipPosition({
-        x: e.domEvent.clientX,
-        y: e.domEvent.clientY,
-      });
-    }
-
-    if (isMobile) {
-      setTappedSegment(index);
-    } else {
-      onSegmentClick?.(index);
-    }
-  }, [isMobile, onSegmentClick]);
-
-  const handleMarkerHover = useCallback((index, e) => {
-    if (!isMobile) {
-      setHoveredSegment(index);
-      if (e?.domEvent) {
-        setTooltipPosition({
-          x: e.domEvent.clientX,
-          y: e.domEvent.clientY,
-        });
-      }
-    }
-  }, [isMobile]);
-
-  const handleMarkerLeave = useCallback(() => {
-    if (!isMobile) {
-      setHoveredSegment(null);
-      setTooltipPosition(null);
-    }
-  }, [isMobile]);
-
-  const handleCloseBottomSheet = useCallback(() => {
-    setTappedSegment(null);
-  }, []);
+  const handleMarkerClick = useCallback((index) => {
+    onSegmentClick?.(index);
+    setActiveSegment(prev => prev === index ? null : index);
+  }, [onSegmentClick]);
 
   // Check if we have a valid API key
   const hasApiKey = config.googleMapsApiKey && config.googleMapsApiKey !== 'your_google_maps_api_key_here';
@@ -112,7 +64,6 @@ export default function RoofSegmentMap({
             gestureHandling="cooperative"
             mapId="roof-segment-map"
           >
-            {/* Numbered markers for each segment */}
             {segments?.map((segment, index) => {
               const markerCenter = segment.center || (segment.boundingBox && {
                 latitude: (segment.boundingBox.sw.latitude + segment.boundingBox.ne.latitude) / 2,
@@ -123,60 +74,79 @@ export default function RoofSegmentMap({
 
               const colors = getOrientationColor(segment.azimuth);
               const isSelected = selectedSegments?.includes(index);
-
-              // Use same orientation color - selected is less transparent (badgeSolid)
               const bgColor = isSelected ? colors.badgeSolid : colors.badge;
+              const pos = { lat: markerCenter.latitude, lng: markerCenter.longitude };
 
               return (
-                <AdvancedMarker
-                  key={`marker-${index}`}
-                  position={{
-                    lat: markerCenter.latitude,
-                    lng: markerCenter.longitude,
-                  }}
-                >
+                <AdvancedMarker key={`marker-${index}`} position={pos}>
                   <div
                     className={`${styles.segmentMarker} ${isSelected ? styles.selected : ''}`}
-                    style={{
-                      backgroundColor: bgColor,
-                    }}
+                    style={{ backgroundColor: bgColor }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleMarkerClick(index, { domEvent: e });
+                      handleMarkerClick(index);
                     }}
-                    onMouseEnter={(e) => handleMarkerHover(index, { domEvent: e })}
-                    onMouseLeave={handleMarkerLeave}
                   >
                     {index + 1}
                   </div>
                 </AdvancedMarker>
               );
             })}
+
+            {activeSegment !== null && segments?.[activeSegment] && (() => {
+              const seg = segments[activeSegment];
+              const mc = seg.center || (seg.boundingBox && {
+                latitude: (seg.boundingBox.sw.latitude + seg.boundingBox.ne.latitude) / 2,
+                longitude: (seg.boundingBox.sw.longitude + seg.boundingBox.ne.longitude) / 2,
+              });
+              if (!mc) return null;
+              const isSelected = selectedSegments?.includes(activeSegment);
+              const orient = getOrientationFromAzimuth(seg.azimuth);
+              const colors = getOrientationColor(seg.azimuth);
+              const energy = seg.estimatedEnergy || 0;
+              const energyStr = energy >= 1000 ? `${(energy / 1000).toFixed(1)} MWh` : `${Math.round(energy)} kWh`;
+
+              return (
+                <InfoWindow
+                  position={{ lat: mc.latitude, lng: mc.longitude }}
+                  onCloseClick={() => setActiveSegment(null)}
+                  headerDisabled
+                >
+                  <div className={styles.infoWindow}>
+                    <div className={styles.infoHeader}>
+                      <span className={styles.infoTitle}>Segment {activeSegment + 1}</span>
+                      <span className={styles.infoBadge} style={{ backgroundColor: colors.badgeSolid }}>
+                        {getOrientationLabel(orient)}
+                      </span>
+                      <span className={`${styles.infoStatus} ${isSelected ? styles.infoSelected : styles.infoDeselected}`}>
+                        {isSelected ? '✓' : '○'}
+                      </span>
+                    </div>
+                    <div className={styles.infoGrid}>
+                      <div className={styles.infoItem}>
+                        <span className={styles.infoValue}>{seg.adjustedPanelCount ?? seg.panelCount ?? 0}</span>
+                        <span className={styles.infoLabel}>Panels</span>
+                      </div>
+                      <div className={styles.infoItem}>
+                        <span className={styles.infoValue}>{energyStr}</span>
+                        <span className={styles.infoLabel}>Energy/yr</span>
+                      </div>
+                      <div className={styles.infoItem}>
+                        <span className={styles.infoValue}>{(seg.usableArea ?? seg.area)?.toFixed(0) || 0}m²</span>
+                        <span className={styles.infoLabel}>Area</span>
+                      </div>
+                      <div className={styles.infoItem}>
+                        <span className={styles.infoValue}>{seg.pitch?.toFixed(0) || 0}°</span>
+                        <span className={styles.infoLabel}>Pitch</span>
+                      </div>
+                    </div>
+                  </div>
+                </InfoWindow>
+              );
+            })()}
           </Map>
         </APIProvider>
       </div>
-
-      {/* Desktop tooltip */}
-      {!isMobile && hoveredSegment !== null && segments?.[hoveredSegment] && (
-        <RoofFaceInfoOverlay
-          segment={segments[hoveredSegment]}
-          segmentNumber={hoveredSegment + 1}
-          position={tooltipPosition}
-          isBottomSheet={false}
-          onClose={() => setHoveredSegment(null)}
-        />
-      )}
-
-      {/* Mobile bottom sheet */}
-      {isMobile && tappedSegment !== null && segments?.[tappedSegment] && (
-        <RoofFaceInfoOverlay
-          segment={segments[tappedSegment]}
-          segmentNumber={tappedSegment + 1}
-          position={null}
-          isBottomSheet={true}
-          onClose={handleCloseBottomSheet}
-        />
-      )}
     </div>
   );
 }

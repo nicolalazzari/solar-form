@@ -113,6 +113,70 @@
   text-transform: capitalize;
 }
 
+.infoWindow {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  min-width: 180px;
+  padding: 4px 0;
+}
+
+.infoHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.infoTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+}
+
+.infoBadge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.infoStatus {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.infoSelected {
+  color: #03624C;
+}
+
+.infoDeselected {
+  color: #999;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+}
+
+.infoValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+}
+
+.infoLabel {
+  font-size: 10px;
+  color: #666;
+}
+
 .warning {
   display: flex;
   align-items: center;
