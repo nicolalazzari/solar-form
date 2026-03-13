@@ -67,28 +67,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   font-family: 'Be Vietnam Pro', sans-serif;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+  opacity: 0.5;
 }
 
 .segmentMarker:hover {
   transform: scale(1.15);
 }
 
-/* Selected state: bolder and less transparent (same orientation color) */
 .segmentMarker.selected {
+  opacity: 1;
   font-weight: 700;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(3, 98, 76, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
 }
 
 .instructions {
