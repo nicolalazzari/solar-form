@@ -48,6 +48,9 @@
       'a6c8cf0f-995a-11e7-bbea-02e4563f24a3': ['no'],
       'b9f10adf-995a-11e7-bbea-02e4563f24a3': ['no'],
     },
+    disqualifyingAnswers: {
+      '38eafe61-cde6-11ef-8147-026b0caa8275': ['apartment'],
+    },
   };
 
   // Override from window.__solarOptlyConfig (set before script loads)
@@ -358,6 +361,20 @@
           'received',
           actual
         );
+        return false;
+      }
+    }
+
+    var disqualIds = Object.keys(CONFIG.disqualifyingAnswers || {});
+    for (var j = 0; j < disqualIds.length; j += 1) {
+      var dqId = disqualIds[j];
+      var blocklist = Array.isArray(CONFIG.disqualifyingAnswers[dqId])
+        ? CONFIG.disqualifyingAnswers[dqId].map(normalize)
+        : [normalize(CONFIG.disqualifyingAnswers[dqId])];
+      var dqActual = normalize(extractAnswerValue(answers, dqId));
+      log('Evaluating disqualifier', { sugarId: dqId, blocklist: blocklist, actual: dqActual });
+      if (dqActual && blocklist.indexOf(dqActual) !== -1) {
+        log('Disqualified by', dqId, 'answer', dqActual, 'is in blocklist', blocklist.join(', '));
         return false;
       }
     }
