@@ -432,6 +432,60 @@ export default function ConfirmationPage() {
             )}
           </div>
         </div>
+
+        <div className={styles.appointmentInfo}>
+          <h2 className={styles.appointmentTitle}>What happens at your appointment?</h2>
+          <p className={styles.appointmentIntro}>
+            A Project Solar expert will visit your home at your chosen time to carry out your solar assessment. During the visit, they'll:
+          </p>
+          <div className={styles.appointmentCards}>
+            <div className={styles.appointmentCard}>
+              <div className={styles.appointmentCardIcon}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#03624C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+              </div>
+              <p className={styles.appointmentCardText}>Review your energy usage and current electricity bill</p>
+            </div>
+            <div className={styles.appointmentCard}>
+              <div className={styles.appointmentCardIcon}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#03624C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </div>
+              <p className={styles.appointmentCardText}>Check your roof and how many panels your home could support</p>
+            </div>
+            <div className={styles.appointmentCard}>
+              <div className={styles.appointmentCardIcon}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#03624C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/>
+                  <line x1="12" y1="1" x2="12" y2="3"/>
+                  <line x1="12" y1="21" x2="12" y2="23"/>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                  <line x1="1" y1="12" x2="3" y2="12"/>
+                  <line x1="21" y1="12" x2="23" y2="12"/>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              </div>
+              <p className={styles.appointmentCardText}>Show how much energy your system could generate</p>
+            </div>
+            <div className={styles.appointmentCard}>
+              <div className={styles.appointmentCardIcon}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#03624C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                </svg>
+              </div>
+              <p className={styles.appointmentCardText}>Estimate how much you could save over time</p>
+            </div>
+          </div>
+          <p className={styles.appointmentFooter}>
+            You'll have the chance to ask any questions along the way, so you can decide what's right for your home — with no pressure.
+          </p>
+        </div>
       </div>
     );
   }

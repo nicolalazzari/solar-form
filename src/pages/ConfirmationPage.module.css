@@ -281,6 +281,70 @@
   color: #024a3a;
 }
 
+.appointmentInfo {
+  margin-top: 2rem;
+  text-align: left;
+  border-top: 1px solid #DAE7E6;
+  padding-top: 1.5rem;
+}
+
+.appointmentTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 0.5rem;
+}
+
+.appointmentIntro {
+  font-size: 0.875rem;
+  color: #4F4F4F;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+}
+
+.appointmentCards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.appointmentCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  background: #DAE7E6;
+  border-radius: 12px;
+}
+
+.appointmentCardIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 10px;
+}
+
+.appointmentCardText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000;
+  margin: 0;
+  line-height: 1.5;
+  align-self: center;
+}
+
+.appointmentFooter {
+  font-size: 0.8125rem;
+  color: #4F4F4F;
+  line-height: 1.6;
+  margin: 1rem 0 0;
+  font-style: italic;
+}
+
 .emailMenu {
   position: absolute;
   bottom: calc(100% + 8px);
