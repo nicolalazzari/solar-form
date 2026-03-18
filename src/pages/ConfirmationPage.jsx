@@ -183,6 +183,7 @@ export default function ConfirmationPage() {
   };
 
   const [calMenuOpen, setCalMenuOpen] = useState(false);
+  const [emailMenuOpen, setEmailMenuOpen] = useState(false);
 
   const buildCalendarData = useCallback(() => {
     if (!bookingData.selectedSlot) return null;
@@ -355,9 +356,82 @@ export default function ConfirmationPage() {
           )}
         </div>
 
-        <p className={styles.note}>
-          A confirmation email has been sent to {bookingData.emailAddress || 'your email address'}
-        </p>
+        <div className={styles.emailNote}>
+          <p className={styles.note}>
+            A confirmation email has been sent to {bookingData.emailAddress || 'your email address'}
+          </p>
+          <div className={styles.openEmailWrapper}>
+            <button
+              type="button"
+              className={styles.openEmailLink}
+              onClick={() => setEmailMenuOpen(prev => !prev)}
+            >
+              Open email ›
+            </button>
+            {emailMenuOpen && (
+              <div className={styles.emailMenu}>
+                <div className={styles.calMenuLabel}>Select your email provider</div>
+                <a
+                  href="https://mail.google.com/mail/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.calMenuItem}
+                  onClick={() => setEmailMenuOpen(false)}
+                >
+                  <span className={styles.calMenuIcon}>
+                    <svg width="16" height="12" viewBox="0 0 24 18" fill="none">
+                      <path d="M1.636 18h4.364V8.77L0 5.727V16.09c0 1.052.862 1.909 1.636 1.909z" fill="#4285f4"/>
+                      <path d="M18 18h4.364c.792 0 1.636-.857 1.636-1.91V5.726L18 8.773z" fill="#34a853"/>
+                      <path d="M18 1.91v6.862l6-4.636V2.863c0-2.353-2.7-3.698-4.582-2.29z" fill="#fbbc04"/>
+                      <path d="M6 8.77V1.91l6 4.636 6-4.636v6.862L12 13.41z" fill="#ea4335"/>
+                      <path d="M0 2.864v2.863l6 4.636V1.909L4.582.573C2.7-.834 0 .51 0 2.864z" fill="#c5221f"/>
+                    </svg>
+                  </span>
+                  Gmail
+                </a>
+                <a
+                  href="https://outlook.live.com/mail/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.calMenuItem}
+                  onClick={() => setEmailMenuOpen(false)}
+                >
+                  <span className={styles.calMenuIcon}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M24 7.387v10.478c0 .914-.737 1.65-1.644 1.65h-8.553V6.865l.95.656 8.81-4.593c.255.32.437.735.437 1.179v3.28z" fill="#0072c6"/>
+                      <path d="M14.753 6.865L13.803 6.21V19.515h-8.16C4.737 19.515 4 18.78 4 17.865V4.387c0-.914.737-1.65 1.644-1.65h8.16v4.128z" fill="#0072c6"/>
+                      <path d="M0 3v18l13 3V0L0 3zm7.5 12.75c-2.485 0-4.5-2.462-4.5-5.5s2.015-5.5 4.5-5.5 4.5 2.462 4.5 5.5-2.015 5.5-4.5 5.5z" fill="#0072c6"/>
+                      <ellipse cx="7.5" cy="10.25" rx="2.7" ry="3.5" fill="#fff"/>
+                    </svg>
+                  </span>
+                  Outlook
+                </a>
+                <a
+                  href="https://mail.yahoo.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.calMenuItem}
+                  onClick={() => setEmailMenuOpen(false)}
+                >
+                  <span className={styles.calMenuIcon}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#6001d2">
+                      <path d="M0 5l7.2 9.6V22h3.6v-7.4L18 5h-3.6l-5.4 7.2L3.6 5H0zm18 0l3 4h3l-3-4h-3zm3 6a2 2 0 100 4 2 2 0 000-4z"/>
+                    </svg>
+                  </span>
+                  Yahoo Mail
+                </a>
+                <a
+                  href={`mailto:${bookingData.emailAddress || ''}`}
+                  className={styles.calMenuItem}
+                  onClick={() => setEmailMenuOpen(false)}
+                >
+                  <span className={styles.calMenuIcon}>✉️</span>
+                  Default mail app
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
