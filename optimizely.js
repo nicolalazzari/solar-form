@@ -51,6 +51,8 @@
     disqualifyingAnswers: {
       '38eafe61-cde6-11ef-8147-026b0caa8275': ['apartment'],
     },
+    projectSolarLogoUrl:
+      'https://images-ulpn.ecs.prd9.eu-west-1.mvfglobal.net/wp-content/uploads/2025/10/Project-Solar-long-full-colour-without-tag.svg',
   };
 
   // Override from window.__solarOptlyConfig (set before script loads)
@@ -1117,6 +1119,27 @@
     return true;
   }
 
+  function swapHeaderLogoToProjectSolar() {
+    if (window.__solarOptlyLogoSwapped) return;
+    var headerImgs = document.querySelectorAll('header img, .vc_row img[src*="eco"], img[src*="Eco-Experts"], img[src*="Brand-Logo"]');
+    var swapped = 0;
+    for (var i = 0; i < headerImgs.length; i += 1) {
+      var img = headerImgs[i];
+      if (/eco.?expert/i.test(img.src) || /Brand-Logo/i.test(img.src)) {
+        img.setAttribute('data-original-src', img.src);
+        img.src = CONFIG.projectSolarLogoUrl;
+        img.alt = 'Project Solar';
+        swapped += 1;
+      }
+    }
+    if (swapped > 0) {
+      window.__solarOptlyLogoSwapped = true;
+      log('Swapped ' + swapped + ' header logo(s) to Project Solar');
+    } else {
+      log('No Eco Experts header logo found to swap');
+    }
+  }
+
   function setMainPageRowVisibility(shouldShow) {
     if (shouldShow) {
       var earlyHide = document.getElementById('solar-optly-early-hide');
@@ -1367,6 +1390,7 @@
     window.__solarOptlyQualified = true;
     window.__solarOptlyIframeReadyForReveal = true;
     persistEligibilityMarker();
+    swapHeaderLogoToProjectSolar();
     log('Eligibility matched via', context);
     var preferredIFrameId = (eventObj && eventObj.iFrameId) || null;
     if (preferredIFrameId) {
