@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking, useInactivity } from '../contexts';
 import { config } from '../config/env';
@@ -182,39 +182,77 @@ export default function ConfirmationPage() {
     });
   };
 
-  const generateICSFile = () => {
-    if (!bookingData.selectedSlot) return;
+  const [calMenuOpen, setCalMenuOpen] = useState(false);
 
-    const startDate = new Date(bookingData.selectedSlot.startTime);
-    const endDate = new Date(bookingData.selectedSlot.endTime);
+  const buildCalendarData = useCallback(() => {
+    if (!bookingData.selectedSlot) return null;
 
-    const formatICSDate = (date) => {
-      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    };
+    const start = new Date(bookingData.selectedSlot.startTime);
+    const end = new Date(bookingData.selectedSlot.endTime);
+    const location = bookingData.fullAddress || '';
+    const title = 'Project Solar Home Appointment';
+    const description = `Solar assessment appointment with Project Solar.\nBooking Reference: ${bookingReference}`;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/London';
 
-    const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Project Solar//Booking//EN
-BEGIN:VEVENT
-UID:${bookingReference}@projectsolar.com
-DTSTAMP:${formatICSDate(new Date())}
-DTSTART:${formatICSDate(startDate)}
-DTEND:${formatICSDate(endDate)}
-SUMMARY:Solar Assessment Appointment
-DESCRIPTION:Your solar panel assessment appointment with Project Solar.\\nBooking Reference: ${bookingReference}
-LOCATION:${bookingData.fullAddress}
-END:VEVENT
-END:VCALENDAR`;
+    const pad = (v) => String(v).padStart(2, '0');
+    const fmtGoogle = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+    const fmtOutlook = (d) =>
+      `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const fmtICS = (d) =>
+      `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+    const escICS = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
 
-    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const googleUrl =
+      `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+      `&text=${encodeURIComponent(title)}` +
+      `&dates=${encodeURIComponent(fmtGoogle(start) + '/' + fmtGoogle(end))}` +
+      `&details=${encodeURIComponent(description)}` +
+      `&location=${encodeURIComponent(location)}` +
+      `&ctz=${encodeURIComponent(tz)}`;
+
+    const outlookUrl =
+      `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose` +
+      `&subject=${encodeURIComponent(title)}` +
+      `&body=${encodeURIComponent(description)}` +
+      `&location=${encodeURIComponent(location)}` +
+      `&startdt=${encodeURIComponent(fmtOutlook(start))}` +
+      `&enddt=${encodeURIComponent(fmtOutlook(end))}`;
+
+    const icsContent =
+      `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Project Solar//Booking//EN\nCALSCALE:GREGORIAN\nBEGIN:VEVENT\n` +
+      `UID:${bookingReference}@projectsolar.com\n` +
+      `DTSTAMP:${fmtGoogle(new Date())}\n` +
+      `DTSTART:${fmtICS(start)}\nDTEND:${fmtICS(end)}\n` +
+      `SUMMARY:${escICS(title)}\nDESCRIPTION:${escICS(description)}\nLOCATION:${escICS(location)}\n` +
+      `END:VEVENT\nEND:VCALENDAR`;
+
+    return { googleUrl, outlookUrl, icsContent };
+  }, [bookingData.selectedSlot, bookingData.fullAddress, bookingReference]);
+
+  const openGoogleCalendar = () => {
+    const data = buildCalendarData();
+    if (data) window.open(data.googleUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const openOutlookCalendar = () => {
+    const data = buildCalendarData();
+    if (data) window.open(data.outlookUrl, '_blank', 'noopener,noreferrer');
+    setCalMenuOpen(false);
+  };
+
+  const downloadICSFile = () => {
+    const data = buildCalendarData();
+    if (!data) return;
+    const blob = new Blob([data.icsContent], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `solar-appointment-${bookingReference}.ics`;
+    link.download = `project-solar-appointment-${bookingReference}.ics`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setCalMenuOpen(false);
   };
 
   if (loading) {
@@ -279,13 +317,46 @@ END:VCALENDAR`;
           </div>
         </div>
 
-        <button
-          type="button"
-          className={styles.calendarButton}
-          onClick={generateICSFile}
-        >
-          Add to calendar
-        </button>
+        <div className={styles.calendarWrapper}>
+          <div className={styles.calendarSplitButton}>
+            <button type="button" className={`${styles.calBtn} ${styles.calBtnMain}`} onClick={openGoogleCalendar}>
+              <span className={styles.calBtnIcon}>📅</span>
+              Add to Calendar
+            </button>
+            <button
+              type="button"
+              className={`${styles.calBtn} ${styles.calBtnToggle}`}
+              onClick={() => setCalMenuOpen(prev => !prev)}
+              aria-label="More calendar options"
+            >
+              ▾
+            </button>
+          </div>
+
+          {calMenuOpen && (
+            <div className={styles.calendarMenu}>
+              <div className={styles.calMenuLabel}>More options</div>
+              <a
+                href={buildCalendarData()?.googleUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.calMenuItem}
+                onClick={() => setCalMenuOpen(false)}
+              >
+                <span className={styles.calMenuIcon}>📅</span>
+                Google Calendar
+              </a>
+              <button type="button" className={styles.calMenuItem} onClick={openOutlookCalendar}>
+                <span className={styles.calMenuIcon}>📆</span>
+                Outlook
+              </button>
+              <button type="button" className={styles.calMenuItem} onClick={downloadICSFile}>
+                <span className={styles.calMenuIcon}>🍎</span>
+                Apple Calendar
+              </button>
+            </div>
+          )}
+        </div>
 
         <p className={styles.note}>
           A confirmation email has been sent to {bookingData.emailAddress || 'your email address'}

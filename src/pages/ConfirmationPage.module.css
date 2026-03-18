@@ -105,23 +105,122 @@
   max-width: 60%;
 }
 
-.calendarButton {
-  width: 100%;
-  padding: 1rem;
-  background-color: #03624C;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: 'Be Vietnam Pro', sans-serif;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.calendarWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
   margin-bottom: 1rem;
 }
 
-.calendarButton:hover {
+.calendarSplitButton {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(3, 98, 76, 0.2);
+}
+
+.calBtn {
+  border: 0;
+  cursor: pointer;
+  background-color: #03624C;
+  color: #ffffff;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+  transition: background-color 0.2s ease, filter 0.15s ease;
+}
+
+.calBtn:hover {
   background-color: #024a3a;
+}
+
+.calBtn:active {
+  filter: brightness(0.95);
+}
+
+.calBtnMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+}
+
+.calBtnToggle {
+  padding: 0 1rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+}
+
+.calBtnIcon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.calendarMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  padding: 8px;
+  background: #ffffff;
+  border: 1px solid #DAE7E6;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+  animation: calMenuIn 0.15s ease;
+}
+
+@keyframes calMenuIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.calMenuLabel {
+  padding: 4px 8px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #4F4F4F;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.calMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-decoration: none;
+  color: #000000;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.calMenuItem:hover {
+  background-color: #DAE7E6;
+}
+
+.calMenuIcon {
+  width: 20px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .note {
