@@ -1250,10 +1250,19 @@
     var targetIframe = getTargetIframe(preferredIFrameId);
     if (!targetIframe) return false;
 
-    // Ensure iframe has allow-same-origin so our app gets proper origin (fixes CORS null, Google Maps)
+    // Ensure iframe sandbox permits same-origin and downloads (for .ics calendar export)
     var sandbox = targetIframe.getAttribute('sandbox') || '';
-    if (sandbox && sandbox.indexOf('allow-same-origin') === -1) {
-      targetIframe.setAttribute('sandbox', sandbox + ' allow-same-origin');
+    if (sandbox) {
+      var needed = ['allow-same-origin', 'allow-downloads'];
+      var updated = sandbox;
+      for (var si = 0; si < needed.length; si += 1) {
+        if (updated.indexOf(needed[si]) === -1) {
+          updated += ' ' + needed[si];
+        }
+      }
+      if (updated !== sandbox) {
+        targetIframe.setAttribute('sandbox', updated);
+      }
     }
 
     var nextSrc = buildAppUrl();
