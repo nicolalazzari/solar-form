@@ -159,7 +159,7 @@
 
 .calendarMenu {
   position: absolute;
-  top: calc(100% + 8px);
+  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   width: 240px;
@@ -167,7 +167,7 @@
   background: #ffffff;
   border: 1px solid #DAE7E6;
   border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12), 0 -2px 8px rgba(0, 0, 0, 0.06);
   z-index: 100;
   animation: calMenuIn 0.15s ease;
 }
