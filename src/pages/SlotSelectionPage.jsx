@@ -360,13 +360,6 @@ export default function SlotSelectionPage() {
         By submitting this booking, you consent to MVF, trading as The Eco Experts, sharing your details with Project Solar to arrange and discuss your solar appointment. Project Solar may contact you by telephone (including automated calls), SMS, email, post or OTT messaging services such as WhatsApp for this purpose. You can withdraw your consent at any time.
       </p>
 
-      <p className={styles.privacyLink}>
-        Your privacy is important to us.{' '}
-        <a href="https://www2.mvfglobal.com/pp/b649e" target="_blank" rel="noopener noreferrer">
-          Privacy Policy
-        </a>
-      </p>
-
       <button
         type="button"
         className={styles.confirmButton}
@@ -375,6 +368,13 @@ export default function SlotSelectionPage() {
       >
         Confirm appointment
       </button>
+
+      <p className={styles.privacyLink}>
+        Your privacy is important to us.{' '}
+        <a href="https://www2.mvfglobal.com/pp/b649e" target="_blank" rel="noopener noreferrer">
+          Privacy Policy
+        </a>
+      </p>
     </div>
   );
 }
