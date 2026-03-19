@@ -178,10 +178,12 @@ export default function AddressPage() {
       ? (manualAddress ? `${manualAddress}, ${postcode}` : '')
       : (selectedAddress?.fullAddress || '');
 
+    const confirmedPostcode = USE_MANUAL_ENTRY ? postcode : (selectedAddress?.postcode || postcode);
     if (confirmedAddress && window.parent !== window) {
       window.parent.postMessage({
         type: 'solar-optly-address',
         address: confirmedAddress,
+        postcode: confirmedPostcode,
       }, '*');
     }
 

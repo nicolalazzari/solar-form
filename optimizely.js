@@ -546,7 +546,7 @@
     return {
       first_name: prefill.first_name || '',
       last_name: prefill.last_name || '',
-      postcode: prefill.primary_address_postalcode || '',
+      postcode: window.__solarOptlyConfirmedPostcode || prefill.primary_address_postalcode || '',
       email: prefill.email_address || '',
       phone_number: normalizePhoneE164(prefill.phone_number || ''),
       address: window.__solarOptlyConfirmedAddress || '',
@@ -1025,7 +1025,10 @@
 
         if (payload.type === 'solar-optly-address') {
           window.__solarOptlyConfirmedAddress = payload.address || '';
-          log('Received confirmed address from iframe', payload.address);
+          if (payload.postcode) {
+            window.__solarOptlyConfirmedPostcode = payload.postcode;
+          }
+          log('Received confirmed address from iframe', payload.address, payload.postcode);
           return;
         }
 
