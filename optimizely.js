@@ -1049,6 +1049,7 @@
         if (payload.type === 'solar-optly-booking-result') {
           window.__solarOptlyIframeReadyForReveal = false;
           syncMainPageRowVisibility();
+          hideWhatsNextSection(true);
           if (payload.success) {
             if (payload.bookingSlot) {
               var form = window.__solarOptlyAppointmentForm || {};
@@ -1182,6 +1183,32 @@
         affectedCount: affected,
       });
     }
+  }
+
+  function hideWhatsNextSection(shouldHide) {
+    var headings = document.querySelectorAll('h2, h3, h4, .vc_custom_heading');
+    for (var i = 0; i < headings.length; i += 1) {
+      var text = (headings[i].textContent || '').trim().toLowerCase();
+      if (text.indexOf('what happens next') !== -1) {
+        var row = headings[i].closest('.vc_row') || headings[i].parentElement;
+        while (row && row !== document.body) {
+          if (row.classList && row.classList.contains('vc_row')) break;
+          row = row.parentElement;
+        }
+        if (row && row !== document.body) {
+          if (shouldHide) {
+            row.style.setProperty('display', 'none', 'important');
+            row.setAttribute('data-solar-optly-whats-next-hidden', '1');
+          } else {
+            row.style.removeProperty('display');
+            row.removeAttribute('data-solar-optly-whats-next-hidden');
+          }
+          log('What happens next section ' + (shouldHide ? 'hidden' : 'shown'));
+          return;
+        }
+      }
+    }
+    log('What happens next section not found in DOM');
   }
 
   function syncMainPageRowVisibility() {
