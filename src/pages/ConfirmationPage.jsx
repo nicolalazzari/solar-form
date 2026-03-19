@@ -184,6 +184,21 @@ export default function ConfirmationPage() {
 
   const [calMenuOpen, setCalMenuOpen] = useState(false);
   const [emailMenuOpen, setEmailMenuOpen] = useState(false);
+  const calRef = useRef(null);
+  const emailRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (calMenuOpen && calRef.current && !calRef.current.contains(e.target)) {
+        setCalMenuOpen(false);
+      }
+      if (emailMenuOpen && emailRef.current && !emailRef.current.contains(e.target)) {
+        setEmailMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [calMenuOpen, emailMenuOpen]);
 
   const buildCalendarData = useCallback(() => {
     if (!bookingData.selectedSlot) return null;
@@ -311,7 +326,7 @@ export default function ConfirmationPage() {
           </div>
         </div>
 
-        <div className={styles.calendarWrapper}>
+        <div className={styles.calendarWrapper} ref={calRef}>
           <div className={styles.calendarSplitButton}>
             <button type="button" className={`${styles.calBtn} ${styles.calBtnMain}`} onClick={openGoogleCalendar}>
               <span className={styles.calBtnIcon}>📅</span>
@@ -360,7 +375,7 @@ export default function ConfirmationPage() {
           <p className={styles.note}>
             A confirmation email has been sent to {bookingData.emailAddress || 'your email address'}
           </p>
-          <div className={styles.openEmailWrapper}>
+          <div className={styles.openEmailWrapper} ref={emailRef}>
             <button
               type="button"
               className={styles.openEmailLink}
