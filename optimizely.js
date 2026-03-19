@@ -23,7 +23,7 @@
 
   var CONFIG = {
     appUrl:
-      'https://solar-form-optly-def.vercel.app/loader',
+      'https://solar-form-eight.vercel.app/loader',
     typPathContains: '/typ/project-solar/appointment/sp-uk/',
     debug: false,
     maxWaitMs: 30000,

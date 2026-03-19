@@ -1,0 +1,15 @@
+---
+description: After code changes, commit and push to trigger Vercel deployment
+alwaysApply: true
+---
+
+# Deploy on Code Change
+
+After making any code changes to this project:
+
+1. **Commit** the changes with a clear, descriptive message
+2. **Push** to the `mvf` remote (`git push mvf main`)
+
+This triggers automatic deployment to https://solar-form-eight.vercel.app via Vercel's Git integration (MVF Projects Pro team).
+
+Exclude untracked/draft files (e.g. `chameleon/`) unless explicitly requested.
