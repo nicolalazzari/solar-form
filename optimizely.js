@@ -1047,6 +1047,8 @@
         }
 
         if (payload.type === 'solar-optly-booking-result') {
+          window.__solarOptlyIframeReadyForReveal = false;
+          syncMainPageRowVisibility();
           if (payload.success) {
             if (payload.bookingSlot) {
               var form = window.__solarOptlyAppointmentForm || {};
