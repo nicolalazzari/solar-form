@@ -221,7 +221,7 @@ export default function SlotSelectionPage() {
       <h1 className={styles.title}>Choose your appointment</h1>
 
       <p className={styles.description}>
-        Select a convenient time for your solar assessment appointment.
+        Please choose a time when you and any other household decision-makers are available to discuss your next steps with a Project Solar expert.
       </p>
 
       <div className={styles.accordion}>
