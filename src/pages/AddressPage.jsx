@@ -15,14 +15,16 @@ export default function AddressPage() {
 
   const [postcode, setPostcode] = useState(bookingData.postcode || '');
   const [addresses, setAddresses] = useState([]);
+  const lastSyncedPrefillRef = useRef(bookingData.postcode || '');
 
-  // Sync postcode when prefill arrives (URL params or postMessage from parent)
+  // Sync postcode only when bookingData.postcode actually changes (e.g. prefill arrives)
   useEffect(() => {
     const prefilled = formatPostcode(bookingData.postcode || '');
-    if (prefilled && postcode !== prefilled) {
+    if (prefilled && prefilled !== formatPostcode(lastSyncedPrefillRef.current || '')) {
+      lastSyncedPrefillRef.current = bookingData.postcode;
       setPostcode(prefilled);
     }
-  }, [bookingData.postcode, postcode]);
+  }, [bookingData.postcode]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
