@@ -339,6 +339,23 @@
   margin: 0 0 1rem 0;
 }
 
+.privacyLink {
+  font-size: 0.75rem;
+  color: #4F4F4F;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.privacyLink a {
+  color: #03624C;
+  text-decoration: underline;
+}
+
+.privacyLink a:hover {
+  color: #024a3a;
+}
+
 .confirmButton {
   width: 100%;
   padding: 1rem;
