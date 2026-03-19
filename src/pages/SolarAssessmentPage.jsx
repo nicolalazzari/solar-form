@@ -189,6 +189,7 @@ export default function SolarAssessmentPage() {
   }, [bookingData.latitude, bookingData.longitude, routeState.latitude, routeState.longitude]);
 
   const fetchSolarAssessment = async (lat, lng) => {
+    const minDisplayTime = new Promise(resolve => setTimeout(resolve, 3000));
     try {
       setLoading(true);
       setError('');
@@ -201,7 +202,6 @@ export default function SolarAssessmentPage() {
       }
 
       if (USE_MOCK_DATA) {
-        // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1500));
 
         // Process segments with panel adjustments
@@ -305,6 +305,7 @@ export default function SolarAssessmentPage() {
         setError('Unable to assess your roof. Please try again or contact support.');
       }
     } finally {
+      await minDisplayTime;
       setLoading(false);
     }
   };
