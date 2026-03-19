@@ -3,9 +3,6 @@
 
   window.__solarOptlyChangesAppliedCount =
     (window.__solarOptlyChangesAppliedCount || 0) + 1;
-  console.log(
-    '[Solar Optimizely] changes applied #' + window.__solarOptlyChangesAppliedCount
-  );
 
   if (window.__solarOptlyThankYouScriptLoaded) return;
   window.__solarOptlyThankYouScriptLoaded = true;
@@ -1421,10 +1418,9 @@
 
     if (isSubmitFlow) {
       __submitFlowEventIndex += 1;
-      console.log(
-        '[Solar Submit Flow #' + __submitFlowEventIndex + ']',
+      log(
+        'Submit Flow #' + __submitFlowEventIndex,
         eventName,
-        new Date().toISOString(),
         {
           currentQuestion: eventObj.currentQuestion,
           iFrameId: eventObj.iFrameId,
@@ -1595,7 +1591,7 @@
   }
 
   function showSubmitOverlays(iFrameId, source) {
-    console.log('[Solar Submit Flow] OVERLAY TRIGGERED (' + source + ')', new Date().toISOString());
+    log('Submit Flow: OVERLAY TRIGGERED (' + source + ')');
     hideIframeDuringSwap(iFrameId);
     showFullPageSubmitOverlay(iFrameId);
     showSwapOverlay(iFrameId);
