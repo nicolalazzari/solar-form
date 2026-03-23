@@ -102,6 +102,9 @@ export function InactivityProvider({ children }) {
 
   const handleStayActive = useCallback(() => {
     resetInactivityTimer();
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'solar-optly-keep-alive' }, '*');
+    }
   }, [resetInactivityTimer]);
 
   // --- Activity listeners ---

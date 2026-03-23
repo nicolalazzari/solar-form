@@ -1023,6 +1023,12 @@
           return;
         }
 
+        if (payload.type === 'solar-optly-keep-alive') {
+          postAppointmentUpdate('progressing', 'keep_alive');
+          log('User clicked "I\'m still here"');
+          return;
+        }
+
         if (payload.type === 'solar-optly-address') {
           window.__solarOptlyConfirmedAddress = payload.address || '';
           if (payload.postcode) {
