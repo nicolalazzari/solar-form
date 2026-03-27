@@ -1044,6 +1044,16 @@
           return;
         }
 
+        if (payload.type === 'solar-optly-eligibility-partial') {
+          window.__solarOptlyAppointmentForm = Object.assign(
+            {},
+            window.__solarOptlyAppointmentForm || {},
+            payload.answers || {}
+          );
+          log('Received partial eligibility answers from iframe', payload.answers);
+          return;
+        }
+
         if (payload.type === 'solar-optly-eligibility') {
           window.__solarOptlyAppointmentForm = payload.answers || null;
           log('Received eligibility answers from iframe', payload.answers, 'eligible:', payload.eligible);

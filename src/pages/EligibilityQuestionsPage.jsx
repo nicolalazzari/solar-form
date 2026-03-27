@@ -47,12 +47,21 @@ export default function EligibilityQuestionsPage() {
   }, [currentQuestionIndex]);
 
   const handleAnswer = (questionId, answer) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answer,
-    }));
+    const updated = { ...answers, [questionId]: answer };
+    setAnswers(updated);
 
-    // Move to next question or check eligibility
+    if (window.parent !== window) {
+      window.parent.postMessage({
+        type: 'solar-optly-eligibility-partial',
+        answers: {
+          is_over_75: updated.isOver75 ?? null,
+          roof_works_planned: updated.roofWorksPlanned ?? null,
+          income_over_15k: updated.incomeOver15k ?? null,
+          likely_to_pass_credit_check: updated.likelyToPassCreditCheck ?? null,
+        },
+      }, '*');
+    }
+
     if (currentQuestionIndex < QUESTIONS.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
