@@ -1044,6 +1044,15 @@
           return;
         }
 
+        if (payload.type === 'solar-optly-eligibility-step') {
+          var eligStep = payload.current_step;
+          if (eligStep) {
+            postAppointmentUpdate('progressing', eligStep);
+          }
+          log('Eligibility question step', eligStep);
+          return;
+        }
+
         if (payload.type === 'solar-optly-eligibility-partial') {
           window.__solarOptlyAppointmentForm = Object.assign(
             {},

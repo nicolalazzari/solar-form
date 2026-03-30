@@ -47,9 +47,16 @@ export default function EligibilityQuestionsPage() {
     setShowQuestionTooltip(false);
   }, [currentQuestionIndex]);
 
-  // Start a fresh inactivity window each time a new question is shown (Feras alignment)
+  // Fresh inactivity window + parent API progressing step per question (Feras alignment)
   useEffect(() => {
     resetInactivityTimer();
+    if (window.parent !== window) {
+      const step = `eligibility_question_${currentQuestionIndex + 1}`;
+      window.parent.postMessage(
+        { type: 'solar-optly-eligibility-step', current_step: step },
+        '*'
+      );
+    }
   }, [currentQuestionIndex, resetInactivityTimer]);
 
   const handleAnswer = (questionId, answer) => {
