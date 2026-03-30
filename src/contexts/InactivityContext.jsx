@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useBooking } from './BookingContext';
 
 const InactivityContext = createContext(null);
@@ -7,6 +8,7 @@ const INACTIVITY_TIMEOUT = 30000; // 30 seconds
 const COUNTDOWN_SECONDS = 30; // 30-second countdown
 
 export function InactivityProvider({ children }) {
+  const { pathname } = useLocation();
   const { bookingData, setJourneyStatus } = useBooking();
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
@@ -26,10 +28,10 @@ export function InactivityProvider({ children }) {
     showModalRef.current = showWarningModal;
   }, [showWarningModal]);
 
-  // Derived state
+  // Derived state (use router for confirmation so timer is not disabled if bookingData.currentPage lags the URL)
   const currentPage = bookingData.currentPage;
   const isLandingPage = currentPage === '/';
-  const isConfirmationPage = currentPage === '/confirmation';
+  const isConfirmationPage = pathname === '/confirmation';
   const journeyComplete = ['booking_confirmed', 'callback_required', 'session_expired'].includes(
     bookingData.journeyStatus
   );

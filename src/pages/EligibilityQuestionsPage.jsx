@@ -43,6 +43,11 @@ export default function EligibilityQuestionsPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showQuestionTooltip, setShowQuestionTooltip] = useState(false);
 
+  // Keep booking currentPage aligned with this route so inactivity logic never thinks we're on /confirmation
+  useEffect(() => {
+    updateBookingData({ currentPage: '/eligibility-questions' });
+  }, [updateBookingData]);
+
   useEffect(() => {
     setShowQuestionTooltip(false);
   }, [currentQuestionIndex]);
