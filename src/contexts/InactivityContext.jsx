@@ -115,7 +115,8 @@ export function InactivityProvider({ children }) {
     // On landing page, only listen if manually tracking
     if (isLandingPage && !manualTrackingRef.current) return;
 
-    const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+    // Only reset on deliberate interaction (clicks, taps, keys) — not mousemove or scroll
+    const activityEvents = ['mousedown', 'touchstart', 'keydown', 'click'];
 
     const handleActivity = () => {
       // Don't reset while modal is showing - user must click the button
